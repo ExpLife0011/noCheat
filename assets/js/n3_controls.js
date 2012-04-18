@@ -10,11 +10,10 @@ function _n3_animLoadBars(obj) {
     if(obj != null)
         $(".-n3-loading").each(function(){
             $(this).css({backgroundPosition:"0px 0px"});
-            $(this).animate({backgroundPosition:"(-65px 0px)"}, (($(this).height() / 35) * 2000) + 600, "linear", function(){_n3_animLoadBars(this)});
+            $(this).animate({backgroundPosition:"-8000px 0px"}, (($(this).height() / 35) * 2000) + 60000, "linear", function(){_n3_animLoadBars(this)});
         });
     else
-        $(obj).css({backgroundPosition:"0px 0px"})
-        .animate({backgroundPosition:"(-65px 0px)"}, (($(obj).height() / 35) * 2000) + 600, "linear", function(){_n3_animLoadBars(obj)});
+        $(obj).animate({backgroundPosition:"-=8000px 0px"}, (($(obj).height() / 35) * 2000) + 600, "linear", function(){_n3_animLoadBars(obj)});
 }
 $(document).ready(_n3_animLoadBars);
 
