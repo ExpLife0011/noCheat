@@ -1,0 +1,34 @@
+/* 
+    Document   : n3_controls
+    Created on : Apr 18, 2012, 5:03:05 AM
+    Author     : Qix
+    Description:
+        Holds the basic control CSS for Natoga V3
+*/
+
+
+root { 
+    display: block;
+}
+
+div.-n3-loading {
+    max-height: 33px ;
+    min-height: 3px ;
+    min-width: 15px ;
+    background: url('../img/n3_loading_bar.png') repeat-x ;
+    border: 2px solid #0f3446 ;
+    color: #FFF ;               /* Incompatibility fallback */
+    color: rgba(0, 0, 0, 0) ;   /* Supports modern browsers */
+    background-position: 0px 0px ;
+    overflow: hidden ;
+}
+
+*.-n3-fadein,
+*.-n3-fadein-1,
+*.-n3-fadein-2,
+*.-n3-fadein-3,
+*.-n3-fadein-4,
+*.-n3-fadein-5
+{
+    
+}
