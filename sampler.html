@@ -4,7 +4,7 @@
         <title>Natoga V3 Control Sampler</title>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         
-         <link rel="stylesheet" href="assets/css/n3_reset.css" media="screen" />
+        <link rel="stylesheet" href="assets/css/n3_reset.css" media="screen" />
         <link rel="stylesheet" href="assets/css/n3_controls.css" media="screen" />
         
         <style type="text/css">
@@ -24,14 +24,22 @@
         <script type="text/javascript" src="assets/js/n3_plugins.js"></script>
         <script type="text/javascript" src="assets/js/n3_controls.js"></script>
         
+        <script type="text/javascript">
+                $(document).ready(function(){$("#loading1").setProgress(20)});
+                $(document).ready(function(){$("#loading2").setProgress(40)});
+                $(document).ready(function(){$("#loading3").setProgress(60)});
+                $(document).ready(function(){$("#loading4").setProgress(80)});
+                $(document).ready(function(){$("#loading5").setProgress(100)});
+        </script>
+        
     </head>
     <body>
         <h1>Natoga V3 Controls Sampler</h1>
         <h2>Loading Bars</h2>
-        <div class="-n3-loading -n3-fadein" style="width: 15px;"></div>
-        <div class="-n3-loading -n3-fadein-2" style="width: 40px;height: 10px;"></div>
-        <div class="-n3-loading -n3-fadein-3" style="width: 100px;height:20px;"></div>
-        <div class="-n3-loading -n3-fadein-4" style="width: 200px;height:33px;"></div>
-        <div class="-n3-loading -n3-fadein-5" style="width: 350px;height:33px;"></div>
+        <div class="-n3-loading -n3-fadein" style="width: 15px;" id="loading1"></div>
+        <div class="-n3-loading -n3-fadein-2" style="width: 40px;height: 10px;" id="loading2"></div>
+        <div class="-n3-loading -n3-fadein-3" style="width: 100px;height:20px;" id="loading3"></div>
+        <div class="-n3-loading -n3-fadein-4" style="width: 200px;height:33px;" id="loading4"></div>
+        <div class="-n3-loading -n3-fadein-5" style="width: 350px;height:33px;" id="loading5"></div>
     </body>
 </html>

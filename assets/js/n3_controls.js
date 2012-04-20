@@ -51,3 +51,23 @@ function _n3_fadein_easeclass() {
     });
 }
 $(document).ready(_n3_fadein_easeclass);
+
+function _n3_setup_loadbars() {
+    $(".-n3-loading").each(function(){
+        $(this).html('<span class="-n3-loading-innards"></span>');
+    });
+}
+$(document).ready(_n3_setup_loadbars);
+
+(function( $ ){
+    $.fn.setProgress = function(p) {
+        $(this).each(function(){
+           $(this).children(".-n3-loading-innards").each(function(){
+               p = Math.max(Math.min(p, 100), 0);
+               $(this).animate({width:((100-p)+"%")}, {duration:400,queue:false,easing:"swing"});
+           });
+        });
+
+        return this;
+    };
+})(jQuery);
