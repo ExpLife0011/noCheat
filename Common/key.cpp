@@ -12,9 +12,9 @@ NC_LIBEXPORT(VOID) key_shift(char* keybuf, int len)
 		for(int l = 0; l < len; l++)
 		{
 			if(f)
-				rol8(&keybuf[l], 2);
+				rol8((unsigned char*)&keybuf[l], 2);
 			else
-				ror8(&keybuf[2], 3);
+				ror8((unsigned char*)&keybuf[2], 3);
 			f = !f;
 		}
 	}

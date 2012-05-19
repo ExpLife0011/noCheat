@@ -166,6 +166,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\key.cpp"
+					>
+				</File>
+				<File
 					RelativePath=".\roll.cpp"
 					>
 				</File>
@@ -197,6 +201,10 @@
 				>
 				<File
 					RelativePath=".\crypt.hpp"
+					>
+				</File>
+				<File
+					RelativePath=".\key.hpp"
 					>
 				</File>
 				<File

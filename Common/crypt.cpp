@@ -3,7 +3,7 @@
 #include "defines.hpp"
 #include "crypt.hpp"
 
-NC_LIBEXPORT(VOID) ncEncrypt1(char* outbuf, int len, char* key, int len)
+NC_LIBEXPORT(VOID) ncEncrypt1(char* outbuf, int len, char* key, int klen)
 {
 	// do 3 times:
 	for(int pass = 0; pass < NC_ENC_PASSES; pass++)
