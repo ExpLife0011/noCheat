@@ -12,7 +12,9 @@ void OnInject()
 	ncEnableConsole();
 	
 	// Print a success message
-	printf_s("Successfully started noCheat!");
+	printf_s("Successfully started noCheat!\n\n");
+
+
 }
 
 BOOL APIENTRY DllMain(HMODULE hModule, DWORD ulReason, LPVOID lpReserved)

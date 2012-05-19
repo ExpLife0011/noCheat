@@ -15,9 +15,12 @@ int nCmdShow
 	ncEnableConsole();
 
 	// Write something
-	printf_s("This is a %s\n", "test!");
-	std::cout << "This is also a test!\n";
-	std::cerr << "This is an error message!\n";
+	unsigned char ot[2] = {0x49, 0x00};
+	unsigned int a = 999;
+	rol8(&ot[0], 1);
+	rol32(&a, 1);
+	std::cout << "Turned I into " << &ot[0] << std::endl;
+	std::cout << "Turned 999 into " << a << std::endl;
 	
 	// Sleep so we can make sure it's all working!
 	Sleep(3000);

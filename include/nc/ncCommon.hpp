@@ -18,4 +18,10 @@
  */
 #include <nc/ncUtil.hpp>
 
+/*
+ * Encryption
+ *	Encryption mechanisms and procedures
+ */
+#include <nc/ncEnc.hpp>
+
 #endif

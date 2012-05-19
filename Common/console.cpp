@@ -10,7 +10,7 @@
 #include "defines.hpp"
 #include "console.hpp"
 
-NC_LIBEXPORT BOOL ncEnableConsole()
+NC_LIBEXPORT(BOOL) ncEnableConsole()
 {
 	// Attempt to allocate console
 	if(!AllocConsole())

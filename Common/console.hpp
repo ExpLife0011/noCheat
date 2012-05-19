@@ -5,6 +5,6 @@
 
 #include "defines.hpp"
 
-NC_LIBEXPORT BOOL ncEnableConsole();
+NC_LIBEXPORT(BOOL) ncEnableConsole();
 
 #endif

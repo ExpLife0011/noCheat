@@ -158,6 +158,18 @@
 					>
 				</File>
 			</Filter>
+			<Filter
+				Name="enc"
+				>
+				<File
+					RelativePath=".\roll.cpp"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="proc"
+				>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -176,12 +188,36 @@
 					>
 				</File>
 			</Filter>
+			<Filter
+				Name="enc"
+				>
+				<File
+					RelativePath=".\roll.hpp"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="proc"
+				>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="include"
 			>
 			<File
 				RelativePath="..\include\nc\ncCommon.hpp"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\include\nc\ncEnc.hpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
