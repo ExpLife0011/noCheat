@@ -1,0 +1,38 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual C++ Express 2008
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Test DLL", "Test DLL\Test DLL.vcproj", "{573AEAEB-C348-4EEE-B5C4-14F5167BCD3B}"
+	ProjectSection(ProjectDependencies) = postProject
+		{F2481554-281D-4E78-B902-C8A181AF9D62} = {F2481554-281D-4E78-B902-C8A181AF9D62}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Common", "Common\Common.vcproj", "{F2481554-281D-4E78-B902-C8A181AF9D62}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Test Application", "Test Application\Test Application.vcproj", "{FDCE507C-ED27-4E07-8609-7558A2769F9C}"
+	ProjectSection(ProjectDependencies) = postProject
+		{F2481554-281D-4E78-B902-C8A181AF9D62} = {F2481554-281D-4E78-B902-C8A181AF9D62}
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{573AEAEB-C348-4EEE-B5C4-14F5167BCD3B}.Debug|Win32.ActiveCfg = Debug|Win32
+		{573AEAEB-C348-4EEE-B5C4-14F5167BCD3B}.Debug|Win32.Build.0 = Debug|Win32
+		{573AEAEB-C348-4EEE-B5C4-14F5167BCD3B}.Release|Win32.ActiveCfg = Release|Win32
+		{573AEAEB-C348-4EEE-B5C4-14F5167BCD3B}.Release|Win32.Build.0 = Release|Win32
+		{F2481554-281D-4E78-B902-C8A181AF9D62}.Debug|Win32.ActiveCfg = Debug|Win32
+		{F2481554-281D-4E78-B902-C8A181AF9D62}.Debug|Win32.Build.0 = Debug|Win32
+		{F2481554-281D-4E78-B902-C8A181AF9D62}.Release|Win32.ActiveCfg = Release|Win32
+		{F2481554-281D-4E78-B902-C8A181AF9D62}.Release|Win32.Build.0 = Release|Win32
+		{FDCE507C-ED27-4E07-8609-7558A2769F9C}.Debug|Win32.ActiveCfg = Debug|Win32
+		{FDCE507C-ED27-4E07-8609-7558A2769F9C}.Debug|Win32.Build.0 = Debug|Win32
+		{FDCE507C-ED27-4E07-8609-7558A2769F9C}.Release|Win32.ActiveCfg = Release|Win32
+		{FDCE507C-ED27-4E07-8609-7558A2769F9C}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
