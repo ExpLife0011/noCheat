@@ -18,6 +18,12 @@ extern "C"
 	VOID ror16(unsigned short* a, unsigned char b);
 	VOID rol32(unsigned int* a, unsigned char b);
 	VOID ror32(unsigned int* a, unsigned char b);
+
+	/*
+	 * ncKeyShift()
+	 *	Takes a byte sequence and forms it into a key
+	 */
+	VOID key_shift(char* keybuf, int len);
 }
 
 #endif

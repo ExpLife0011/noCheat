@@ -1,3 +1,6 @@
+/*
+ * Rolling Bitshifters
+ */
 #ifndef H_ENC_ROLL__
 #define H_ENC_ROLL__
 

@@ -20,6 +20,20 @@
  */
 //#define NC_OPTIMIZE_ENCRYPTION
 
+/*
+ * NC_END_PASSES
+ *	The number of encryption passes
+ *	to make
+ */
+#define NC_ENC_PASSES 3
+
+/*
+ * _ncEndPrivkey[16]
+ *	The private key used by the encryption functions
+ */
+static const char _ncEncPrivkey[16] = {0x6e, x04A, x075, x096, x067, x051, x067, x018, x065, x017, x074, x0F3, x03a, x002, x044, x099};
+
+
   //****************************\\ 
 #ifdef NC_DLL
 #define NC_LIBEXPORT(a, ...) extern "C" __declspec(dllexport) __VA_ARGS__ a __cdecl

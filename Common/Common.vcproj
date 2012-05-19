@@ -162,6 +162,10 @@
 				Name="enc"
 				>
 				<File
+					RelativePath=".\crypt.cpp"
+					>
+				</File>
+				<File
 					RelativePath=".\roll.cpp"
 					>
 				</File>
@@ -191,6 +195,10 @@
 			<Filter
 				Name="enc"
 				>
+				<File
+					RelativePath=".\crypt.hpp"
+					>
+				</File>
 				<File
 					RelativePath=".\roll.hpp"
 					>
