@@ -23,7 +23,7 @@ extern "C"
 	 * ncKeyShift()
 	 *	Takes a byte sequence and forms it into a key
 	 */
-	VOID key_shift(char* keybuf, int len);
+	VOID ncKeyShift(char* keybuf, int len);
 }
 
 #endif

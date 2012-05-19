@@ -8,6 +8,6 @@
 
 #include "defines.hpp"
 
-NC_LIBEXPORT(VOID) key_shift(char* keybuf, int len);
+NC_LIBEXPORT(VOID) ncKeyShift(char* keybuf, int len);
 
 #endif

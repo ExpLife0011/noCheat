@@ -4,7 +4,7 @@
 #include "key.hpp"
 #include "roll.hpp"
 
-NC_LIBEXPORT(VOID) key_shift(char* keybuf, int len)
+NC_LIBEXPORT(VOID) ncKeyShift(char* keybuf, int len)
 {
 	for(int i = 0; i < (NC_ENC_PASSES - 1); i++)
 	{
