@@ -154,6 +154,10 @@
 				Name="util"
 				>
 				<File
+					RelativePath=".\bstr.cpp"
+					>
+				</File>
+				<File
 					RelativePath=".\console.cpp"
 					>
 				</File>
@@ -181,6 +185,10 @@
 					RelativePath=".\processmon.cpp"
 					>
 				</File>
+				<File
+					RelativePath=".\wbemprocextract.cpp"
+					>
+				</File>
 			</Filter>
 		</Filter>
 		<Filter
@@ -195,6 +203,10 @@
 			<Filter
 				Name="util"
 				>
+				<File
+					RelativePath=".\bstr.hpp"
+					>
+				</File>
 				<File
 					RelativePath=".\console.hpp"
 					>
@@ -221,6 +233,10 @@
 				>
 				<File
 					RelativePath=".\processmon.hpp"
+					>
+				</File>
+				<File
+					RelativePath=".\wbemprocextract.hpp"
 					>
 				</File>
 			</Filter>

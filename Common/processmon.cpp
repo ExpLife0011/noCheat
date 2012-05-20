@@ -17,7 +17,6 @@ static IWbemObjectSink* pStubSink;
 
 NC_LIBEXPORT(BOOL) ncStartProcessListening(ncPMCallbackInfo* cbInfo)
 {
-
 	// Init com library
 	HRESULT hres;
 	hres =  CoInitializeEx(0, COINIT_MULTITHREADED);

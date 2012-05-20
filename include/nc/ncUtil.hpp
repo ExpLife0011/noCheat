@@ -17,6 +17,18 @@ extern "C"
 	 *	Returns: TRUE on success and FALSE on failure
 	 */
 	BOOL ncEnableConsole();
+
+	/*
+	 * ncBStrToCharP()
+	 *	Converts a BSTR to a char*
+	 *	NOTE: This does NOT CHECK LENGTH! Make sure your character array is big enough!
+	 *		  This function also FREES THE BSTR!
+	 *
+	 *	Example:
+	 *	char ms[2048] = {0};
+	 *	ncBStrToCharP((char*)&ms, bs);
+	 */
+	VOID ncBStrToCharP(char* outc, BSTR b);
 }
 
 #endif

@@ -38,5 +38,22 @@ BOOL ncStartProcessListening(ncPMCallbackInfo* cbInfo);
  */
 VOID ncStopProcessListening();
 
+/*
+ * class ncWBEMResult;
+ *	Use this class to extract data from the WMI events
+ *	which return process execution data
+ */
+class ncWBEMResult{
+public:
+	ncWBEMResult(IWbemClassObject* wbem);
+	~ncWBEMResult();
+
+	BOOL getString(char* out, LPCWSTR name);
+	BOOL getLong(long* out, LPCWSTR name);
+protected:
+	IWbemClassObject* _w;
+	IWbemClassObject *pinstPkgStatus;
+} ;
+
 }
 #endif

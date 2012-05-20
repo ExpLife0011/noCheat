@@ -10,17 +10,22 @@
 
 #include <nc/ncCommon.hpp>
 
+VOID onStartup()
+{
+	printf("Successfully started up WMI listener.\n");
+}
+
 VOID onEvent(IWbemClassObject* procEvt)
 {
-	BSTR bs = SysAllocString(_T(""));
-	HRESULT hres = procEvt->GetObjectText(0, &bs);
-	if(SUCCEEDED(hres))
-	{
-		_bstr_t tmp(bs, FALSE);
-		const char* ms = static_cast<const char *>(tmp);
-		printf("Process created: %s\n",ms);
-	}else
-		printf("Received event, but failed to get object serialization\n");
+	ncWBEMResult res(procEvt);
+	char buf[256] = {0};
+	long pid;
+	BOOL r = res.getString((char*)&buf, _T("Caption"));
+	r = res.getLong(&pid, _T("ProcessId"));
+	if(r)
+		printf("Caption: %s, PID: %d\n", (char*)&buf, pid);
+	else
+		printf("Could not get caption!!!\n");
 }
 
 int CALLBACK WinMain(
@@ -37,7 +42,7 @@ int nCmdShow
 	ncPMCallbackInfo cbInfo;
 	cbInfo.onEventHandler = (_ncPMEvent*)&onEvent;
 	cbInfo.onShutdownHandler = NULL;
-	cbInfo.onStartupHandler = NULL;
+	cbInfo.onStartupHandler = (_ncPMStartup*)&onStartup;
 	ncStartProcessListening(&cbInfo);
 
 
