@@ -37,6 +37,13 @@ extern "C"
 	 *	Ror rolls the bits to the right
 	 */
 	VOID ncCreateUsageKey(unsigned char* output, unsigned char* key, int len, int rora);
+
+	/*
+	 * ncEncrypt_1() / ncDecrypt_1()
+	 *	Type-1 encryption methods
+	 */
+	VOID ncEncrypt_1(unsigned char* outbuf, int len, unsigned char* key, int klen);
+	VOID ncDecrypt_1(unsigned char* outbuf, int len, unsigned char* key, int klen);
 }
 
 #endif

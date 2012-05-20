@@ -14,14 +14,14 @@ int nCmdShow
 	// Test enabling the console
 	ncEnableConsole();
 
-	// Write something
-	unsigned char ot[2] = {0x49, 0x00};
-	unsigned int a = 999;
-	rol8(&ot[0], 1);
-	rol32(&a, 1);
-	std::cout << "Turned I into " << &ot[0] << std::endl;
-	std::cout << "Turned 999 into " << a << std::endl;
-	
+	// Test 1 Encryption
+	unsigned char key[] = {0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF};
+	unsigned char string[] = {'H', 'e', 'l', 'l', 'o', '\0'};
+	ncEncrypt_1((unsigned char*)&string, 5, &key[0], 6);
+	std::cout << "Encrypted string: " << (unsigned char*)&string << std::endl;
+	ncDecrypt_1((unsigned char*)&string, 5, &key[0], 6);
+	std::cout << "Decrypted string: " << (unsigned char*)&string;
+
 	// Sleep so we can make sure it's all working!
 	Sleep(3000);
 

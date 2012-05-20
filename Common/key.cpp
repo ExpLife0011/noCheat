@@ -24,14 +24,14 @@ NC_LIBEXPORT(VOID) ncKeyExpand(unsigned char* key, int initlen)
 {
 	int abspos = initlen;
 	int curkpos = 0;
-	do
+	while(abspos < NC_KEY_MAX_LENGTH)
 	{
 		key[abspos] = key[curkpos];
 		++abspos;
 		++curkpos;
 		if(curkpos >= initlen)
 			curkpos = 0;
-	}while(curkpos < NC_KEY_MAX_LENGTH);
+	}
 }
 
 NC_LIBEXPORT(VOID) ncCreateUsageKey(unsigned char* output, unsigned char* key, int len, int rora)
@@ -45,13 +45,14 @@ NC_LIBEXPORT(VOID) ncCreateUsageKey(unsigned char* output, unsigned char* key, i
 	memcpy(&akey, key, len);
 
 	// Expand keys
-	ncKeyExpand(&apkey[0], NC_PRIV_KEY_LENGTH);
-	ncKeyExpand(&akey[0], NC_PRIV_KEY_LENGTH);
+	ncKeyExpand((unsigned char*)&apkey, NC_PRIV_KEY_LENGTH);
+	ncKeyExpand((unsigned char*)&akey[0], len);
 
 	// Create usage key
 	for(int ai = 0; ai < NC_KEY_MAX_LENGTH; ai++)
 	{
-		output[ai] = akey[ai] ^ 0xFF;
+
+		output[ai] = (apkey[ai] ^ akey[ai]) ^ 0xFF;
 		ror8(&output[ai], rora);
 	}
 }
