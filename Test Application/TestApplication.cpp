@@ -1,8 +1,27 @@
 #include <windows.h>
 #include <iostream>
 #include <stdio.h>
+#include <Wbemidl.h>
+#include <comdef.h>
+#include <tchar.h>
+#include <WTypes.h>
+
+#pragma comment(lib, "wbemuuid.lib")
 
 #include <nc/ncCommon.hpp>
+
+VOID onEvent(IWbemClassObject* procEvt)
+{
+	BSTR bs = SysAllocString(_T(""));
+	HRESULT hres = procEvt->GetObjectText(0, &bs);
+	if(SUCCEEDED(hres))
+	{
+		_bstr_t tmp(bs, FALSE);
+		const char* ms = static_cast<const char *>(tmp);
+		printf("Process created: %s\n",ms);
+	}else
+		printf("Received event, but failed to get object serialization\n");
+}
 
 int CALLBACK WinMain(
 HINSTANCE hInstance,
@@ -14,16 +33,19 @@ int nCmdShow
 	// Test enabling the console
 	ncEnableConsole();
 
-	// Test 1 Encryption
-	unsigned char key[] = {0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF};
-	unsigned char string[] = {'H', 'e', 'l', 'l', 'o', '\0'};
-	ncEncrypt_1((unsigned char*)&string, 5, &key[0], 6);
-	std::cout << "Encrypted string: " << (unsigned char*)&string << std::endl;
-	ncDecrypt_1((unsigned char*)&string, 5, &key[0], 6);
-	std::cout << "Decrypted string: " << (unsigned char*)&string;
+	// Setup procmon
+	ncPMCallbackInfo cbInfo;
+	cbInfo.onEventHandler = (_ncPMEvent*)&onEvent;
+	cbInfo.onShutdownHandler = NULL;
+	cbInfo.onStartupHandler = NULL;
+	ncStartProcessListening(&cbInfo);
+
 
 	// Sleep so we can make sure it's all working!
-	Sleep(3000);
+	while(true)
+	{
+		Sleep(30);
+	}
 
 	// Return
 	return 0;

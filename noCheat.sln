@@ -13,6 +13,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Test Application", "Test Ap
 		{F2481554-281D-4E78-B902-C8A181AF9D62} = {F2481554-281D-4E78-B902-C8A181AF9D62}
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Test WMI Process Callback", "Test WMI Process Callback\Test WMI Process Callback.vcproj", "{C003FF72-77FC-4DD1-A95A-A0F7F7510CAD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -31,6 +33,10 @@ Global
 		{FDCE507C-ED27-4E07-8609-7558A2769F9C}.Debug|Win32.Build.0 = Debug|Win32
 		{FDCE507C-ED27-4E07-8609-7558A2769F9C}.Release|Win32.ActiveCfg = Release|Win32
 		{FDCE507C-ED27-4E07-8609-7558A2769F9C}.Release|Win32.Build.0 = Release|Win32
+		{C003FF72-77FC-4DD1-A95A-A0F7F7510CAD}.Debug|Win32.ActiveCfg = Debug|Win32
+		{C003FF72-77FC-4DD1-A95A-A0F7F7510CAD}.Debug|Win32.Build.0 = Debug|Win32
+		{C003FF72-77FC-4DD1-A95A-A0F7F7510CAD}.Release|Win32.ActiveCfg = Release|Win32
+		{C003FF72-77FC-4DD1-A95A-A0F7F7510CAD}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

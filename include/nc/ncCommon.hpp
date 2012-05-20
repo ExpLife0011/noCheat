@@ -24,4 +24,10 @@
  */
 #include <nc/ncEnc.hpp>
 
+/*
+ * Process Management
+ *	Handles process management and functionality
+ */
+#include <nc/ncProc.hpp>
+
 #endif

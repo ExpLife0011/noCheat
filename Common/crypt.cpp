@@ -1,5 +1,4 @@
 #include <windows.h>
-#include <stdlib.h>
 
 #include "defines.hpp"
 #include "crypt.hpp"
