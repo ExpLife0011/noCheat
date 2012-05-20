@@ -13,4 +13,4 @@ This repository contains the whole ordeal - both the Windows go-along applicatio
 
 Quick References for Programmers
 --------------------------------
-[*]http://msdn.microsoft.com/en-us/library/windows/desktop/aa394372(v=vs.85).aspx - **Gives process information to be read when a process starts (for use in the ncWBEMResult class)**
+* http://msdn.microsoft.com/en-us/library/windows/desktop/aa394372(v=vs.85).aspx - **Gives process information to be read when a process starts (for use in the ncWBEMResult class)**
