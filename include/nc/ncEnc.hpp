@@ -24,6 +24,19 @@ extern "C"
 	 *	Takes a byte sequence and forms it into a key
 	 */
 	VOID ncKeyShift(char* keybuf, int len);
+
+	/*
+	 * ncKeyExpand()
+	 *	Expands a key out to a full length
+	 */
+	VOID ncKeyExpand(char* key, int maxlen, int initlen);
+
+	/*
+	 * ncCreateUsageKey()
+	 *	Creates a usage key based off of the private/public keys
+	 *	Ror rolls the bits to the right
+	 */
+	VOID ncCreateUsageKey(unsigned char* output, unsigned char* key, int len, int rora);
 }
 
 #endif

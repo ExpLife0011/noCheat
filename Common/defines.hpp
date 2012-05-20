@@ -33,6 +33,17 @@
  */
 static const unsigned char _ncEncPrivkey[] = {0x6e, 0x4A, 0x75, 0x96, 0x67, 0x51, 0x67, 0x18, 0x65, 0x17, 0x74, 0xF3, 0x3a, 0x02, 0x44, 0x99};
 
+/*
+ * NC_PRIV_KEY_LENGTH
+ *	The length of the (above) priv key
+ */
+#define NC_PRIV_KEY_LENGTH 16
+
+/*
+ * NC_KEY_MAX_LENGTH
+ *	The maximum length any pub key will be
+ */
+#define NC_KEY_MAX_LENGTH 32
 
   //****************************\\ 
 #ifdef NC_DLL
@@ -44,6 +55,9 @@ static const unsigned char _ncEncPrivkey[] = {0x6e, 0x4A, 0x75, 0x96, 0x67, 0x51
 #define _NC_OPTENC inline
 #else
 #define _NC_OPTENC __declspec(noinline)
+#endif
+#if NC_KEY_MAX_LENGTH < NC_PRIV_KEY_LENGTH
+#error (noCheat) Private key length cannot exceed max key length
 #endif
 //\\****************************//\\
 

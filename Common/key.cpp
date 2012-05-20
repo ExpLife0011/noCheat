@@ -4,7 +4,7 @@
 #include "key.hpp"
 #include "roll.hpp"
 
-NC_LIBEXPORT(VOID) ncKeyShift(char* keybuf, int len)
+NC_LIBEXPORT(VOID) ncKeyShift(unsigned char* keybuf, int len)
 {
 	for(int i = 0; i < (NC_ENC_PASSES - 1); i++)
 	{
@@ -17,5 +17,41 @@ NC_LIBEXPORT(VOID) ncKeyShift(char* keybuf, int len)
 				ror8((unsigned char*)&keybuf[2], 3);
 			f = !f;
 		}
+	}
+}
+
+NC_LIBEXPORT(VOID) ncKeyExpand(unsigned char* key, int initlen)
+{
+	int abspos = initlen;
+	int curkpos = 0;
+	do
+	{
+		key[abspos] = key[curkpos];
+		++abspos;
+		++curkpos;
+		if(curkpos >= initlen)
+			curkpos = 0;
+	}while(curkpos < NC_KEY_MAX_LENGTH);
+}
+
+NC_LIBEXPORT(VOID) ncCreateUsageKey(unsigned char* output, unsigned char* key, int len, int rora)
+{
+	// Setup priv key
+	unsigned char apkey[NC_KEY_MAX_LENGTH];
+	memcpy(&apkey, &_ncEncPrivkey, NC_PRIV_KEY_LENGTH);
+	
+	// Setup public key
+	unsigned char akey[NC_KEY_MAX_LENGTH];
+	memcpy(&akey, key, len);
+
+	// Expand keys
+	ncKeyExpand(&apkey[0], NC_PRIV_KEY_LENGTH);
+	ncKeyExpand(&akey[0], NC_PRIV_KEY_LENGTH);
+
+	// Create usage key
+	for(int ai = 0; ai < NC_KEY_MAX_LENGTH; ai++)
+	{
+		output[ai] = akey[ai] ^ 0xFF;
+		ror8(&output[ai], rora);
 	}
 }
