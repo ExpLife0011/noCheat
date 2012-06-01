@@ -6,6 +6,8 @@
 
 #include <windows.h>
 #include <Wbemidl.h>
+#include <vector>
+#include <TlHelp32.h>
 
 #pragma comment(lib, "wbemuuid.lib")
 
@@ -54,6 +56,12 @@ protected:
 	IWbemClassObject* _w;
 	IWbemClassObject *pinstPkgStatus;
 } ;
+
+/*
+ * ncGetModuleSnapshot()
+ *	Gets the modules associated with a PID
+ */
+INT ncGetModuleSnapshot(std::vector<MODULEENTRY32>* outVec, INT pid);
 
 }
 #endif

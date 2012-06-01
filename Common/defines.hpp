@@ -59,6 +59,20 @@ static const unsigned char _ncEncPrivkey[] = {0x6e, 0x4A, 0x75, 0x96, 0x67, 0x51
 #if NC_KEY_MAX_LENGTH < NC_PRIV_KEY_LENGTH
 #error (noCheat) Private key length cannot exceed max key length
 #endif
+#if _WIN32 || _WIN64 // Win32
+#if _WIN64
+#define ENVIRONMENT64
+#else
+#define ENVIRONMENT32
+#endif
+#endif
+#if __GNUC__ // GCC
+#if __x86_64__ || __ppc64__
+#define ENVIRONMENT64
+#else
+#define ENVIRONMENT32
+#endif
+#endif
 //\\****************************//\\
 
 #endif

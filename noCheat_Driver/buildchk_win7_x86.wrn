@@ -1,0 +1,3 @@
+1>warnings in directory c:\users\administrator\documents\nocheat\nocheat\nocheat_driver
+1>c:\users\administrator\documents\nocheat\nocheat\nocheat_driver\ncdriver.c(77) : warning C4022: 'MmUnmapIoSpace' : pointer mismatch for actual parameter 1
+1>c:\users\administrator\documents\nocheat\nocheat\nocheat_driver\ncdriver.c(125) : warning C4022: 'MmUnmapIoSpace' : pointer mismatch for actual parameter 1

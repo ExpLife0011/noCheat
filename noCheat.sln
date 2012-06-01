@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 10.00
-# Visual C++ Express 2008
+# Visual Studio 2008
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Test DLL", "Test DLL\Test DLL.vcproj", "{573AEAEB-C348-4EEE-B5C4-14F5167BCD3B}"
 	ProjectSection(ProjectDependencies) = postProject
 		{F2481554-281D-4E78-B902-C8A181AF9D62} = {F2481554-281D-4E78-B902-C8A181AF9D62}
@@ -14,6 +14,20 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Test Application", "Test Ap
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Test WMI Process Callback", "Test WMI Process Callback\Test WMI Process Callback.vcproj", "{C003FF72-77FC-4DD1-A95A-A0F7F7510CAD}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "noCheat Service", "noCheat Service\noCheat Service.vcproj", "{9B054DFC-39E2-4F29-B9C0-85019B66BEE8}"
+	ProjectSection(ProjectDependencies) = postProject
+		{F2481554-281D-4E78-B902-C8A181AF9D62} = {F2481554-281D-4E78-B902-C8A181AF9D62}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "noCheat DLL Host", "noCheat DLL Host\noCheat DLL Host.vcproj", "{59CA3DAF-D465-4A9E-AA08-25BB460F8796}"
+	ProjectSection(ProjectDependencies) = postProject
+		{F2481554-281D-4E78-B902-C8A181AF9D62} = {F2481554-281D-4E78-B902-C8A181AF9D62}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "noCheat Driver", "noCheat_Driver\noCheat Driver.vcproj", "{EAA5A110-25DA-42B8-8B90-83C45F91EF9A}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Driver Signal Test App", "Driver Signal Test App\Driver Signal Test App.vcproj", "{17A3CC67-22E2-4332-9CE0-A7113744A35A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -37,6 +51,22 @@ Global
 		{C003FF72-77FC-4DD1-A95A-A0F7F7510CAD}.Debug|Win32.Build.0 = Debug|Win32
 		{C003FF72-77FC-4DD1-A95A-A0F7F7510CAD}.Release|Win32.ActiveCfg = Release|Win32
 		{C003FF72-77FC-4DD1-A95A-A0F7F7510CAD}.Release|Win32.Build.0 = Release|Win32
+		{9B054DFC-39E2-4F29-B9C0-85019B66BEE8}.Debug|Win32.ActiveCfg = Debug|Win32
+		{9B054DFC-39E2-4F29-B9C0-85019B66BEE8}.Debug|Win32.Build.0 = Debug|Win32
+		{9B054DFC-39E2-4F29-B9C0-85019B66BEE8}.Release|Win32.ActiveCfg = Release|Win32
+		{9B054DFC-39E2-4F29-B9C0-85019B66BEE8}.Release|Win32.Build.0 = Release|Win32
+		{59CA3DAF-D465-4A9E-AA08-25BB460F8796}.Debug|Win32.ActiveCfg = Debug|Win32
+		{59CA3DAF-D465-4A9E-AA08-25BB460F8796}.Debug|Win32.Build.0 = Debug|Win32
+		{59CA3DAF-D465-4A9E-AA08-25BB460F8796}.Release|Win32.ActiveCfg = Release|Win32
+		{59CA3DAF-D465-4A9E-AA08-25BB460F8796}.Release|Win32.Build.0 = Release|Win32
+		{EAA5A110-25DA-42B8-8B90-83C45F91EF9A}.Debug|Win32.ActiveCfg = Debug|Win32
+		{EAA5A110-25DA-42B8-8B90-83C45F91EF9A}.Debug|Win32.Build.0 = Debug|Win32
+		{EAA5A110-25DA-42B8-8B90-83C45F91EF9A}.Release|Win32.ActiveCfg = Release|Win32
+		{EAA5A110-25DA-42B8-8B90-83C45F91EF9A}.Release|Win32.Build.0 = Release|Win32
+		{17A3CC67-22E2-4332-9CE0-A7113744A35A}.Debug|Win32.ActiveCfg = Debug|Win32
+		{17A3CC67-22E2-4332-9CE0-A7113744A35A}.Debug|Win32.Build.0 = Debug|Win32
+		{17A3CC67-22E2-4332-9CE0-A7113744A35A}.Release|Win32.ActiveCfg = Release|Win32
+		{17A3CC67-22E2-4332-9CE0-A7113744A35A}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -186,9 +186,17 @@
 					>
 				</File>
 				<File
+					RelativePath=".\snapshot.cpp"
+					>
+				</File>
+				<File
 					RelativePath=".\wbemprocextract.cpp"
 					>
 				</File>
+			</Filter>
+			<Filter
+				Name="security"
+				>
 			</Filter>
 		</Filter>
 		<Filter
@@ -236,9 +244,17 @@
 					>
 				</File>
 				<File
+					RelativePath=".\snapshot.hpp"
+					>
+				</File>
+				<File
 					RelativePath=".\wbemprocextract.hpp"
 					>
 				</File>
+			</Filter>
+			<Filter
+				Name="security"
+				>
 			</Filter>
 		</Filter>
 		<Filter
