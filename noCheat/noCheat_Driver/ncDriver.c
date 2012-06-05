@@ -49,7 +49,7 @@ struct NC_EVENT_SETTINGS
 {
 	unsigned long buffSize;
 	unsigned long maxEvents;
-	char* buff;
+	unsigned char* buff;
 };
 
 /*
@@ -80,6 +80,7 @@ VOID ImageLoadCallback(
 							  )
 {
 	ANSI_STRING strr;
+	void* pnt;
 
 	// Define/populate our condensed struct to be passed
 	//	back to the user-land noCheat service
@@ -98,6 +99,25 @@ VOID ImageLoadCallback(
 
 	// Free
 	RtlFreeAnsiString(&strr);
+
+	// Wait for access to buffer
+	KeWaitForSingleObject(&event,Executive,KernelMode,0,0);
+
+	// Check for overflow
+	if(ncImageLoadEventSettings.buff[0] >= ncImageLoadEventSettings.maxEvents)
+	{
+		NCLOG("Reached maximum events on stack!");
+		return;
+	}
+
+	// Increment stack count
+	ncImageLoadEventSettings.buff[0] = ncImageLoadEventSettings.buff[0] + 1;
+
+	// Calculate offset
+	pnt = (int)ncImageLoadEventSettings.buff + ((int)ncImageLoadEventSettings.buff[0] * sizeof(struct NC_IL_INFO)) + 1;
+
+	// Copy~!
+	memcpy(pnt, &ncInf, sizeof(struct NC_IL_INFO));
 
 	// Debug
 #ifdef DEBUG

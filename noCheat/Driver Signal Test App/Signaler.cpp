@@ -23,7 +23,7 @@ int main()
 		system("pause");
 		return 1;
 	}
-	char outputbuff[1024*32];
+	unsigned char outputbuff[1024*32];
 	DWORD controlbuff[64];
 	DWORD dw;
 
