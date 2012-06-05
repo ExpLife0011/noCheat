@@ -28,12 +28,28 @@
 // Our nC device/link constants
 const WCHAR devicename[] = L"\\Device\\noCheat";
 const WCHAR devicelink[] = L"\\DosDevices\\NOCHEAT";
-const DWORD EAT_STOOL = 0xEA757001; // EAT_STOOL - Yum.
 
+#define EAT_STOOL 0xEA757001
+
+/*
+ * Connection info sent from the service
+ */
 struct NC_CONNECT_INFO
 {
-	DWORD secCode; // The security code - currently EAT_STOOL
-	DWORD addr;	// The address to map to
+	unsigned long secCode; // The security code - currently EAT_STOOL
+	unsigned long ILBuffAddr;	// The address to map to for image-loading events
+	unsigned long ILBuffLen; // The buffer length (in bytes) for image-loading events
+};
+
+/*
+ * Holds information about the buffer totals
+ *	and event sizes and such
+ */
+struct NC_EVENT_SETTINGS
+{
+	unsigned long buffSize;
+	unsigned long maxEvents;
+	char* buff;
 };
 
 /*
@@ -42,12 +58,17 @@ struct NC_CONNECT_INFO
  */
 struct NC_IL_INFO
 {
-	UNICODE_STRING puszFullImageName;
+	char puszFullImageName[260]; // MAX_PATH, which is not available in the DDK
 	HANDLE hwndProcessId;
 	PIMAGE_INFO pinfImageInfo;
 };
 
+/*
+ * Driver vars setup
+ */
 NTSTATUS cbRegistered;
+struct NC_EVENT_SETTINGS ncImageLoadEventSettings;
+KEVENT event;
 
 /*
  * Image Load Callback
@@ -58,16 +79,29 @@ VOID ImageLoadCallback(
 							  __in PIMAGE_INFO  ImageInfo
 							  )
 {
+	ANSI_STRING strr;
+
 	// Define/populate our condensed struct to be passed
 	//	back to the user-land noCheat service
 	struct NC_IL_INFO ncInf;
 	ncInf.hwndProcessId = ProcessId;
 	ncInf.pinfImageInfo = ImageInfo;
-	ncInf.puszFullImageName = *FullImageName;
+	
+	// Memset
+	memset(&ncInf.puszFullImageName, 0, 260);
+
+	// Convert to ansi string
+	RtlUnicodeStringToAnsiString(&strr, FullImageName, 1);
+
+	// Memcpy
+	memcpy(&ncInf.puszFullImageName, strr.Buffer, strr.Length);
+
+	// Free
+	RtlFreeAnsiString(&strr);
 
 	// Debug
 #ifdef DEBUG
-	DbgPrint("[nC]Image(%d): %wZ", ProcessId, &ncInf.puszFullImageName);
+	DbgPrint("[nC]Image(%d): %wZ", ProcessId, FullImageName);
 #endif
 }
 
@@ -80,15 +114,12 @@ NTSTATUS DrvDispatch(IN PDEVICE_OBJECT device, IN PIRP Irp)
 	//	This *should* change from time to time to
 	//	increase security
 	if(pLoc->Parameters.DeviceIoControl.IoControlCode == 1000)
-	{
-		// Debug
-		NCLOG("Received link");
-		
+	{		
 		// Get the contents
-		UCHAR* buff = (UCHAR*)Irp->AssociatedIrp.SystemBuffer;
+		unsigned char* buff = (UCHAR*)Irp->AssociatedIrp.SystemBuffer;
 		
 		// Create a pointer to connect information
-		NC_CONNECT_INFO* ncCInfo = (NC_CONNECT_INFO*)buff;
+		struct NC_CONNECT_INFO* ncCInfo = (struct NC_CONNECT_INFO*)buff;
 
 		// Check our security
 		if(ncCInfo->secCode == EAT_STOOL)
@@ -96,7 +127,23 @@ NTSTATUS DrvDispatch(IN PDEVICE_OBJECT device, IN PIRP Irp)
 			// Security code passed! - Debug
 			NCLOG("Passed security check");
 
-			// Map address
+			// Set up image-loading events
+			ncImageLoadEventSettings.buff = (char*)MmMapIoSpace(MmGetPhysicalAddress((void*)ncCInfo->ILBuffAddr), (SIZE_T)ncCInfo->ILBuffLen, 0);
+			memset(ncImageLoadEventSettings.buff, 0, ncCInfo->ILBuffLen);
+			ncImageLoadEventSettings.buffSize = ncCInfo->ILBuffLen;
+			ncImageLoadEventSettings.maxEvents = (ncCInfo->ILBuffLen - 1) / sizeof(struct NC_IL_INFO);
+
+#ifdef DEBUG
+			// Report sizes
+			DbgPrint("[nC]IL Event Length %d | Total Buffered Events %d", sizeof(struct NC_IL_INFO), ncImageLoadEventSettings.maxEvents);
+
+			// Check if there is a fall-off and report it
+			if(((ncCInfo->ILBuffLen - 1) % sizeof(struct NC_IL_INFO)) > 0)
+				DbgPrint("[nC]ILBuff Falloff! %d bytes can be trimmed!", ((ncCInfo->ILBuffLen - 1) % sizeof(struct NC_IL_INFO)));
+#endif
+
+			// Debug
+			NCLOG("Ready for reporting!");
 		}else{
 			// Did not pass security check!
 			NCLOG("Did not pass security check; ignoring");
@@ -117,7 +164,7 @@ NTSTATUS DrvDispatch(IN PDEVICE_OBJECT device, IN PIRP Irp)
  * Called when a device/file is opened/closed.
  *	This is used to ready-up our IO Link
  */
-NTSTATUS DrvCreateClose(IN PDEVICE_OBJECT, IN PIRP Irp)
+NTSTATUS DrvCreateClose(IN PDEVICE_OBJECT obj, IN PIRP Irp)
 {
 	// Null out values (reset)
 	Irp->IoStatus.Information = 0;
@@ -135,6 +182,20 @@ NTSTATUS DrvCreateClose(IN PDEVICE_OBJECT, IN PIRP Irp)
  */
 void DrvUnload(IN PDRIVER_OBJECT driver)
 {
+	UNICODE_STRING devLink;
+
+	// Unmap our output
+	MmUnmapIoSpace(ncImageLoadEventSettings.buff, ncImageLoadEventSettings.buffSize);
+
+	// Setup string
+	RtlInitUnicodeString(&devLink, devicelink);
+
+	// Delete symlink
+	IoDeleteSymbolicLink(&devLink);
+
+	// Delete device
+	IoDeleteDevice(driver->DeviceObject);
+
 	// Remove our callback if it had succeeded (this should
 	//	always be true)
 	if(cbRegistered == STATUS_SUCCESS)
@@ -152,24 +213,50 @@ NTSTATUS DriverEntry(IN PDRIVER_OBJECT driver, IN PUNICODE_STRING path)
 	// Setup vars
 	PDEVICE_OBJECT devObj = NULL;
 	UNICODE_STRING devLink, devName;
+	NTSTATUS ntsDevCreate;
 
 	// Convert our strings
 	RtlInitUnicodeString(&devLink, devicelink);
 	RtlInitUnicodeString(&devName, devicename);
 
 	// Create device
-	IoCreateDevice(driver, 256, &devName, FILE_DEVICE_UNKNOWN, 0, TRUE, &devObj);
+	ntsDevCreate = IoCreateDevice(driver, 256, &devName, FILE_DEVICE_UNKNOWN, 0, TRUE, &devObj);
+	if(ntsDevCreate == STATUS_SUCCESS)
+	{
+		// Debug
+		NCLOG("Successfully created IO Device");
 
-	// Create link
-	IoCreateSymbolicLink(&devLink, &devName);
+		// Create link
+		if(IoCreateSymbolicLink(&devLink, &devName) != STATUS_SUCCESS)
+			NCLOG("Could not create symbolic link!");
+	}else {
+		switch(ntsDevCreate)
+		{
+		case STATUS_INSUFFICIENT_RESOURCES:
+			NCLOG("Could not create device: Insufficient Resources");
+			break;
+		case STATUS_OBJECT_NAME_EXISTS:
+			NCLOG("Could not create device: Object name already exists");
+			break;
+		case STATUS_OBJECT_NAME_COLLISION:
+			NCLOG("Could not create device: Object name collision");
+			break;
+		default:
+			NCLOG("Could not create device: Unknown error");
+			break;
+		}
+	}
 
 	// Set major functions
 	driver->MajorFunction[IRP_MJ_CREATE] = DrvCreateClose;
 	driver->MajorFunction[IRP_MJ_CLOSE] = DrvCreateClose;
-
+	driver->MajorFunction[IRP_MJ_DEVICE_CONTROL] = DrvDispatch;
 
 	// Set unload function
 	driver->DriverUnload = DrvUnload;
+
+	// Setup synchronization
+	KeInitializeEvent(&event, SynchronizationEvent, 1);
 
 	// Store the success of our callback
 	cbRegistered = PsSetLoadImageNotifyRoutine((PLOAD_IMAGE_NOTIFY_ROUTINE*)&ImageLoadCallback);

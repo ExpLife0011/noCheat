@@ -2,10 +2,18 @@
 #include <iostream>
 #include <tchar.h>
 
+/*
+ * Connection info sent from the service
+ */
+struct NC_CONNECT_INFO
+{
+	unsigned long secCode; // The security code - currently EAT_STOOL
+	unsigned long ILBuffAddr;	// The address to map to for image-loading events
+	unsigned long ILBuffLen; // The buffer length (in bytes) for image-loading events
+};
+
 int main()
 {
-	printf("Signaling to hook MessageBoxW\n");
-
 	//open device
 	HANDLE device = CreateFile("\\\\.\\NOCHEAT",GENERIC_READ|GENERIC_WRITE,0,0,OPEN_EXISTING,FILE_ATTRIBUTE_SYSTEM,0);
 	
@@ -15,21 +23,17 @@ int main()
 		system("pause");
 		return 1;
 	}
-	char outputbuff[256];
+	char outputbuff[1024*32];
 	DWORD controlbuff[64];
 	DWORD dw;
 
-	// get index of NtCreateSection, and pass it to the driver, along with the
-	//address of output buffer
-	printf("Getting address of MessageBoxW\n");
+	NC_CONNECT_INFO n;
+	n.ILBuffAddr = (unsigned long)&outputbuff;
+	n.ILBuffLen = 1024*32;
+	n.secCode = 0xEA757001;
 
-	DWORD * addr = (DWORD *)(1+(DWORD)GetProcAddress(LoadLibrary("User32.dll"),"MessageBoxW"));
-	printf("Zeroing memory...\n");
-	ZeroMemory(outputbuff,256);
-	printf("Setting controlbuff 0\n");
-	controlbuff[0]=(*addr);
-	printf("Setting controlbuff 1\n");
-	controlbuff[1]=(DWORD)&outputbuff[0];
+	memcpy(&controlbuff, &n, sizeof(NC_CONNECT_INFO));
+
 	printf("Calling DeviceIoControl\n");
 	DeviceIoControl(device,1000,controlbuff,256,controlbuff,256,&dw,0);
 	printf("Closing handle\n");
