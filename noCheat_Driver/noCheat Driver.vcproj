@@ -89,6 +89,34 @@
 				>
 			</File>
 		</Filter>
+		<Filter
+			Name="ASM Modules"
+			>
+			<Filter
+				Name="IA64"
+				>
+				<File
+					RelativePath=".\ia64\modules.s"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="AMD64"
+				>
+				<File
+					RelativePath=".\amd64\modules.asm"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="i386"
+				>
+				<File
+					RelativePath=".\i386\modules.asm"
+					>
+				</File>
+			</Filter>
+		</Filter>
 	</Files>
 	<Globals>
 	</Globals>

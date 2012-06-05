@@ -1,0 +1,11 @@
+1>errors in directory c:\users\administrator\documents\nocheat\nocheat\nocheat_driver
+1>c:\users\administrator\documents\nocheat\nocheat\nocheat_driver\ncdriver.c(27) : error C2143: syntax error : missing ';' before 'type'
+1>c:\users\administrator\documents\nocheat\nocheat\nocheat_driver\ncdriver.c(28) : error C2065: 'ncInf' : undeclared identifier
+1>c:\users\administrator\documents\nocheat\nocheat\nocheat_driver\ncdriver.c(28) : error C2224: left of '.hwndProcessId' must have struct/union type
+1>c:\users\administrator\documents\nocheat\nocheat\nocheat_driver\ncdriver.c(29) : error C2065: 'ncInf' : undeclared identifier
+1>c:\users\administrator\documents\nocheat\nocheat\nocheat_driver\ncdriver.c(29) : error C2224: left of '.pinfImageInfo' must have struct/union type
+1>c:\users\administrator\documents\nocheat\nocheat\nocheat_driver\ncdriver.c(30) : error C2065: 'ncInf' : undeclared identifier
+1>c:\users\administrator\documents\nocheat\nocheat\nocheat_driver\ncdriver.c(30) : error C2224: left of '.puszFullImageName' must have struct/union type
+1>c:\users\administrator\documents\nocheat\nocheat\nocheat_driver\ncdriver.c(32) : error C2065: 'ncInf' : undeclared identifier
+1>c:\users\administrator\documents\nocheat\nocheat\nocheat_driver\ncdriver.c(32) : error C2224: left of '.puszFullImageName' must have struct/union type
+1>link : error LNK1181: cannot open input file 'c:\users\administrator\documents\nocheat\nocheat\nocheat_driver\objchk_win7_x86\i386\ncdriver.obj'

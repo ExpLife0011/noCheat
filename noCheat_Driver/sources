@@ -6,3 +6,6 @@ TARGETPATH=obj
 INCLUDES=C:\WinDDK\7600.16385.1\inc\ddk
 
 SOURCES = ncDriver.c
+#IA64_SOURCES = ia64\modules.s
+#AMD64_SOURCES = amd64\modules.asm
+#I386_SOURCES = i386\modules.asm

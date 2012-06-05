@@ -68,11 +68,34 @@ oacr invalidate root:x86chk /autocleanqueue
 1> /FIC:\WinDDK\7600.16385.1\inc\api\warning.h
 1> .\ncdriver.c 
 1>ncdriver.c
-1>c:\users\administrator\documents\nocheat\nocheat\nocheat_driver\ncdriver.c(77) : warning C4022: 'MmUnmapIoSpace' : pointer mismatch for actual parameter 1
+1>c:\users\administrator\documents\nocheat\nocheat\nocheat_driver\ncdriver.c(27) : error C2143: syntax error : missing ';' before 'type'
+1>errors in directory c:\users\administrator\documents\nocheat\nocheat\nocheat_driver
+1>c:\users\administrator\documents\nocheat\nocheat\nocheat_driver\ncdriver.c(27) : error C2143: syntax error : missing ';' before 'type'
+1>c:\users\administrator\documents\nocheat\nocheat\nocheat_driver\ncdriver.c(28) : error C2065: 'ncInf' : undeclared identifier
+1>c:\users\administrator\documents\nocheat\nocheat\nocheat_driver\ncdriver.c(28) : error C2065: 'ncInf' : undeclared identifier
+1>c:\users\administrator\documents\nocheat\nocheat\nocheat_driver\ncdriver.c(28) : error C2224: left of '.hwndProcessId' must have struct/union type
+1>c:\users\administrator\documents\nocheat\nocheat\nocheat_driver\ncdriver.c(28) : error C2224: left of '.hwndProcessId' must have struct/union type
+1>c:\users\administrator\documents\nocheat\nocheat\nocheat_driver\ncdriver.c(29) : error C2065: 'ncInf' : undeclared identifier
+1>c:\users\administrator\documents\nocheat\nocheat\nocheat_driver\ncdriver.c(29) : error C2065: 'ncInf' : undeclared identifier
+1>c:\users\administrator\documents\nocheat\nocheat\nocheat_driver\ncdriver.c(29) : error C2224: left of '.pinfImageInfo' must have struct/union type
+1>c:\users\administrator\documents\nocheat\nocheat\nocheat_driver\ncdriver.c(29) : error C2224: left of '.pinfImageInfo' must have struct/union type
+1>c:\users\administrator\documents\nocheat\nocheat\nocheat_driver\ncdriver.c(30) : error C2065: 'ncInf' : undeclared identifier
+1>c:\users\administrator\documents\nocheat\nocheat\nocheat_driver\ncdriver.c(30) : error C2065: 'ncInf' : undeclared identifier
+1>c:\users\administrator\documents\nocheat\nocheat\nocheat_driver\ncdriver.c(30) : error C2224: left of '.puszFullImageName' must have struct/union type
+1>c:\users\administrator\documents\nocheat\nocheat\nocheat_driver\ncdriver.c(30) : error C2224: left of '.puszFullImageName' must have struct/union type
+1>c:\users\administrator\documents\nocheat\nocheat\nocheat_driver\ncdriver.c(32) : error C2065: 'ncInf' : undeclared identifier
+1>c:\users\administrator\documents\nocheat\nocheat\nocheat_driver\ncdriver.c(32) : error C2065: 'ncInf' : undeclared identifier
+1>c:\users\administrator\documents\nocheat\nocheat\nocheat_driver\ncdriver.c(32) : error C2224: left of '.puszFullImageName' must have struct/union type
+1>c:\users\administrator\documents\nocheat\nocheat\nocheat_driver\ncdriver.c(32) : error C2224: left of '.puszFullImageName' must have struct/union type
+1>c:\users\administrator\documents\nocheat\nocheat\nocheat_driver\ncdriver.c(38) : warning C4047: 'function' : 'PLOAD_IMAGE_NOTIFY_ROUTINE' differs in levels of indirection from 'PLOAD_IMAGE_NOTIFY_ROUTINE *'
 1>warnings in directory c:\users\administrator\documents\nocheat\nocheat\nocheat_driver
-1>c:\users\administrator\documents\nocheat\nocheat\nocheat_driver\ncdriver.c(77) : warning C4022: 'MmUnmapIoSpace' : pointer mismatch for actual parameter 1
-1>c:\users\administrator\documents\nocheat\nocheat\nocheat_driver\ncdriver.c(125) : warning C4022: 'MmUnmapIoSpace' : pointer mismatch for actual parameter 1
-1>c:\users\administrator\documents\nocheat\nocheat\nocheat_driver\ncdriver.c(125) : warning C4022: 'MmUnmapIoSpace' : pointer mismatch for actual parameter 1
+1>c:\users\administrator\documents\nocheat\nocheat\nocheat_driver\ncdriver.c(38) : warning C4047: 'function' : 'PLOAD_IMAGE_NOTIFY_ROUTINE' differs in levels of indirection from 'PLOAD_IMAGE_NOTIFY_ROUTINE *'
+1>c:\users\administrator\documents\nocheat\nocheat\nocheat_driver\ncdriver.c(38) : warning C4024: 'PsRemoveLoadImageNotifyRoutine' : different types for formal and actual parameter 1
+1>c:\users\administrator\documents\nocheat\nocheat\nocheat_driver\ncdriver.c(38) : warning C4024: 'PsRemoveLoadImageNotifyRoutine' : different types for formal and actual parameter 1
+1>c:\users\administrator\documents\nocheat\nocheat\nocheat_driver\ncdriver.c(47) : warning C4047: 'function' : 'PLOAD_IMAGE_NOTIFY_ROUTINE' differs in levels of indirection from 'PLOAD_IMAGE_NOTIFY_ROUTINE *'
+1>c:\users\administrator\documents\nocheat\nocheat\nocheat_driver\ncdriver.c(47) : warning C4047: 'function' : 'PLOAD_IMAGE_NOTIFY_ROUTINE' differs in levels of indirection from 'PLOAD_IMAGE_NOTIFY_ROUTINE *'
+1>c:\users\administrator\documents\nocheat\nocheat\nocheat_driver\ncdriver.c(47) : warning C4024: 'PsSetLoadImageNotifyRoutine' : different types for formal and actual parameter 1
+1>c:\users\administrator\documents\nocheat\nocheat\nocheat_driver\ncdriver.c(47) : warning C4024: 'PsSetLoadImageNotifyRoutine' : different types for formal and actual parameter 1
 1> C:\WinDDK\7600.16385.1\Bin\x86\oacr\oacrlink /out:c:\users\administrator\documents\nocheat\nocheat\nocheat_driver\objchk_win7_x86\i386\ncDriver.sys /machine:ix86 @c:\users\administrator\documents\nocheat\nocheat\nocheat_driver\objchk_win7_x86\i386\lnk.rsp
 1>Microsoft (R) Incremental Linker Version 9.00.30729.207
 1>Copyright (C) Microsoft Corporation.  All rights reserved.
@@ -104,3 +127,5 @@ oacr invalidate root:x86chk /autocleanqueue
 1>C:\WinDDK\7600.16385.1\lib\win7\i386\ntoskrnl.lib 
 1>C:\WinDDK\7600.16385.1\lib\win7\i386\hal.lib 
 1>C:\WinDDK\7600.16385.1\lib\win7\i386\wmilib.lib 
+1>LINK : fatal error LNK1181: cannot open input file 'c:\users\administrator\documents\nocheat\nocheat\nocheat_driver\objchk_win7_x86\i386\ncdriver.obj'
+1>link : error LNK1181: cannot open input file 'c:\users\administrator\documents\nocheat\nocheat\nocheat_driver\objchk_win7_x86\i386\ncdriver.obj'

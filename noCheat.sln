@@ -29,6 +29,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "noCheat Driver", "noCheat_D
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Driver Signal Test App", "Driver Signal Test App\Driver Signal Test App.vcproj", "{17A3CC67-22E2-4332-9CE0-A7113744A35A}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Test MessageBoxW", "Test MessageBoxW\Test MessageBoxW.vcproj", "{DE52EF5C-EC6D-4BCF-A445-6A542A5BB668}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -67,6 +69,10 @@ Global
 		{17A3CC67-22E2-4332-9CE0-A7113744A35A}.Debug|Win32.Build.0 = Debug|Win32
 		{17A3CC67-22E2-4332-9CE0-A7113744A35A}.Release|Win32.ActiveCfg = Release|Win32
 		{17A3CC67-22E2-4332-9CE0-A7113744A35A}.Release|Win32.Build.0 = Release|Win32
+		{DE52EF5C-EC6D-4BCF-A445-6A542A5BB668}.Debug|Win32.ActiveCfg = Debug|Win32
+		{DE52EF5C-EC6D-4BCF-A445-6A542A5BB668}.Debug|Win32.Build.0 = Debug|Win32
+		{DE52EF5C-EC6D-4BCF-A445-6A542A5BB668}.Release|Win32.ActiveCfg = Release|Win32
+		{DE52EF5C-EC6D-4BCF-A445-6A542A5BB668}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

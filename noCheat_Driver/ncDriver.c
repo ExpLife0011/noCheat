@@ -1,162 +1,193 @@
+/************************************************************************/
+/*   noCheat Kernel-Mode Driver                                         */
+/*      This driver is used by the noCheat system to monitor            */
+/*      processes being created and to monitor which DLLs or            */
+/*      modules they load.                                              */
+/*                                                                      */
+/*                                                                      */
+/*      This kernel-mode driver should not be altered passed            */
+/*      its intended purpose, and is to be tested thoroughly            */
+/*      before being released to the public.                            */
+/************************************************************************/
+
 #include <ntddk.h>
 
-struct SYS_SERVICE_TABLE { 
-	void **ServiceTable; 
-	unsigned long CounterTable; 
-	unsigned long ServiceLimit; 
-	void **ArgumentsTable; 
+// Debug?
+//	Comment out to set to release mode
+//	(**THIS MUST BE DONE MANUALLY SINCE VS
+//	DOES NOT SIGNAL TO THE BUILD ENVIRONMENTS!**)
+#define DEBUG
+
+// Setup logging
+#ifdef DEBUG
+#define NCLOG(a) DbgPrint("[nC]%s",a)
+#else
+#define NCLOG(a)
+#endif
+
+// Our nC device/link constants
+const WCHAR devicename[] = L"\\Device\\noCheat";
+const WCHAR devicelink[] = L"\\DosDevices\\NOCHEAT";
+const DWORD EAT_STOOL = 0xEA757001; // EAT_STOOL - Yum.
+
+struct NC_CONNECT_INFO
+{
+	DWORD secCode; // The security code - currently EAT_STOOL
+	DWORD addr;	// The address to map to
 };
 
-const WCHAR devicename[]=L"\\Device\\noCheat";
-const WCHAR devicelink[]=L"\\DosDevices\\NOCHEAT";
-
-KEVENT event;
-ULONG Index,RealCallee;
-char* output;
-extern struct SYS_SERVICE_TABLE *KeServiceDescriptorTable; 
-
-
-//this function decides whether we should allow NtCreateSection() call to be successfull
-VOID __stdcall check(PULONG arg)
+/*
+ * Our condensed image load struct
+ *	that is passed back to the user-land service
+ */
+struct NC_IL_INFO
 {
-	DbgPrint("Hook fired!");
+	UNICODE_STRING puszFullImageName;
+	HANDLE hwndProcessId;
+	PIMAGE_INFO pinfImageInfo;
+};
+
+NTSTATUS cbRegistered;
+
+/*
+ * Image Load Callback
+ */
+VOID ImageLoadCallback(
+							  __in_opt PUNICODE_STRING FullImageName,
+							  __in HANDLE  ProcessId,
+							  __in PIMAGE_INFO  ImageInfo
+							  )
+{
+	// Define/populate our condensed struct to be passed
+	//	back to the user-land noCheat service
+	struct NC_IL_INFO ncInf;
+	ncInf.hwndProcessId = ProcessId;
+	ncInf.pinfImageInfo = ImageInfo;
+	ncInf.puszFullImageName = *FullImageName;
+
+	// Debug
+#ifdef DEBUG
+	DbgPrint("[nC]Image(%d): %wZ", ProcessId, &ncInf.puszFullImageName);
+#endif
 }
 
-
-//just saves execution contect and calls check() 
-_declspec(naked) Proxy()
+NTSTATUS DrvDispatch(IN PDEVICE_OBJECT device, IN PIRP Irp)
 {
+	// Get our current stack location
+	PIO_STACK_LOCATION pLoc = IoGetCurrentIrpStackLocation(Irp);
 
-	_asm {
-
-			//save execution contect and calls check()
-			pushfd
-			pushad
-			mov ebx,esp
-			add ebx,40
-			push ebx
-			call check
-
-			//proceed to the actual callee
-			popad
-			popfd
-			jmp RealCallee
-	}
-}
-
-
-NTSTATUS DrvDispatch(IN PDEVICE_OBJECT device,IN PIRP Irp)
-
-{
-	UCHAR*buff=0; ULONG a,base;
-
-
-
-	PIO_STACK_LOCATION loc=IoGetCurrentIrpStackLocation(Irp);
-
-	if(loc->Parameters.DeviceIoControl.IoControlCode==1000)
+	// Check that our control code is correct
+	//	This *should* change from time to time to
+	//	increase security
+	if(pLoc->Parameters.DeviceIoControl.IoControlCode == 1000)
 	{
-		buff=(UCHAR*)Irp->AssociatedIrp.SystemBuffer;
+		// Debug
+		NCLOG("Received link");
+		
+		// Get the contents
+		UCHAR* buff = (UCHAR*)Irp->AssociatedIrp.SystemBuffer;
+		
+		// Create a pointer to connect information
+		NC_CONNECT_INFO* ncCInfo = (NC_CONNECT_INFO*)buff;
 
-
-		// hook service dispatch table
-		memmove(&Index,buff,4);
-		a=4*Index+(ULONG)KeServiceDescriptorTable->ServiceTable;
-		base=(ULONG)MmMapIoSpace(MmGetPhysicalAddress((void*)a),4,0);
-		a=(ULONG)&Proxy;
-
-		_asm
+		// Check our security
+		if(ncCInfo->secCode == EAT_STOOL)
 		{
-				mov eax,base
-				mov ebx,dword ptr[eax]
-				mov RealCallee,ebx
-				mov ebx,a
-				mov dword ptr[eax],ebx
+			// Security code passed! - Debug
+			NCLOG("Passed security check");
+
+			// Map address
+		}else{
+			// Did not pass security check!
+			NCLOG("Did not pass security check; ignoring");
 		}
-
-		MmUnmapIoSpace(base,4);
-
-		memmove(&a,&buff[4],4);
-		output=(char*)MmMapIoSpace(MmGetPhysicalAddress((void*)a),256,0);
 	}
 
+	// Set success status
+	Irp->IoStatus.Status = 0;
 
+	// Complete the request
+	IoCompleteRequest(Irp, IO_NO_INCREMENT);
 
-	Irp->IoStatus.Status=0;
-	IoCompleteRequest(Irp,IO_NO_INCREMENT);
+	// Return success
 	return 0;
-
-
 }
 
-
-
-// nothing special
-NTSTATUS DrvCreateClose(IN PDEVICE_OBJECT device,IN PIRP Irp)
-
+/*
+ * Called when a device/file is opened/closed.
+ *	This is used to ready-up our IO Link
+ */
+NTSTATUS DrvCreateClose(IN PDEVICE_OBJECT, IN PIRP Irp)
 {
+	// Null out values (reset)
+	Irp->IoStatus.Information = 0;
+	Irp->IoStatus.Status = 0;
 
-	Irp->IoStatus.Information=0;
-	Irp->IoStatus.Status=0;
-	IoCompleteRequest(Irp,IO_NO_INCREMENT);
+	// Complete request
+	IoCompleteRequest(Irp, IO_NO_INCREMENT);
+
+	// Return success
 	return 0;
-
 }
 
-
-
-// nothing special -just a cleanup
+/*
+ * Driver unload function
+ */
 void DrvUnload(IN PDRIVER_OBJECT driver)
 {
-	UNICODE_STRING devlink;
-	ULONG a,base;
+	// Remove our callback if it had succeeded (this should
+	//	always be true)
+	if(cbRegistered == STATUS_SUCCESS)
+		PsRemoveLoadImageNotifyRoutine((PLOAD_IMAGE_NOTIFY_ROUTINE*)&ImageLoadCallback);
 
-	//unhook dispatch table
-	a=4*Index+(ULONG)KeServiceDescriptorTable->ServiceTable;
-	base=(ULONG)MmMapIoSpace(MmGetPhysicalAddress((void*)a),4,0);
-
-	_asm
-	{
-		mov eax,base
-			mov ebx,RealCallee
-			mov dword ptr[eax],ebx
-	}
-
-	MmUnmapIoSpace(base,4);
-	MmUnmapIoSpace(output,256);
-
-	RtlInitUnicodeString(&devlink,devicelink);
-	IoDeleteSymbolicLink(&devlink);
-	IoDeleteDevice(driver->DeviceObject);
+	// Output our debug
+	NCLOG("Unloaded Driver");
 }
 
-
-//DriverEntry just creates our device - nothing special here
-NTSTATUS DriverEntry(IN PDRIVER_OBJECT driver,IN PUNICODE_STRING path)
+/*
+ * Main Driver Entry Point
+ */
+NTSTATUS DriverEntry(IN PDRIVER_OBJECT driver, IN PUNICODE_STRING path)
 {
+	// Setup vars
+	PDEVICE_OBJECT devObj = NULL;
+	UNICODE_STRING devLink, devName;
 
-	PDEVICE_OBJECT devobject=0;
+	// Convert our strings
+	RtlInitUnicodeString(&devLink, devicelink);
+	RtlInitUnicodeString(&devName, devicename);
 
-	UNICODE_STRING devlink,devname;
+	// Create device
+	IoCreateDevice(driver, 256, &devName, FILE_DEVICE_UNKNOWN, 0, TRUE, &devObj);
 
-	ULONG a,b;
+	// Create link
+	IoCreateSymbolicLink(&devLink, &devName);
 
-
-
-	RtlInitUnicodeString(&devname,devicename);
-	RtlInitUnicodeString(&devlink,devicelink);
-
-	IoCreateDevice(driver,256,&devname,FILE_DEVICE_UNKNOWN,0,TRUE,&devobject);
-	IoCreateSymbolicLink(&devlink,&devname);
-
-
-
-	driver->MajorFunction[IRP_MJ_DEVICE_CONTROL]=DrvDispatch;
-	driver->MajorFunction[IRP_MJ_CREATE]=DrvCreateClose;
-	driver->MajorFunction[IRP_MJ_CLOSE]=DrvCreateClose;
-	driver->DriverUnload=DrvUnload;
-	KeInitializeEvent(&event,SynchronizationEvent,1);
+	// Set major functions
+	driver->MajorFunction[IRP_MJ_CREATE] = DrvCreateClose;
+	driver->MajorFunction[IRP_MJ_CLOSE] = DrvCreateClose;
 
 
-	return 0;
+	// Set unload function
+	driver->DriverUnload = DrvUnload;
+
+	// Store the success of our callback
+	cbRegistered = PsSetLoadImageNotifyRoutine((PLOAD_IMAGE_NOTIFY_ROUTINE*)&ImageLoadCallback);
+
+	// Check callback success and debug
+	if(cbRegistered == STATUS_SUCCESS)
+		NCLOG("Successfully Registered Callback");
+	else
+	{
+		NCLOG("Could not load callback!");
+
+		// Return severe error
+		return STATUS_SEVERITY_ERROR;
+	}
+
+	// Debug that we're starting!
+	NCLOG("Starting Driver");
+
+	// Return success!
+	return STATUS_SUCCESS;
 }
