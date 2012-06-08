@@ -36,6 +36,12 @@ int main()
 
 	printf("Calling DeviceIoControl\n");
 	DeviceIoControl(device,1000,controlbuff,256,controlbuff,256,&dw,0);
+
+
+	while(true){
+		Sleep(10);
+	}
+
 	printf("Closing handle\n");
 	CloseHandle(device);
 

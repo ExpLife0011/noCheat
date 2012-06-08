@@ -20,7 +20,7 @@
 
 // Setup logging
 #ifdef DEBUG
-#define NCLOG(a) DbgPrint("[nC]%s",a)
+#define NCLOG(a) DbgPrint("[nC]%s\n",a)
 #else
 #define NCLOG(a)
 #endif
@@ -81,10 +81,13 @@ VOID ImageLoadCallback(
 {
 	ANSI_STRING strr;
 	void* pnt;
+	struct NC_IL_INFO ncInf;
+
+	// Check to see nCS has connected and return if not
+	if(ncImageLoadEventSettings.buff == NULL) return;
 
 	// Define/populate our condensed struct to be passed
 	//	back to the user-land noCheat service
-	struct NC_IL_INFO ncInf;
 	ncInf.hwndProcessId = ProcessId;
 	ncInf.pinfImageInfo = ImageInfo;
 	
@@ -121,7 +124,7 @@ VOID ImageLoadCallback(
 
 	// Debug
 #ifdef DEBUG
-	DbgPrint("[nC]Image(%d): %wZ", ProcessId, FullImageName);
+	DbgPrint("[nC]Image(%d): %wZ\n", ProcessId, FullImageName);
 #endif
 }
 
@@ -155,11 +158,11 @@ NTSTATUS DrvDispatch(IN PDEVICE_OBJECT device, IN PIRP Irp)
 
 #ifdef DEBUG
 			// Report sizes
-			DbgPrint("[nC]IL Event Length %d | Total Buffered Events %d", sizeof(struct NC_IL_INFO), ncImageLoadEventSettings.maxEvents);
+			DbgPrint("[nC]IL Event Length %d | Total Buffered Events %d\n", sizeof(struct NC_IL_INFO), ncImageLoadEventSettings.maxEvents);
 
 			// Check if there is a fall-off and report it
 			if(((ncCInfo->ILBuffLen - 1) % sizeof(struct NC_IL_INFO)) > 0)
-				DbgPrint("[nC]ILBuff Falloff! %d bytes can be trimmed!", ((ncCInfo->ILBuffLen - 1) % sizeof(struct NC_IL_INFO)));
+				DbgPrint("[nC]ILBuff Falloff! %d bytes can be trimmed!\n", ((ncCInfo->ILBuffLen - 1) % sizeof(struct NC_IL_INFO)));
 #endif
 
 			// Debug
@@ -234,6 +237,9 @@ NTSTATUS DriverEntry(IN PDRIVER_OBJECT driver, IN PUNICODE_STRING path)
 	PDEVICE_OBJECT devObj = NULL;
 	UNICODE_STRING devLink, devName;
 	NTSTATUS ntsDevCreate;
+
+	// Break
+	DbgBreakPoint();
 
 	// Convert our strings
 	RtlInitUnicodeString(&devLink, devicelink);
