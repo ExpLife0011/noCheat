@@ -1,5 +1,6 @@
 1>warnings in directory c:\users\administrator\documents\nocheat\nocheat\nocheat_driver
-1>c:\users\administrator\documents\nocheat\nocheat\nocheat_driver\ncdriver.c(250) : warning C4047: 'function' : 'PLOAD_IMAGE_NOTIFY_ROUTINE' differs in levels of indirection from 'PLOAD_IMAGE_NOTIFY_ROUTINE *'
-1>c:\users\administrator\documents\nocheat\nocheat\nocheat_driver\ncdriver.c(250) : warning C4024: 'PsRemoveLoadImageNotifyRoutine' : different types for formal and actual parameter 1
-1>c:\users\administrator\documents\nocheat\nocheat\nocheat_driver\ncdriver.c(313) : warning C4047: 'function' : 'PLOAD_IMAGE_NOTIFY_ROUTINE' differs in levels of indirection from 'PLOAD_IMAGE_NOTIFY_ROUTINE *'
-1>c:\users\administrator\documents\nocheat\nocheat\nocheat_driver\ncdriver.c(313) : warning C4024: 'PsSetLoadImageNotifyRoutine' : different types for formal and actual parameter 1
+1>c:\users\administrator\documents\nocheat\nocheat\nocheat_driver\ncdriver.c(99) : warning C4047: '=' : 'void *' differs in levels of indirection from 'size_t'
+1>c:\users\administrator\documents\nocheat\nocheat\nocheat_driver\ncdriver.c(232) : warning C4047: 'function' : 'PLOAD_IMAGE_NOTIFY_ROUTINE' differs in levels of indirection from 'PLOAD_IMAGE_NOTIFY_ROUTINE *'
+1>c:\users\administrator\documents\nocheat\nocheat\nocheat_driver\ncdriver.c(232) : warning C4024: 'PsRemoveLoadImageNotifyRoutine' : different types for formal and actual parameter 1
+1>c:\users\administrator\documents\nocheat\nocheat\nocheat_driver\ncdriver.c(295) : warning C4047: 'function' : 'PLOAD_IMAGE_NOTIFY_ROUTINE' differs in levels of indirection from 'PLOAD_IMAGE_NOTIFY_ROUTINE *'
+1>c:\users\administrator\documents\nocheat\nocheat\nocheat_driver\ncdriver.c(295) : warning C4024: 'PsSetLoadImageNotifyRoutine' : different types for formal and actual parameter 1

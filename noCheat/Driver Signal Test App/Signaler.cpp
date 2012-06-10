@@ -3,15 +3,19 @@
 #include <tchar.h>
 #include <conio.h>
 
+#include "driverdefines.h"
+
+// Setup output buff
+unsigned char outputbuff[1024*32];
+
 /*
- * Connection info sent from the service
+ * Waits for the driver to be finished writing
  */
-struct NC_CONNECT_INFO
+inline void waitForDriver()
 {
-	unsigned long secCode; // The security code - currently EAT_STOOL
-	unsigned long ILBuffAddr;	// The address to map to for image-loading events
-	unsigned long ILBuffLen; // The buffer length (in bytes) for image-loading events
-};
+	NC_IL_HEAD* head = (NC_IL_HEAD*)outputbuff;
+	while(head->dwrite == 1);
+}
 
 int main()
 {
@@ -24,29 +28,42 @@ int main()
 		system("pause");
 		return 1;
 	}
-	unsigned char outputbuff[1024*32];
+	
 	DWORD controlbuff[64];
 	DWORD dw;
 
 	NC_CONNECT_INFO n;
 	n.ILBuffAddr = (unsigned long)&outputbuff;
 	n.ILBuffLen = 1024*32;
-	n.secCode = 0xEA757001;
+	n.secCode = EAT_STOOL;
 
 	memcpy(&controlbuff, &n, sizeof(NC_CONNECT_INFO));
 
 	printf("Calling DeviceIoControl\n");
-	DeviceIoControl(device,1000,controlbuff,256,controlbuff,256,&dw,0);
+	BOOL suc = DeviceIoControl(device,1000,controlbuff,256,controlbuff,256,&dw,0);
+	if(!suc) {
+		printf("Could not dispatch driver link!\n");
+		system("pause");
+		return 2;
+	}
 
-	unsigned char cnt = 0;
+	NC_IL_HEAD* head = (NC_IL_HEAD*)outputbuff;
 
-	while(cnt < 200)
+	while(true)
 	{
-		if(cnt != outputbuff[0])
+		waitForDriver();
+		head->swrite = 1;
+		if(outputbuff[0] > 0)
 		{
-			cnt = outputbuff[0];
-			printf("Recvd (%d)\n", cnt);
+			
+			for(unsigned char i = 0; i < outputbuff[0]; i++)
+			{
+				NC_IL_INFO* inf = (NC_IL_INFO*)((int)outputbuff + sizeof(NC_IL_HEAD) + (i * sizeof(struct NC_IL_INFO)));
+				printf("Recvd: (%d) %s\n", inf->hwndProcessId, (char*)(inf->puszFullImageName));
+			}
+			outputbuff[0] = 0;
 		}
+		head->swrite = 0;
 		Sleep(1);
 	}
 

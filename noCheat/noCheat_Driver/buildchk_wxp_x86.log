@@ -69,17 +69,19 @@ oacr invalidate root:x86chk /autocleanqueue
 1> /FIC:\WinDDK\7600.16385.1\inc\api\warning.h
 1> .\ncdriver.c 
 1>ncdriver.c
-1>c:\users\administrator\documents\nocheat\nocheat\nocheat_driver\ncdriver.c(174) : warning C4244: 'function' : conversion from 'unsigned long' to 'unsigned char', possible loss of data
+1>c:\users\administrator\documents\nocheat\nocheat\nocheat_driver\ncdriver.c(99) : warning C4047: '=' : 'void *' differs in levels of indirection from 'unsigned int'
 1>warnings in directory c:\users\administrator\documents\nocheat\nocheat\nocheat_driver
-1>c:\users\administrator\documents\nocheat\nocheat\nocheat_driver\ncdriver.c(174) : warning C4244: 'function' : conversion from 'unsigned long' to 'unsigned char', possible loss of data
-1>c:\users\administrator\documents\nocheat\nocheat\nocheat_driver\ncdriver.c(250) : warning C4047: 'function' : 'PLOAD_IMAGE_NOTIFY_ROUTINE' differs in levels of indirection from 'PLOAD_IMAGE_NOTIFY_ROUTINE *'
-1>c:\users\administrator\documents\nocheat\nocheat\nocheat_driver\ncdriver.c(250) : warning C4047: 'function' : 'PLOAD_IMAGE_NOTIFY_ROUTINE' differs in levels of indirection from 'PLOAD_IMAGE_NOTIFY_ROUTINE *'
-1>c:\users\administrator\documents\nocheat\nocheat\nocheat_driver\ncdriver.c(250) : warning C4024: 'PsRemoveLoadImageNotifyRoutine' : different types for formal and actual parameter 1
-1>c:\users\administrator\documents\nocheat\nocheat\nocheat_driver\ncdriver.c(250) : warning C4024: 'PsRemoveLoadImageNotifyRoutine' : different types for formal and actual parameter 1
-1>c:\users\administrator\documents\nocheat\nocheat\nocheat_driver\ncdriver.c(313) : warning C4047: 'function' : 'PLOAD_IMAGE_NOTIFY_ROUTINE' differs in levels of indirection from 'PLOAD_IMAGE_NOTIFY_ROUTINE *'
-1>c:\users\administrator\documents\nocheat\nocheat\nocheat_driver\ncdriver.c(313) : warning C4047: 'function' : 'PLOAD_IMAGE_NOTIFY_ROUTINE' differs in levels of indirection from 'PLOAD_IMAGE_NOTIFY_ROUTINE *'
-1>c:\users\administrator\documents\nocheat\nocheat\nocheat_driver\ncdriver.c(313) : warning C4024: 'PsSetLoadImageNotifyRoutine' : different types for formal and actual parameter 1
-1>c:\users\administrator\documents\nocheat\nocheat\nocheat_driver\ncdriver.c(313) : warning C4024: 'PsSetLoadImageNotifyRoutine' : different types for formal and actual parameter 1
+1>c:\users\administrator\documents\nocheat\nocheat\nocheat_driver\ncdriver.c(99) : warning C4047: '=' : 'void *' differs in levels of indirection from 'unsigned int'
+1>c:\users\administrator\documents\nocheat\nocheat\nocheat_driver\ncdriver.c(156) : warning C4244: 'function' : conversion from 'unsigned long' to 'unsigned char', possible loss of data
+1>c:\users\administrator\documents\nocheat\nocheat\nocheat_driver\ncdriver.c(156) : warning C4244: 'function' : conversion from 'unsigned long' to 'unsigned char', possible loss of data
+1>c:\users\administrator\documents\nocheat\nocheat\nocheat_driver\ncdriver.c(232) : warning C4047: 'function' : 'PLOAD_IMAGE_NOTIFY_ROUTINE' differs in levels of indirection from 'PLOAD_IMAGE_NOTIFY_ROUTINE *'
+1>c:\users\administrator\documents\nocheat\nocheat\nocheat_driver\ncdriver.c(232) : warning C4047: 'function' : 'PLOAD_IMAGE_NOTIFY_ROUTINE' differs in levels of indirection from 'PLOAD_IMAGE_NOTIFY_ROUTINE *'
+1>c:\users\administrator\documents\nocheat\nocheat\nocheat_driver\ncdriver.c(232) : warning C4024: 'PsRemoveLoadImageNotifyRoutine' : different types for formal and actual parameter 1
+1>c:\users\administrator\documents\nocheat\nocheat\nocheat_driver\ncdriver.c(232) : warning C4024: 'PsRemoveLoadImageNotifyRoutine' : different types for formal and actual parameter 1
+1>c:\users\administrator\documents\nocheat\nocheat\nocheat_driver\ncdriver.c(295) : warning C4047: 'function' : 'PLOAD_IMAGE_NOTIFY_ROUTINE' differs in levels of indirection from 'PLOAD_IMAGE_NOTIFY_ROUTINE *'
+1>c:\users\administrator\documents\nocheat\nocheat\nocheat_driver\ncdriver.c(295) : warning C4047: 'function' : 'PLOAD_IMAGE_NOTIFY_ROUTINE' differs in levels of indirection from 'PLOAD_IMAGE_NOTIFY_ROUTINE *'
+1>c:\users\administrator\documents\nocheat\nocheat\nocheat_driver\ncdriver.c(295) : warning C4024: 'PsSetLoadImageNotifyRoutine' : different types for formal and actual parameter 1
+1>c:\users\administrator\documents\nocheat\nocheat\nocheat_driver\ncdriver.c(295) : warning C4024: 'PsSetLoadImageNotifyRoutine' : different types for formal and actual parameter 1
 1> C:\WinDDK\7600.16385.1\Bin\x86\oacr\oacrlink /out:c:\users\administrator\documents\nocheat\nocheat\nocheat_driver\objchk_wxp_x86\i386\ncDriver.sys /machine:ix86 @c:\users\administrator\documents\nocheat\nocheat\nocheat_driver\objchk_wxp_x86\i386\lnk.rsp
 1>Microsoft (R) Incremental Linker Version 9.00.30729.207
 1>Copyright (C) Microsoft Corporation.  All rights reserved.

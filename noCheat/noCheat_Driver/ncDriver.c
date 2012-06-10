@@ -12,11 +12,14 @@
 
 #include <ntddk.h>
 
+#define _NC_DRIVER
+#include "driverdefines.h"
+
 // Debug?
 //	Comment out to set to release mode
 //	(**THIS MUST BE DONE MANUALLY SINCE VS
 //	DOES NOT SIGNAL TO THE BUILD ENVIRONMENTS!**)
-#define DEBUG
+//#define DEBUG
 
 // Setup logging
 #ifdef DEBUG
@@ -29,46 +32,21 @@
 const WCHAR devicename[] = L"\\Device\\noCheat";
 const WCHAR devicelink[] = L"\\DosDevices\\NOCHEAT";
 
-#define EAT_STOOL 0xEA757001
-
-/*
- * Connection info sent from the service
- */
-struct NC_CONNECT_INFO
-{
-	unsigned long secCode; // The security code - currently EAT_STOOL
-	unsigned long ILBuffAddr;	// The address to map to for image-loading events
-	unsigned long ILBuffLen; // The buffer length (in bytes) for image-loading events
-};
-
-/*
- * Holds information about the buffer totals
- *	and event sizes and such
- */
-struct NC_EVENT_SETTINGS
-{
-	unsigned long buffSize;
-	unsigned long maxEvents;
-	unsigned char* buff;
-};
-
-/*
- * Our condensed image load struct
- *	that is passed back to the user-land service
- */
-struct NC_IL_INFO
-{
-	char puszFullImageName[260]; // MAX_PATH, which is not available in the DDK
-	HANDLE hwndProcessId;
-	PIMAGE_INFO pinfImageInfo;
-};
-
 /*
  * Driver vars setup
  */
 NTSTATUS cbRegistered;
 struct NC_EVENT_SETTINGS ncImageLoadEventSettings;
 KEVENT event;
+
+/*
+ * Waits for the service to finish writing to the buffer
+ */
+void waitForService()
+{
+	struct NC_IL_HEAD* h = (struct NC_IL_HEAD*)ncImageLoadEventSettings.buff;
+	while(h->swrite == 1);
+}
 
 /*
  * Returns the lowest of the two
@@ -91,45 +69,49 @@ VOID ImageLoadCallback(
 	ANSI_STRING strr;
 	void* pnt;
 	struct NC_IL_INFO ncInf;
+	struct NC_IL_HEAD* ncILHead;
 
 	// Check to see nCS has connected and return if not
 	if(ncImageLoadEventSettings.buff == NULL) return;
 
-	// Define/populate our condensed struct to be passed
-	//	back to the user-land noCheat service
-	ncInf.hwndProcessId = ProcessId;
-	ncInf.pinfImageInfo = ImageInfo;
-	
-	// Memset
-	memset(&ncInf.puszFullImageName, 0, 260);
-
-	// Convert to ansi string
-	RtlUnicodeStringToAnsiString(&strr, FullImageName, 1);
-
-	// Memcpy
-	memcpy(&ncInf.puszFullImageName, strr.Buffer, strr.Length);
-
-	// Free
-	RtlFreeAnsiString(&strr);
-
-	// Wait for access to buffer
-	//KeWaitForSingleObject(&event,Executive,KernelMode,0,0);
+	// Setup head
+	ncILHead = (struct NC_IL_HEAD*)ncImageLoadEventSettings.buff;
 
 	// Check for overflow
-	if(ncImageLoadEventSettings.buff[0] >= ncImageLoadEventSettings.maxEvents)
+	if(ncILHead->count >= ncImageLoadEventSettings.maxEvents)
 	{
 		NCLOG("Reached maximum events on stack!");
 		return;
 	}
 
-	// Increment stack count
-	ncImageLoadEventSettings.buff[0] = ncImageLoadEventSettings.buff[0] + 1;
+	// Define/populate our condensed struct to be passed
+	//	back to the user-land noCheat service
+	ncInf.hwndProcessId = ProcessId;
+	memcpy(&ncInf.pinfImageInfo, ImageInfo, sizeof(IMAGE_INFO));
+	memset(&ncInf.puszFullImageName, 0, 260);
+
+	// Convert to ansi string, copy, and free
+	RtlUnicodeStringToAnsiString(&strr, FullImageName, 1);
+	memcpy(&ncInf.puszFullImageName, strr.Buffer, strr.Length);
+	RtlFreeAnsiString(&strr);
 
 	// Calculate offset
-	//pnt = (int)ncImageLoadEventSettings.buff + ((int)ncImageLoadEventSettings.buff[0] * sizeof(struct NC_IL_INFO)) + 1;
+	pnt = (void*)((int)ncImageLoadEventSettings.buff + sizeof(struct NC_IL_HEAD) + ((int)ncILHead->count * sizeof(struct NC_IL_INFO)));
+
+	// Wait for service to complete
+	waitForService();
+
+	// Mark that we're writing
+	ncILHead->dwrite = 1;
 
 	// Copy~!
-	//memcpy(pnt, &ncInf, sizeof(struct NC_IL_INFO));
+	memcpy(pnt, &ncInf, sizeof(struct NC_IL_INFO));
+
+	// Increment stack count
+	ncILHead->count = ncILHead->count + 1;
+
+	// Mark that we're done writing
+	ncILHead->dwrite = 0;
 
 	// Debug
 #ifdef DEBUG
@@ -171,15 +153,15 @@ NTSTATUS DrvDispatch(IN PDEVICE_OBJECT device, IN PIRP Irp)
 			ncImageLoadEventSettings.buff = (char*)MmMapIoSpace(MmGetPhysicalAddress((void*)ncCInfo->ILBuffAddr), (SIZE_T)ncCInfo->ILBuffLen, 0);
 			memset(ncImageLoadEventSettings.buff, 0, ncCInfo->ILBuffLen);
 			ncImageLoadEventSettings.buffSize = ncCInfo->ILBuffLen;
-			ncImageLoadEventSettings.maxEvents = minChar(255, (ncCInfo->ILBuffLen - 1) / sizeof(struct NC_IL_INFO));
+			ncImageLoadEventSettings.maxEvents = minChar(255, (char)((ncCInfo->ILBuffLen - sizeof(struct NC_IL_HEAD)) / sizeof(struct NC_IL_INFO)));
 
 #ifdef DEBUG
 			// Report sizes
 			DbgPrint("[nC]IL Event Length %d | Total Buffered Events %d\n", sizeof(struct NC_IL_INFO), ncImageLoadEventSettings.maxEvents);
 
 			// Check if there is a fall-off and report it
-			if(((ncCInfo->ILBuffLen - 1) % sizeof(struct NC_IL_INFO)) > 0)
-				DbgPrint("[nC]ILBuff Falloff! %d bytes can be trimmed!\n", ((ncCInfo->ILBuffLen - 1) % sizeof(struct NC_IL_INFO)));
+			if(((ncCInfo->ILBuffLen - sizeof(struct NC_IL_HEAD)) % sizeof(struct NC_IL_INFO)) > 0)
+				DbgPrint("[nC]ILBuff Falloff! %d bytes can be trimmed!\n", ((ncCInfo->ILBuffLen - sizeof(struct NC_IL_HEAD)) % sizeof(struct NC_IL_INFO)));
 #endif
 
 			// Debug
@@ -247,7 +229,7 @@ void DrvUnload(IN PDRIVER_OBJECT driver)
 	// Remove our callback if it had succeeded (this should
 	//	always be true)
 	if(cbRegistered == STATUS_SUCCESS)
-		PsRemoveLoadImageNotifyRoutine((PLOAD_IMAGE_NOTIFY_ROUTINE*)&ImageLoadCallback);
+		PsRemoveLoadImageNotifyRoutine((PLOAD_IMAGE_NOTIFY_ROUTINE)&ImageLoadCallback);
 
 	// Output our debug
 	NCLOG("Unloaded Driver");
@@ -264,7 +246,7 @@ NTSTATUS DriverEntry(IN PDRIVER_OBJECT driver, IN PUNICODE_STRING path)
 	NTSTATUS ntsDevCreate;
 
 	// Break
-	DbgBreakPoint();
+	//DbgBreakPoint();
 
 	// Convert our strings
 	RtlInitUnicodeString(&devLink, devicelink);
@@ -310,7 +292,7 @@ NTSTATUS DriverEntry(IN PDRIVER_OBJECT driver, IN PUNICODE_STRING path)
 	KeInitializeEvent(&event, SynchronizationEvent, 1);
 
 	// Store the success of our callback
-	cbRegistered = PsSetLoadImageNotifyRoutine((PLOAD_IMAGE_NOTIFY_ROUTINE*)&ImageLoadCallback);
+	cbRegistered = PsSetLoadImageNotifyRoutine((PLOAD_IMAGE_NOTIFY_ROUTINE)&ImageLoadCallback);
 
 	// Check callback success and debug
 	if(cbRegistered == STATUS_SUCCESS)

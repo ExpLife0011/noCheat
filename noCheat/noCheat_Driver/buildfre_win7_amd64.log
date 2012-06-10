@@ -1,18 +1,18 @@
 BUILD: Computing Include file dependencies:
 BUILD: Examining c:\users\administrator\documents\nocheat\nocheat\nocheat_driver directory for files to compile.
-oacr invalidate root:amd64chk /autocleanqueue
+oacr invalidate root:amd64fre /autocleanqueue
 1>Compiling and Linking c:\users\administrator\documents\nocheat\nocheat\nocheat_driver *************
 1>'nmake.exe /nologo BUILDMSG=Stop. -i BUILD_PASS=PASS2 LINKONLY=1 NOPASS0=1 MAKEDIR_RELATIVE_TO_BASEDIR='
 1>c:\users\administrator\documents\nocheat\nocheat\nocheat_driver: TARGETPATH is obj
-1> C:\WinDDK\7600.16385.1\Bin\amd64\oacr\oacrcl @c:\users\administrator\documents\nocheat\nocheat\nocheat_driver\objchk_win7_amd64\amd64\cl.rsp
+1> C:\WinDDK\7600.16385.1\Bin\amd64\oacr\oacrcl @c:\users\administrator\documents\nocheat\nocheat\nocheat_driver\objfre_win7_amd64\amd64\cl.rsp
 1>Microsoft (R) C/C++ Optimizing Compiler Version 15.00.30729.207 for x64
 1>Copyright (C) Microsoft Corporation.  All rights reserved.
-1>cl /Fo"c:\users\administrator\documents\nocheat\nocheat\nocheat_driver\objchk_win7_amd64\amd64/"
+1>cl /Fo"c:\users\administrator\documents\nocheat\nocheat\nocheat_driver\objfre_win7_amd64\amd64/"
 1> /FC
 1> /Iamd64\
 1> /I.
 1> /IC:\WinDDK\7600.16385.1\inc\ddk
-1> /Ic:\users\administrator\documents\nocheat\nocheat\nocheat_driver\objchk_win7_amd64\amd64
+1> /Ic:\users\administrator\documents\nocheat\nocheat\nocheat_driver\objfre_win7_amd64\amd64
 1> /IC:\WinDDK\7600.16385.1\inc\api
 1> /IC:\WinDDK\7600.16385.1\inc\api
 1> /IC:\WinDDK\7600.16385.1\inc\ddk
@@ -32,12 +32,10 @@ oacr invalidate root:amd64chk /autocleanqueue
 1> /D_WIN32_IE=0x0800
 1> /DWIN32_LEAN_AND_MEAN=1
 1> /DDEVL=1
-1> /DDBG=1
 1> /D__BUILDMACHINE__=WinDDK
+1> /DNDEBUG
 1> /D_DLL=1
 1> /DNDEBUG
-1> /DDEPRECATE_DDK_FUNCTIONS=1
-1> /DMSC_NOOPT
 1> /DNTDDI_VERSION=0x06010000
 1> /c
 1> /Zc:wchar_t-
@@ -46,26 +44,25 @@ oacr invalidate root:amd64chk /autocleanqueue
 1> /Gy
 1> -cbstring
 1> /W3
+1> /WX
 1> /EHs-c-
 1> /GR-
 1> /GF
 1> /GS
 1> /Zi
-1> /Od
-1> /Oi
+1> /Oxs
 1> /GL
 1> /Zi
-1> /Fdc:\users\administrator\documents\nocheat\nocheat\nocheat_driver\objchk_win7_amd64\amd64\
+1> /Fdc:\users\administrator\documents\nocheat\nocheat\nocheat_driver\objfre_win7_amd64\amd64\
 1> /DKMDF_MAJOR_VERSION_STRING=01
 1> /DKMDF_MINOR_VERSION_STRING=009
 1> /typedil-
 1> /wd4603
 1> /wd4627
-1> /homeparams
 1> /FIC:\WinDDK\7600.16385.1\inc\api\warning.h
 1> .\ncdriver.c 
 1>ncdriver.c
-1> C:\WinDDK\7600.16385.1\Bin\amd64\oacr\oacrlink /out:c:\users\administrator\documents\nocheat\nocheat\nocheat_driver\objchk_win7_amd64\amd64\ncDriver.sys /machine:amd64 @c:\users\administrator\documents\nocheat\nocheat\nocheat_driver\objchk_win7_amd64\amd64\lnk.rsp
+1> C:\WinDDK\7600.16385.1\Bin\amd64\oacr\oacrlink /out:c:\users\administrator\documents\nocheat\nocheat\nocheat_driver\objfre_win7_amd64\amd64\ncDriver.sys /machine:amd64 @c:\users\administrator\documents\nocheat\nocheat\nocheat_driver\objfre_win7_amd64\amd64\lnk.rsp
 1>Microsoft (R) Incremental Linker Version 9.00.30729.207
 1>Copyright (C) Microsoft Corporation.  All rights reserved.
 1>/MERGE:_PAGE=PAGE 
@@ -90,8 +87,8 @@ oacr invalidate root:amd64chk /autocleanqueue
 1>/base:0x10000 
 1>/subsystem:native,6.01 
 1>/entry:GsDriverEntry 
-1>/out:c:\users\administrator\documents\nocheat\nocheat\nocheat_driver\objchk_win7_amd64\amd64\ncDriver.sys 
-1>c:\users\administrator\documents\nocheat\nocheat\nocheat_driver\objchk_win7_amd64\amd64\ncdriver.obj 
+1>/out:c:\users\administrator\documents\nocheat\nocheat\nocheat_driver\objfre_win7_amd64\amd64\ncDriver.sys 
+1>c:\users\administrator\documents\nocheat\nocheat\nocheat_driver\objfre_win7_amd64\amd64\ncdriver.obj 
 1>C:\WinDDK\7600.16385.1\lib\win7\amd64\BufferOverflowK.lib 
 1>C:\WinDDK\7600.16385.1\lib\win7\amd64\ntoskrnl.lib 
 1>C:\WinDDK\7600.16385.1\lib\win7\amd64\hal.lib 
@@ -121,8 +118,8 @@ oacr invalidate root:amd64chk /autocleanqueue
 1>/base:0x10000 
 1>/subsystem:native,6.01 
 1>/entry:GsDriverEntry 
-1>/out:c:\users\administrator\documents\nocheat\nocheat\nocheat_driver\objchk_win7_amd64\amd64\ncDriver.sys 
-1>c:\users\administrator\documents\nocheat\nocheat\nocheat_driver\objchk_win7_amd64\amd64\ncdriver.obj 
+1>/out:c:\users\administrator\documents\nocheat\nocheat\nocheat_driver\objfre_win7_amd64\amd64\ncDriver.sys 
+1>c:\users\administrator\documents\nocheat\nocheat\nocheat_driver\objfre_win7_amd64\amd64\ncdriver.obj 
 1>C:\WinDDK\7600.16385.1\lib\win7\amd64\BufferOverflowK.lib 
 1>C:\WinDDK\7600.16385.1\lib\win7\amd64\ntoskrnl.lib 
 1>C:\WinDDK\7600.16385.1\lib\win7\amd64\hal.lib 
