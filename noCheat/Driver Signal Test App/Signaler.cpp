@@ -1,6 +1,7 @@
 #include <windows.h>
 #include <iostream>
 #include <tchar.h>
+#include <conio.h>
 
 /*
  * Connection info sent from the service
@@ -37,9 +38,16 @@ int main()
 	printf("Calling DeviceIoControl\n");
 	DeviceIoControl(device,1000,controlbuff,256,controlbuff,256,&dw,0);
 
+	unsigned char cnt = 0;
 
-	while(true){
-		Sleep(10);
+	while(cnt < 200)
+	{
+		if(cnt != outputbuff[0])
+		{
+			cnt = outputbuff[0];
+			printf("Recvd (%d)\n", cnt);
+		}
+		Sleep(1);
 	}
 
 	printf("Closing handle\n");

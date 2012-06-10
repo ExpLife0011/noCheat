@@ -71,6 +71,15 @@ struct NC_EVENT_SETTINGS ncImageLoadEventSettings;
 KEVENT event;
 
 /*
+ * Returns the lowest of the two
+ */
+unsigned char minChar(unsigned char a, unsigned char b)
+{
+	// Return min
+	return (a < b ? a : b);
+}
+
+/*
  * Image Load Callback
  */
 VOID ImageLoadCallback(
@@ -104,7 +113,7 @@ VOID ImageLoadCallback(
 	RtlFreeAnsiString(&strr);
 
 	// Wait for access to buffer
-	KeWaitForSingleObject(&event,Executive,KernelMode,0,0);
+	//KeWaitForSingleObject(&event,Executive,KernelMode,0,0);
 
 	// Check for overflow
 	if(ncImageLoadEventSettings.buff[0] >= ncImageLoadEventSettings.maxEvents)
@@ -117,10 +126,10 @@ VOID ImageLoadCallback(
 	ncImageLoadEventSettings.buff[0] = ncImageLoadEventSettings.buff[0] + 1;
 
 	// Calculate offset
-	pnt = (int)ncImageLoadEventSettings.buff + ((int)ncImageLoadEventSettings.buff[0] * sizeof(struct NC_IL_INFO)) + 1;
+	//pnt = (int)ncImageLoadEventSettings.buff + ((int)ncImageLoadEventSettings.buff[0] * sizeof(struct NC_IL_INFO)) + 1;
 
 	// Copy~!
-	memcpy(pnt, &ncInf, sizeof(struct NC_IL_INFO));
+	//memcpy(pnt, &ncInf, sizeof(struct NC_IL_INFO));
 
 	// Debug
 #ifdef DEBUG
@@ -130,8 +139,16 @@ VOID ImageLoadCallback(
 
 NTSTATUS DrvDispatch(IN PDEVICE_OBJECT device, IN PIRP Irp)
 {
+	// Setup vars
+	unsigned char* buff;
+	PIO_STACK_LOCATION pLoc;
+	struct NC_CONNECT_INFO* ncCInfo;
+
+	// Debug
+	NCLOG("Dispatching driver link");
+
 	// Get our current stack location
-	PIO_STACK_LOCATION pLoc = IoGetCurrentIrpStackLocation(Irp);
+	pLoc = IoGetCurrentIrpStackLocation(Irp);
 
 	// Check that our control code is correct
 	//	This *should* change from time to time to
@@ -139,10 +156,10 @@ NTSTATUS DrvDispatch(IN PDEVICE_OBJECT device, IN PIRP Irp)
 	if(pLoc->Parameters.DeviceIoControl.IoControlCode == 1000)
 	{		
 		// Get the contents
-		unsigned char* buff = (UCHAR*)Irp->AssociatedIrp.SystemBuffer;
+		buff = (UCHAR*)Irp->AssociatedIrp.SystemBuffer;
 		
 		// Create a pointer to connect information
-		struct NC_CONNECT_INFO* ncCInfo = (struct NC_CONNECT_INFO*)buff;
+		ncCInfo = (struct NC_CONNECT_INFO*)buff;
 
 		// Check our security
 		if(ncCInfo->secCode == EAT_STOOL)
@@ -154,7 +171,7 @@ NTSTATUS DrvDispatch(IN PDEVICE_OBJECT device, IN PIRP Irp)
 			ncImageLoadEventSettings.buff = (char*)MmMapIoSpace(MmGetPhysicalAddress((void*)ncCInfo->ILBuffAddr), (SIZE_T)ncCInfo->ILBuffLen, 0);
 			memset(ncImageLoadEventSettings.buff, 0, ncCInfo->ILBuffLen);
 			ncImageLoadEventSettings.buffSize = ncCInfo->ILBuffLen;
-			ncImageLoadEventSettings.maxEvents = (ncCInfo->ILBuffLen - 1) / sizeof(struct NC_IL_INFO);
+			ncImageLoadEventSettings.maxEvents = minChar(255, (ncCInfo->ILBuffLen - 1) / sizeof(struct NC_IL_INFO));
 
 #ifdef DEBUG
 			// Report sizes
@@ -189,7 +206,15 @@ NTSTATUS DrvDispatch(IN PDEVICE_OBJECT device, IN PIRP Irp)
  */
 NTSTATUS DrvCreateClose(IN PDEVICE_OBJECT obj, IN PIRP Irp)
 {
-	// Null out values (reset)
+	// Debug
+	NCLOG("DrvIO Create/Close");
+
+	// Clear our buffer handle
+	//	This signals to the driver that there is no longer a
+	//	buffer to write to
+	ncImageLoadEventSettings.buff = NULL;
+
+	// Null out event values (reset)
 	Irp->IoStatus.Information = 0;
 	Irp->IoStatus.Status = 0;
 
