@@ -19,7 +19,7 @@
 //	Comment out to set to release mode
 //	(**THIS MUST BE DONE MANUALLY SINCE VS
 //	DOES NOT SIGNAL TO THE BUILD ENVIRONMENTS!**)
-//#define DEBUG
+#define DEBUG
 
 // Setup logging
 #ifdef DEBUG
@@ -96,7 +96,7 @@ VOID ImageLoadCallback(
 	RtlFreeAnsiString(&strr);
 
 	// Calculate offset
-	pnt = (void*)((int)ncImageLoadEventSettings.buff + sizeof(struct NC_IL_HEAD) + ((int)ncILHead->count * sizeof(struct NC_IL_INFO)));
+	pnt = (void*)(ncImageLoadEventSettings.buff + sizeof(struct NC_IL_HEAD) + (ncILHead->count * sizeof(struct NC_IL_INFO)));
 
 	// Wait for service to complete
 	waitForService();
@@ -246,7 +246,7 @@ NTSTATUS DriverEntry(IN PDRIVER_OBJECT driver, IN PUNICODE_STRING path)
 	NTSTATUS ntsDevCreate;
 
 	// Break
-	//DbgBreakPoint();
+	DbgBreakPoint();
 
 	// Convert our strings
 	RtlInitUnicodeString(&devLink, devicelink);

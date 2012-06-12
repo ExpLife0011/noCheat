@@ -11,6 +11,9 @@
 		<Platform
 			Name="Win32"
 		/>
+		<Platform
+			Name="x64"
+		/>
 	</Platforms>
 	<ToolFiles>
 	</ToolFiles>
@@ -45,6 +48,46 @@
 				Name="VCNMakeTool"
 				BuildCommandLine="nmake.exe -f ncDriver.make"
 				ReBuildCommandLine="nmake.exe -f ncDriver.make"
+				CleanCommandLine=""
+				Output=""
+				PreprocessorDefinitions="_WIN7;_WIN64"
+				IncludeSearchPath="C:\WinDDK\7600.16385.1\inc\ddk"
+				ForcedIncludes=""
+				AssemblySearchPath=""
+				ForcedUsingAssemblies=""
+				CompileAsManaged=""
+			/>
+		</Configuration>
+		<Configuration
+			Name="Debug|x64"
+			OutputDirectory="$(PlatformName)\$(ConfigurationName)"
+			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
+			ConfigurationType="0"
+			>
+			<Tool
+				Name="VCNMakeTool"
+				BuildCommandLine="nmake.exe -f ncDriver.make"
+				ReBuildCommandLine="nmake.exe -f ncDriver.make"
+				CleanCommandLine=""
+				Output=""
+				PreprocessorDefinitions="_WIN7;_WIN64;_DEBUG"
+				IncludeSearchPath="C:\WinDDK\7600.16385.1\inc\ddk"
+				ForcedIncludes=""
+				AssemblySearchPath=""
+				ForcedUsingAssemblies=""
+				CompileAsManaged=""
+			/>
+		</Configuration>
+		<Configuration
+			Name="Release|x64"
+			OutputDirectory="$(PlatformName)\$(ConfigurationName)"
+			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
+			ConfigurationType="0"
+			>
+			<Tool
+				Name="VCNMakeTool"
+				BuildCommandLine=""
+				ReBuildCommandLine=""
 				CleanCommandLine=""
 				Output=""
 				PreprocessorDefinitions="_WIN7;_WIN64"
