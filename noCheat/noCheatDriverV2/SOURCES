@@ -1,0 +1,9 @@
+TARGETNAME=ncDriver
+TARGETTYPE=DRIVER
+TARGETPATH=obj
+
+
+INCLUDES=C:\WinDDK\7600.16385.1\inc\ddk
+
+HEADERS = ncDriverDefines.h
+SOURCES = ncDriver.c

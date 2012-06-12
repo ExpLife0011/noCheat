@@ -2,8 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="9.00"
-	Name="noCheat Driver"
+	Name="noCheat Driver (Old)"
 	ProjectGUID="{EAA5A110-25DA-42B8-8B90-83C45F91EF9A}"
+	RootNamespace="noCheat Driver (Old)"
 	Keyword="MakeFileProj"
 	TargetFrameworkVersion="196613"
 	>
