@@ -47,6 +47,45 @@
 const WCHAR devicename[] = L"\\Device\\noCheat";
 const WCHAR devicelink[] = L"\\DosDevices\\NOCHEAT";
 
+// Setup buffer pointers
+struct NC_IMAGE_CONTAINER* pImageEvents;
+
+char VerifyLink(struct NC_CONNECT_INFO_R* ncRInf)
+{
+	// Check security
+	if(ncRInf->iSecurityCode != NC_LINK_SEC_CODE)
+	{
+		// Log and break
+		LOG2("Link security code failed! (%X)", ncRInf->iSecurityCode);
+		return 0;
+	}else
+		LOG2("Link passed security check");
+
+	// Verify sizes and log
+	assert (ncRInf->iNCConnectInfoRSize == sizeof(struct NC_CONNECT_INFO_R));
+	assert (ncRInf->iNCImageContainerSize == sizeof(struct NC_IMAGE_CONTAINER));
+	assert (ncRInf->iNCImageEventSize == sizeof(struct NC_IMAGE_EVENT));
+	LOG3("Struct size assertions passed!");
+
+	// Verify version
+	if(ncRInf->iDSLinkVersion > NC_DS_LINK_VERSION)
+	{
+		// Log and break
+		LOG2("Service of link is newer than driver! (%d > %d)", ncRInf->iDSLinkVersion, NC_DS_LINK_VERSION);
+		return 0;
+	}else if(ncRInf->iDSLinkVersion < NC_DS_LINK_VERSION) {
+		// Log and break
+		LOG2("Driver of link is newer than service of link! (%d < %d)", ncRInf->iDSLinkVersion, NC_DS_LINK_VERSION);
+		return 0;
+	}
+
+	// Log
+	LOG2("Verified link version");
+
+	// Return true
+	return 1;
+}
+
 /*
  * Called to initiate a link between the driver and a service
  */
@@ -54,6 +93,8 @@ NTSTATUS DrvDevLink(IN PDEVICE_OBJECT device, IN PIRP Irp)
 {
 	// Setup vars
 	PIO_STACK_LOCATION pLoc;
+	unsigned char* conBuff;
+	struct NC_CONNECT_INFO_R* ncRInf;
 
 	// Log
 	LOG("Initiating link");
@@ -64,7 +105,44 @@ NTSTATUS DrvDevLink(IN PDEVICE_OBJECT device, IN PIRP Irp)
 	// Switch code (intent)
 	switch(pLoc->Parameters.DeviceIoControl.IoControlCode)
 	{
+	case NC_CONNECTION_CODE_IMAGES:
+		// Log
+		LOG2("Client attempting to query images.");
+
+		// Register control (init) buffer and feux-point to recv info
+		conBuff = (UCHAR*)Irp->AssociatedIrp.SystemBuffer;
+		ncRInf = (struct NC_CONNECT_INFO_R*)conBuff;
+
+		// Verify link
+		if(VerifyLink(ncRInf) == 0)
+			break;
+		
+		// Log
+		LOG3("Mapping buffer space (image)");
+		
+		// Map
+		pImageEvents = (struct NC_IMAGE_CONTAINER*)MmMapIoSpace(MmGetPhysicalAddress((void*)ncRInf->pBuff), (SIZE_T)sizeof(struct NC_IMAGE_CONTAINER), 0);
+		
+		// Check for null
+		if(pImageEvents == NULL)
+		{
+			// Log and break
+			LOG2("Could not map space for the image container. Perhaps the backlog is too big?");
+			break;
+		}
+
+		// Nullify!
+		memset(pImageEvents, 0, sizeof(struct NC_IMAGE_CONTAINER));
+
+		// Log
+		LOG("Successfully validated image receiver!");
+
+		// DEBUG: Set our count to 1 to signal we're all good
+		pImageEvents->iCount = 1;
+
+		break;
 	default:
+		// Log
 		LOG("Control connection type not implemented/supported, or an old code has been used (%d)", pLoc->Parameters.DeviceIoControl.IoControlCode);
 		break;
 	}
@@ -86,11 +164,51 @@ NTSTATUS DrvDevLink(IN PDEVICE_OBJECT device, IN PIRP Irp)
  *
  *	This does not transfer information.
  */
-NTSTATUS DrvCreateClose(IN PDEVICE_OBJECT obj, IN PIRP Irp)
+NTSTATUS DrvClose(IN PDEVICE_OBJECT obj, IN PIRP Irp)
 {
-	// Log
-	LOG3("Checking buffers");
+	// Setup vars
+	PIO_STACK_LOCATION pLoc;
 
+	// Log
+	LOG3("Link is closing");
+
+	// Get current stack location
+	pLoc = IoGetCurrentIrpStackLocation(Irp);
+
+	// Switch control code and unmap if need-be
+	switch(pLoc->Parameters.DeviceIoControl.IoControlCode)
+	{
+	case NC_CONNECTION_CODE_IMAGES:
+		if(pImageEvents != NULL)
+		{
+			// Log and unmap
+			LOG3("Unmapping images buffer");
+			MmUnmapIoSpace(pImageEvents, (SIZE_T)sizeof(struct NC_IMAGE_CONTAINER));
+		}
+		break;
+	default:
+		// Log and break
+		LOG3("Closing dead (un-authed) link (%d)", pLoc->Parameters.DeviceIoControl.IoControlCode);
+		break;
+	}
+
+	// Complete request
+	Irp->IoStatus.Information = 0;
+	Irp->IoStatus.Status = 0;
+	IoCompleteRequest(Irp, IO_NO_INCREMENT);
+
+	// Return
+	return STATUS_SUCCESS;
+}
+
+/*
+ * Called when a file link is created to
+ *	create a pipe connection (CreateFile)
+ *
+ *	Fixes bug #9
+ */
+NTSTATUS DrvCreate(IN PDEVICE_OBJECT obj, IN PIRP Irp)
+{
 	// Complete request
 	Irp->IoStatus.Information = 0;
 	Irp->IoStatus.Status = 0;
@@ -111,6 +229,10 @@ void DrvUnload(IN PDRIVER_OBJECT driver)
 
 	// Log entry
 	LOG("Unloading driver");
+
+	// Unmap memory if need be
+	if(pImageEvents != NULL)
+		MmUnmapIoSpace(pImageEvents, (SIZE_T)sizeof(struct NC_IMAGE_CONTAINER));
 
 	// Convert devlink string
 	RtlInitUnicodeString(&devLink, devicelink);
@@ -195,8 +317,8 @@ NTSTATUS DriverEntry(IN PDRIVER_OBJECT driver, IN PUNICODE_STRING path)
 	}
 
 	// Setup major functions
-	driver->MajorFunction[IRP_MJ_CREATE] = DrvCreateClose;
-	driver->MajorFunction[IRP_MJ_CLOSE] = DrvCreateClose;
+	driver->MajorFunction[IRP_MJ_CLOSE] = DrvClose;
+	driver->MajorFunction[IRP_MJ_CREATE] = DrvCreate;
 	driver->MajorFunction[IRP_MJ_DEVICE_CONTROL] = DrvDevLink;
 
 
