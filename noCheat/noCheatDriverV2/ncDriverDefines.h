@@ -92,7 +92,7 @@ struct NC_CONNECT_INFO_R
 #if defined(_AMD64_) || defined(_IA64_) || defined(_M_IA64) || defined(_M_X64)	// 64-bit
 	__int64 pBuff;
 #else																			// 32-bit
-	__int32 pBuff;
-	__int32 vPadding;
+	__int64 pBuff;
+	//__int32 vPadding;
 #endif
 };

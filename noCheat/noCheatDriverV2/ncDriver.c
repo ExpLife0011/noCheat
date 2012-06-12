@@ -159,38 +159,14 @@ NTSTATUS DrvDevLink(IN PDEVICE_OBJECT device, IN PIRP Irp)
 }
 
 /*
- * Called when a device connects (sets up buffers
- *	and whatnot) or disconnects
+ * Called when a device disconnects
  *
  *	This does not transfer information.
  */
 NTSTATUS DrvClose(IN PDEVICE_OBJECT obj, IN PIRP Irp)
 {
-	// Setup vars
-	PIO_STACK_LOCATION pLoc;
-
 	// Log
 	LOG3("Link is closing");
-
-	// Get current stack location
-	pLoc = IoGetCurrentIrpStackLocation(Irp);
-
-	// Switch control code and unmap if need-be
-	switch(pLoc->Parameters.DeviceIoControl.IoControlCode)
-	{
-	case NC_CONNECTION_CODE_IMAGES:
-		if(pImageEvents != NULL)
-		{
-			// Log and unmap
-			LOG3("Unmapping images buffer");
-			MmUnmapIoSpace(pImageEvents, (SIZE_T)sizeof(struct NC_IMAGE_CONTAINER));
-		}
-		break;
-	default:
-		// Log and break
-		LOG3("Closing dead (un-authed) link (%d)", pLoc->Parameters.DeviceIoControl.IoControlCode);
-		break;
-	}
 
 	// Complete request
 	Irp->IoStatus.Information = 0;

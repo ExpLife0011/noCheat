@@ -213,6 +213,7 @@ NTSTATUS DrvCreateClose(IN PDEVICE_OBJECT obj, IN PIRP Irp)
 void DrvUnload(IN PDRIVER_OBJECT driver)
 {
 	UNICODE_STRING devLink;
+	DbgBreakPoint();
 
 	// Unmap our output
 	MmUnmapIoSpace(ncImageLoadEventSettings.buff, ncImageLoadEventSettings.buffSize);
