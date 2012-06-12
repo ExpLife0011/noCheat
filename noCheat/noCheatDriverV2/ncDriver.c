@@ -89,7 +89,7 @@ NTSTATUS DrvDevLink(IN PDEVICE_OBJECT device, IN PIRP Irp)
 NTSTATUS DrvCreateClose(IN PDEVICE_OBJECT obj, IN PIRP Irp)
 {
 	// Log
-	LOG2("Connection detected - setting up buffers");
+	LOG3("Checking buffers");
 
 	// Complete request
 	Irp->IoStatus.Information = 0;
