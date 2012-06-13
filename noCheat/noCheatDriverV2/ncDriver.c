@@ -281,6 +281,26 @@ void DrvUnload(IN PDRIVER_OBJECT driver)
 }
 
 /*
+ * Called when the system shuts down or
+ *	restarts
+ */
+NTSTATUS SysShutdownRestart(IN PDEVICE_OBJECT device, IN PIRP Irp)
+{
+	// Log
+	LOG("System is shutting down/restarting. Killing driver...");
+
+	// Call DrvUnload
+	DrvUnload(device->DriverObject);
+
+	// Complete request
+	Irp->IoStatus.Status = 0;
+	IoCompleteRequest(Irp, IO_NO_INCREMENT);
+
+	// Return success
+	return STATUS_SUCCESS;
+}
+
+/*
  * DriverEntry
  *	Driver entry point
  */
@@ -353,6 +373,7 @@ NTSTATUS DriverEntry(IN PDRIVER_OBJECT driver, IN PUNICODE_STRING path)
 	driver->MajorFunction[IRP_MJ_CLOSE] = DrvClose;
 	driver->MajorFunction[IRP_MJ_CREATE] = DrvCreate;
 	driver->MajorFunction[IRP_MJ_DEVICE_CONTROL] = DrvDevLink;
+	driver->MajorFunction[IRP_MJ_SHUTDOWN] = SysShutdownRestart;
 
 	// Setup image callback
 	ntsReturn = PsSetLoadImageNotifyRoutine((PLOAD_IMAGE_NOTIFY_ROUTINE)&ImageLoadCallback);

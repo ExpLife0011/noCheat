@@ -23,7 +23,7 @@
  *	version, and does not reflect upon the overall
  *	noCheat version!
  */
-#define NC_DS_LINK_VERSION 1
+#define NC_DS_LINK_VERSION 2
 
 /*
  * Event Backlog
