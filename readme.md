@@ -14,9 +14,10 @@ This repository contains the whole ordeal - both the Windows go-along applicatio
 A Quick Run-Through
 -------------------
 When discerning between the various components of the noCheat system, refer to each as the following:
-* noCheat**D** - *The noCheat desktop application, which is the end-user's interface to the noCheat system (other than the website)
+* noCheat - *The noCheat desktop application, which is the end-user's interface to the noCheat system (other than the website)
 * noCheat**S** - *The noCheat service - basically, the behind-the-scenes processing that actually performs the checks on processes, etc. The service, for some functionality, is the middleman between the desktop application and the web, and performs all of the checks/reporting.
 * noCheat**W** or noCheat**Web** - The web-portion of noCheat. This includes all PHP scripts and front-end design.
+* noCheat**D** - The noCheat Driver, which feeds the service information that cannot be [safely] obtained by the user-land components.
 
 These terms will be scattered around documentation so make sure you understand wtf I'm talking about
 
