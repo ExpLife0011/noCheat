@@ -1,7 +1,0 @@
-BUILD: Computing Include file dependencies:
-BUILD: Examining c:\users\administrator\documents\nocheat\nocheat\nocheat_driver directory for files to compile.
-oacr invalidate root:x86fre /autocleanqueue
-1>Compiling and Linking c:\users\administrator\documents\nocheat\nocheat\nocheat_driver *************
-1>'nmake.exe /nologo BUILDMSG=Stop. -i BUILD_PASS=PASS2 LINKONLY=1 NOPASS0=1 MAKEDIR_RELATIVE_TO_BASEDIR='
-1>c:\users\administrator\documents\nocheat\nocheat\nocheat_driver: TARGETPATH is obj
-1>BUILDMSG: _NT_TARGET_VERSION SET TO WINXP
