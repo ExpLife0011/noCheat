@@ -32,7 +32,7 @@ int main()
 	ncr.iNCConnectInfoRSize = sizeof(NC_CONNECT_INFO_R);
 	ncr.iNCImageContainerSize = sizeof(NC_IMAGE_CONTAINER);
 	ncr.iNCImageEventSize = sizeof(NC_IMAGE_EVENT);
-	ncr.pBuff = (int)&cont;
+	ncr.pBuff = (__int64)&cont;
 	ncr.iSecurityCode = NC_LINK_SEC_CODE;
 	memcpy(&controlbuff, &ncr, sizeof(ncr));
 
@@ -46,18 +46,21 @@ int main()
 
 	while(true)
 	{
+
+		//printf("%d.", cont.iCount);
+
 		//WaitForDriver();
 		//cont.bServiceWriting = 1;
 		if(cont.iCount > 0)
 		{
+			//printf("\n");
 			for(int i = 0; i < cont.iCount; i++)
 			{
 				printf("Image (%d): %s\n", cont.oEvents[i].iPID, cont.oEvents[i].szImageName);
 			}
 			cont.iCount = 0;
-		}else{
+		}else
 			Sleep(1);
-		}
 		//cont.bServiceWriting = 0;
 	}
 
