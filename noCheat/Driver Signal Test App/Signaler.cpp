@@ -7,11 +7,6 @@
 
 NC_IMAGE_CONTAINER cont;
 
-VOID WaitForDriver()
-{
-	while(cont.bDriverWriting == 1){}
-}
-
 int main()
 {
 	//open device
@@ -46,22 +41,13 @@ int main()
 
 	while(true)
 	{
-
-		//printf("%d.", cont.iCount);
-
-		//WaitForDriver();
-		//cont.bServiceWriting = 1;
 		if(cont.iCount > 0)
 		{
-			//printf("\n");
 			for(int i = 0; i < cont.iCount; i++)
-			{
 				printf("Image (%d): %s\n", cont.oEvents[i].iPID, cont.oEvents[i].szImageName);
-			}
 			cont.iCount = 0;
 		}else
 			Sleep(1);
-		//cont.bServiceWriting = 0;
 	}
 
 	printf("Closing handle\n");

@@ -50,11 +50,6 @@ const WCHAR devicelink[] = L"\\DosDevices\\NOCHEAT";
 // Setup buffer pointers
 struct NC_IMAGE_CONTAINER* pImageEvents;
 
-VOID WaitForService()
-{
-	while(pImageEvents != NULL && pImageEvents->bServiceWriting == 1){}
-}
-
 /*
  * Called whenever an image (DLL or EXE) is loaded
  */
@@ -89,20 +84,11 @@ VOID ImageLoadCallback(PUNICODE_STRING FullImageName, HANDLE ProcessId, PIMAGE_I
 	memcpy(&ie.szImageName, ansi.Buffer, ansi.Length);
 	RtlFreeAnsiString(&ansi);
 
-	// Wait for the service to be done writing
-	//WaitForService();
-
-	// Acquire lock
-	//pImageEvents->bDriverWriting = 1;
-
 	// Assign to memory
 	pImageEvents->oEvents[pImageEvents->iCount] = ie;
 
 	// Increment count
 	pImageEvents->iCount = pImageEvents->iCount + 1;
-
-	// Release lock
-	//pImageEvents->bDriverWriting = 0;
 
 	// Log
 	LOG3("Image (%d): %wZ", ProcessId, FullImageName);

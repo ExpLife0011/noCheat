@@ -64,15 +64,6 @@ struct NC_IMAGE_EVENT
 struct NC_IMAGE_CONTAINER
 {
 	unsigned __int16 iCount;
-	union
-	{
-		unsigned char WriteBlocks;
-		struct 
-		{
-			unsigned char bDriverWriting : 1;
-			unsigned char bServiceWriting : 7;
-		};
-	};
 	struct NC_IMAGE_EVENT oEvents[NC_EVENT_BACKLOG];
 };
 
