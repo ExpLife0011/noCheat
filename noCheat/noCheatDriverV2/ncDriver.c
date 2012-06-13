@@ -225,7 +225,7 @@ NTSTATUS DrvClose(IN PDEVICE_OBJECT obj, IN PIRP Irp)
 		MmUnmapIoSpace(pImageEvents, sizeof(struct NC_IMAGE_CONTAINER));
 
 	// Set pointers to null
-	pImageEvents = NULL
+	pImageEvents = NULL;
 
 	// Complete request
 	Irp->IoStatus.Information = 0;
