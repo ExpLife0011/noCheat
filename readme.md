@@ -19,6 +19,8 @@ When discerning between the various components of the noCheat system, refer to e
 * noCheat**W** or noCheat**Web** - The web-portion of noCheat. This includes all PHP scripts and front-end design.
 * noCheat**D** - The noCheat Driver, which feeds the service information that cannot be [safely] obtained by the user-land components.
 
+![noCheat Component Diagram](https://github.com/Qix-/noCheat/raw/master/Resources/ComponentDiagram.png)
+
 These terms will be scattered around documentation so make sure you understand wtf I'm talking about
 
 Quick References for Programmers
