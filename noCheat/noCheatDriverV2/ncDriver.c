@@ -16,6 +16,9 @@
 /*                                                                      */
 /************************************************************************/
 
+// Include the filesystem functionality
+#include <Ntifs.h>
+
 // Include the NTDDK header file
 #include <ntddk.h>
 
@@ -43,13 +46,130 @@
 #define LOG3(...)
 #endif
 
+// Set up unicode processing method
+#define MOVEANSI(vA, vB) UMoveAnsiString(&(vA), vB, sizeof(vA))
+
+// Setup which callback we should use for process creation detection
+#if (NTDDI_VERSION >= NTDDI_VISTASP1)
+#define NC_PCN_EXTENDED
+#define NC_PROCESSCREATE_NOTIFY(vA, vB) PsSetCreateProcessNotifyRoutineEx((PCREATE_PROCESS_NOTIFY_ROUTINE_EX)&vA, vB);
+#else
+#define NC_PROCESSCREATE_NOTIFY(vA, vB) PsSetCreateProcessNotifyRoutine((PCREATE_PROCESS_NOTIFY_ROUTINE)&vA, vB);
+#endif
+
 // Declare our link constants
 const WCHAR devicename[] = L"\\Device\\noCheat";
 const WCHAR devicelink[] = L"\\DosDevices\\NOCHEAT";
 
 // Setup buffer pointers
-struct NC_IMAGE_CONTAINER* pImageEvents;
+static struct NC_IMAGE_CONTAINER* pImageEvents;
+static struct NC_PROCESS_CONTAINER* pProcessEvents;
 
+
+/*
+ * Converts a unicode string to an ansi string
+ *	and moves it into an address
+ */
+VOID UMoveAnsiString(PVOID dest, PUNICODE_STRING str, SIZE_T size)
+{
+	// Setup var
+	ANSI_STRING ansi;
+
+	// Memset buffer
+	memset(dest, 0, size);
+
+	// Convert to Ansi String
+	RtlUnicodeStringToAnsiString(&ansi, str, 1);
+
+	// Memcpy
+	memcpy(dest, ansi.Buffer, ansi.Length);
+
+	// Free
+	RtlFreeAnsiString(&ansi);
+}
+
+#ifdef NC_PCN_EXTENDED
+/*
+ * Called when a process is created
+ *	(EXTENDED)
+ */
+VOID ProcessCreateCallback(PEPROCESS Process, HANDLE ProcessId, PPS_CREATE_NOTIFY_INFO CreateInfo)
+{
+	// Setup vars
+	struct NC_PROCESS_EVENT pe;
+
+	// Check to see if there is a link and return if there is not
+	if(pProcessEvents == NULL) return;
+
+	// Check for overflow
+	if(pProcessEvents->iCount >= NC_EVENT_BACKLOG)
+	{
+		// Log and return
+		LOG2("Reached process creation event backlog limit!");
+		return;
+	}
+
+	// Set up new process object
+	pe.bExtended = 1;
+	pe.iPID = (unsigned __int32)ProcessId;
+	pe.iCallingThread.iUniqueProcess = (unsigned __int32)CreateInfo->CreatingThreadId.UniqueProcess;
+	pe.iCallingThread.iUniqueThread = (unsigned __int32)CreateInfo->CreatingThreadId.UniqueThread;
+	pe.iParentPID = (unsigned __int32)CreateInfo->ParentProcessId;
+	
+	// Get Process File Name	
+	MOVEANSI(pe.szProcessFileName, (PUNICODE_STRING)CreateInfo->ImageFileName);
+
+	// Get Command Line
+	MOVEANSI(pe.szCommandLine, (PUNICODE_STRING)CreateInfo->CommandLine);
+
+	// Get Image Name
+	MOVEANSI(pe.szFileName, &CreateInfo->FileObject->FileName);
+
+	// Assign to memory
+	pProcessEvents->oEvents[pProcessEvents->iCount] = pe;
+
+	// Increment count
+	pProcessEvents->iCount = pProcessEvents->iCount + 1;
+}
+
+#endif
+#ifndef NC_PCN_EXTENDED
+/*
+ * Called when a process is created
+ *	(BASIC / PREVISTA)
+ */
+VOID ProcessCreateCallback(HANDLE ParentId, HANDLE ProcessId, BOOLEAN Create)
+{
+	// Setup vars
+	struct NC_PROCESS_EVENT pe;
+
+	// Check to see if the process is being destroyed and return if so
+	if(!Create) return;
+
+	// Check to see if there is a link and return if there is not
+	if(pProcessEvents == NULL) return;
+
+	// Check for overflow
+	if(pProcessEvents->iCount >= NC_EVENT_BACKLOG)
+	{
+		// Log and return
+		LOG2("Reached process creation event backlog limit!");
+		return;
+	}
+
+	// Set up new process object
+	pe.bExtended = 0;
+	pe.iPID = (unsigned __int32)ProcessId;
+	pe.iParentPID = (unsigned __int32)ParentId;
+
+	// Assign to memory
+	pProcessEvents->oEvents[pProcessEvents->iCount] = pe;
+
+	// Increment count
+	pProcessEvents->iCount = pProcessEvents->iCount + 1;
+}
+
+#endif
 /*
  * Called whenever an image (DLL or EXE) is loaded
  */
@@ -76,13 +196,8 @@ VOID ImageLoadCallback(PUNICODE_STRING FullImageName, HANDLE ProcessId, PIMAGE_I
 	ie.iImageBase = (unsigned __int64)ImageInfo->ImageBase;
 	ie.iSize = (unsigned __int32)ImageInfo->ImageSize;
 
-	// Memset the buffer to 0
-	memset(&ie.szImageName, 0, sizeof(ie.szImageName));
-
-	// Convert path to ansi, Memcpy to event, and free ansi string
-	RtlUnicodeStringToAnsiString(&ansi, FullImageName, 1);
-	memcpy(&ie.szImageName, ansi.Buffer, ansi.Length);
-	RtlFreeAnsiString(&ansi);
+	// Get Image name
+	MOVEANSI(ie.szImageName, FullImageName);
 
 	// Assign to memory
 	pImageEvents->oEvents[pImageEvents->iCount] = ie;
@@ -94,6 +209,11 @@ VOID ImageLoadCallback(PUNICODE_STRING FullImageName, HANDLE ProcessId, PIMAGE_I
 	LOG3("Image (%d): %wZ", ProcessId, FullImageName);
 }
 
+/*
+ * Verifies a link when the service connects.
+ *	Various security, version, and sizing/alignment
+ *	checks are performed here.
+ */
 char VerifyLink(struct NC_CONNECT_INFO_R* ncRInf)
 {
 	// Check security
@@ -149,11 +269,44 @@ NTSTATUS DrvDevLink(IN PDEVICE_OBJECT device, IN PIRP Irp)
 	// Switch code (intent)
 	switch(pLoc->Parameters.DeviceIoControl.IoControlCode)
 	{
+	case NC_CONNECTION_CODE_PROCESSES:
+		// Log
+		LOG2("Client attempting to query processes");
+
+		// Register control (init) buffer and feux-pointer to recv info
+		conBuff = (UCHAR*)Irp->AssociatedIrp.SystemBuffer;
+		ncRInf = (struct NC_CONNECT_INFO_R*)conBuff;
+
+		// Verify Link
+		if(VerifyLink(ncRInf) == 0)
+			break;
+
+		// Log
+		LOG3("Mapping buffer space (process)");
+
+		// Map
+		pProcessEvents = (struct NC_PROCESS_CONTAINER*)MmMapIoSpace(MmGetPhysicalAddress((void*)ncRInf->pBuff), (SIZE_T)sizeof(struct NC_PROCESS_CONTAINER), 0);
+
+		// Check for null
+		if(pProcessEvents == NULL)
+		{
+			// Log and break
+			LOG2("Could not map space for the process container. Perhaps the backlog is too big?");
+			break;
+		}
+
+		// Nullify!
+		memset(pProcessEvents, 0, sizeof(struct NC_PROCESS_CONTAINER));
+
+		// Log
+		LOG("Successfully validated process receiver!");
+
+		break;
 	case NC_CONNECTION_CODE_IMAGES:
 		// Log
 		LOG2("Client attempting to query images.");
 
-		// Register control (init) buffer and feux-point to recv info
+		// Register control (init) buffer and feux-pointer to recv info
 		conBuff = (UCHAR*)Irp->AssociatedIrp.SystemBuffer;
 		ncRInf = (struct NC_CONNECT_INFO_R*)conBuff;
 
@@ -212,9 +365,12 @@ NTSTATUS DrvClose(IN PDEVICE_OBJECT obj, IN PIRP Irp)
 	// Unmap links if needbe
 	if(pImageEvents != NULL)
 		MmUnmapIoSpace(pImageEvents, sizeof(struct NC_IMAGE_CONTAINER));
+	if(pProcessEvents != NULL)
+		MmUnmapIoSpace(pProcessEvents, sizeof(struct NC_PROCESS_CONTAINER));
 
 	// Set pointers to null
 	pImageEvents = NULL;
+	pProcessEvents = NULL;
 
 	// Complete request
 	Irp->IoStatus.Information = 0;
@@ -256,13 +412,22 @@ void DrvUnload(IN PDRIVER_OBJECT driver)
 
 	// Destroy image-load callback
 	LOG2("Unregistering image-load callback");
-	PsRemoveLoadImageNotifyRoutine((PLOAD_IMAGE_NOTIFY_ROUTINE)ImageLoadCallback);
+	PsRemoveLoadImageNotifyRoutine((PLOAD_IMAGE_NOTIFY_ROUTINE)&ImageLoadCallback);
+
+	// Destroy process-creation callback
+	LOG2("Unregistering process-creation callback");
+	NC_PROCESSCREATE_NOTIFY(ProcessCreateCallback, 1);
 
 	// Unmap memory if need be
 	if(pImageEvents != NULL)
 	{
 		LOG2("Unmapping image-load buffer");
 		MmUnmapIoSpace(pImageEvents, (SIZE_T)sizeof(struct NC_IMAGE_CONTAINER));
+	}
+	if(pProcessEvents != NULL)
+	{
+		LOG2("Unmapping process-load buffer");
+		MmUnmapIoSpace(pProcessEvents, (SIZE_T)sizeof(struct NC_PROCESS_CONTAINER));
 	}
 
 	// Convert devlink string
@@ -306,10 +471,12 @@ NTSTATUS SysShutdownRestart(IN PDEVICE_OBJECT device, IN PIRP Irp)
  */
 NTSTATUS DriverEntry(IN PDRIVER_OBJECT driver, IN PUNICODE_STRING path)
 {
+#pragma region Setup Vars
 	// Setup vars
 	UNICODE_STRING devLink, devName;
 	PDEVICE_OBJECT devObj = NULL;
 	NTSTATUS ntsReturn;
+#pragma endregion
 
 	// Log Entry
 	LOG("Driver Entry");
@@ -322,6 +489,7 @@ NTSTATUS DriverEntry(IN PDRIVER_OBJECT driver, IN PUNICODE_STRING path)
 	RtlInitUnicodeString(&devLink, devicelink);
 	RtlInitUnicodeString(&devName, devicename);
 
+#pragma region Create Device
 	// Create device
 	LOG2("Creating Device");
 	assert ((256 >= sizeof(struct NC_CONNECT_INFO_R)) && (256 >= sizeof(struct NC_CONNECT_INFO_S)));
@@ -355,7 +523,9 @@ NTSTATUS DriverEntry(IN PDRIVER_OBJECT driver, IN PUNICODE_STRING path)
 		LOG("Terminating!");
 		goto ErrFreeUni;
 	}
+#pragma endregion
 
+#pragma region Create Symlink
 	// Create symlink
 	ntsReturn = IoCreateSymbolicLink(&devLink, &devName);
 	
@@ -374,7 +544,9 @@ NTSTATUS DriverEntry(IN PDRIVER_OBJECT driver, IN PUNICODE_STRING path)
 	driver->MajorFunction[IRP_MJ_CREATE] = DrvCreate;
 	driver->MajorFunction[IRP_MJ_DEVICE_CONTROL] = DrvDevLink;
 	driver->MajorFunction[IRP_MJ_SHUTDOWN] = SysShutdownRestart;
+#pragma endregion
 
+#pragma region Setup Image Callback
 	// Setup image callback
 	ntsReturn = PsSetLoadImageNotifyRoutine((PLOAD_IMAGE_NOTIFY_ROUTINE)&ImageLoadCallback);
 
@@ -391,6 +563,31 @@ NTSTATUS DriverEntry(IN PDRIVER_OBJECT driver, IN PUNICODE_STRING path)
 		LOG2("Could not register image-load callback: Unknown Error (%d). Terminating!", ntsReturn);
 		goto ErrFreeSymLink;
 	}
+#pragma endregion
+
+#pragma region Setup ProcessEx Creation Callback
+	// Setup process creation callback
+	ntsReturn = NC_PROCESSCREATE_NOTIFY(ProcessCreateCallback, 0);
+
+	// Check return
+	switch(ntsReturn)
+	{
+	case STATUS_SUCCESS:
+		LOG2("Registered Process Creation Callback Successfully!");
+		break;
+	case STATUS_INVALID_PARAMETER:
+		LOG2("Could not register process creation callback: Invalid Parameter (Already registered? Too many registrations?)");
+		goto ErrUnregIL;
+#ifdef NC_PCN_EXTENDED
+	case STATUS_ACCESS_DENIED:
+		LOG2("Could not register process creation callback: Access Denied");
+		goto ErrUnregIL;
+#endif
+	default:
+		LOG2("Could not register process creation callback: Unknown error");
+		goto ErrUnregIL;
+	}
+#pragma endregion
 
 // Jump to success
 goto Success;
@@ -398,6 +595,9 @@ goto Success;
 /*---
  * START ERROR BLOCK *
 				  ---*/
+ErrUnregIL: // Occurs when the process creation callback fails
+PsRemoveLoadImageNotifyRoutine((PLOAD_IMAGE_NOTIFY_ROUTINE)&ImageLoadCallback);
+
 ErrFreeSymLink: // Occurs when the image-load callback fails
 IoDeleteSymbolicLink(&devLink);
 

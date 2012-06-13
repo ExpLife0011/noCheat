@@ -29,8 +29,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Driver Signal Test App", "D
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Test MessageBoxW", "Test MessageBoxW\Test MessageBoxW.vcproj", "{DE52EF5C-EC6D-4BCF-A445-6A542A5BB668}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "noCheat Driver (Old)", "noCheat_Driver_old\noCheat Driver.vcproj", "{EAA5A110-25DA-42B8-8B90-83C45F91EF9A}"
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "noCheat Driver V2", "noCheatDriverV2\noCheat Driver V2.vcproj", "{FCA0A07B-F07D-49CE-BD53-137769240636}"
 EndProject
 Global
@@ -105,13 +103,6 @@ Global
 		{DE52EF5C-EC6D-4BCF-A445-6A542A5BB668}.Release|Win32.Build.0 = Release|Win32
 		{DE52EF5C-EC6D-4BCF-A445-6A542A5BB668}.Release|x64.ActiveCfg = Release|x64
 		{DE52EF5C-EC6D-4BCF-A445-6A542A5BB668}.Release|x64.Build.0 = Release|x64
-		{EAA5A110-25DA-42B8-8B90-83C45F91EF9A}.Debug|Win32.ActiveCfg = Debug|Win32
-		{EAA5A110-25DA-42B8-8B90-83C45F91EF9A}.Debug|Win32.Build.0 = Debug|Win32
-		{EAA5A110-25DA-42B8-8B90-83C45F91EF9A}.Debug|x64.ActiveCfg = Debug|x64
-		{EAA5A110-25DA-42B8-8B90-83C45F91EF9A}.Debug|x64.Build.0 = Debug|x64
-		{EAA5A110-25DA-42B8-8B90-83C45F91EF9A}.Release|Win32.ActiveCfg = Release|Win32
-		{EAA5A110-25DA-42B8-8B90-83C45F91EF9A}.Release|Win32.Build.0 = Release|Win32
-		{EAA5A110-25DA-42B8-8B90-83C45F91EF9A}.Release|x64.ActiveCfg = Release|x64
 		{FCA0A07B-F07D-49CE-BD53-137769240636}.Debug|Win32.ActiveCfg = Debug|Win32
 		{FCA0A07B-F07D-49CE-BD53-137769240636}.Debug|Win32.Build.0 = Debug|Win32
 		{FCA0A07B-F07D-49CE-BD53-137769240636}.Debug|x64.ActiveCfg = Debug|Win32

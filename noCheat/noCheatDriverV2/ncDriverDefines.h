@@ -60,6 +60,25 @@ struct NC_IMAGE_EVENT
 };
 
 /*
+ * A single process event object
+ */
+struct NC_PROCESS_EVENT
+{
+	unsigned char bExtended;
+	unsigned __int32 iParentPID;
+	unsigned __int32 iPID;
+	unsigned char szCommandLine[2048];		// Maximum command line length
+	unsigned char szProcessFileName[260];	// MAX_PATH which isn't defined in the DDK
+	unsigned char szFileName[260];			//  || -- This is the filename pointed to by the fileobject itself
+
+	struct
+	{
+		unsigned __int32 iUniqueProcess;
+		unsigned __int32 iUniqueThread;
+	} iCallingThread;
+};
+
+/*
  * Holds image events along with some
  *	header info
  */
@@ -67,6 +86,16 @@ struct NC_IMAGE_CONTAINER
 {
 	unsigned __int16 iCount;
 	struct NC_IMAGE_EVENT oEvents[NC_EVENT_BACKLOG];
+};
+
+/*
+ * Holds process events along with
+ *	some header info
+ */
+struct NC_PROCESS_CONTAINER
+{
+	unsigned __int16 iCount;
+	struct NC_PROCESS_EVENT oEvents[NC_EVENT_BACKLOG];
 };
 
 /*
@@ -80,6 +109,8 @@ struct NC_CONNECT_INFO_R
 	unsigned __int32 iNCConnectInfoRSize;
 	unsigned __int32 iNCImageEventSize;
 	unsigned __int32 iNCImageContainerSize;
+	unsigned __int32 iNCProcessEventSize;
+	unsigned __int32 iNCProcessContainerSize;
 
 	unsigned __int16 iDSLinkVersion;
 
