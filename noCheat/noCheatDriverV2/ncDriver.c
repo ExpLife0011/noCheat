@@ -218,7 +218,14 @@ NTSTATUS DrvDevLink(IN PDEVICE_OBJECT device, IN PIRP Irp)
 NTSTATUS DrvClose(IN PDEVICE_OBJECT obj, IN PIRP Irp)
 {
 	// Log
-	LOG3("Link is closing");
+	LOG3("Link is closing.");
+
+	// Unmap links if needbe
+	if(pImageEvents != NULL)
+		MmUnmapIoSpace(pImageEvents, sizeof(struct NC_IMAGE_CONTAINER));
+
+	// Set pointers to null
+	pImageEvents = NULL
 
 	// Complete request
 	Irp->IoStatus.Information = 0;
