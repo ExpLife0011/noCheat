@@ -81,6 +81,9 @@ VOID ImageLoadCallback(PUNICODE_STRING FullImageName, HANDLE ProcessId, PIMAGE_I
 	ie.iImageBase = (unsigned __int64)ImageInfo->ImageBase;
 	ie.iSize = (unsigned __int32)ImageInfo->ImageSize;
 
+	// Memset the buffer to 0
+	memset(&ie.szImageName, 0, sizeof(ie.szImageName));
+
 	// Convert path to ansi, Memcpy to event, and free ansi string
 	RtlUnicodeStringToAnsiString(&ansi, FullImageName, 1);
 	memcpy(&ie.szImageName, ansi.Buffer, ansi.Length);
