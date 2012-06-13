@@ -53,7 +53,8 @@ struct NC_IMAGE_EVENT
 	char szImageName[260];	// MAX_PATH which isn't defined in the DDK
 	unsigned __int32 iPID;
 	unsigned __int32 iSize;
-	char bUserLand;
+	unsigned __int64 iImageBase;
+	unsigned char bKernelLand;
 };
 
 /*

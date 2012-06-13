@@ -5,6 +5,13 @@
 
 #include "ncDriverDefines.h"
 
+NC_IMAGE_CONTAINER cont;
+
+VOID WaitForDriver()
+{
+	while(cont.bDriverWriting == 1){}
+}
+
 int main()
 {
 	//open device
@@ -18,7 +25,6 @@ int main()
 	}
 	
 	UCHAR controlbuff[256];
-	NC_IMAGE_CONTAINER cont;
 	DWORD dw;
 
 	NC_CONNECT_INFO_R ncr;
@@ -38,9 +44,19 @@ int main()
 		return 2;
 	}
 
-	while(cont.iCount != 1)
+	while(true)
 	{
-		Sleep(10);
+		WaitForDriver();
+		cont.bServiceWriting = 1;
+		if(cont.iCount > 0)
+		{
+			for(int i = 0; i < cont.iCount; i++)
+			{
+				printf("Image (%d): %s\n", cont.oEvents[i].iPID, cont.oEvents[i].szImageName);
+			}
+			cont.iCount = 0;
+		}
+		cont.bServiceWriting = 0;
 	}
 
 	printf("Closing handle\n");

@@ -50,6 +50,61 @@ const WCHAR devicelink[] = L"\\DosDevices\\NOCHEAT";
 // Setup buffer pointers
 struct NC_IMAGE_CONTAINER* pImageEvents;
 
+VOID WaitForService()
+{
+	while(pImageEvents->bServiceWriting == 1){}
+}
+
+/*
+ * Called whenever an image (DLL or EXE) is loaded
+ */
+VOID ImageLoadCallback(PUNICODE_STRING FullImageName, HANDLE ProcessId, PIMAGE_INFO ImageInfo)
+{
+	// Setup vars
+	struct NC_IMAGE_EVENT ie;
+	ANSI_STRING ansi;
+
+	// Check to see there is a link and return if there is not
+	if(pImageEvents == NULL) return;
+
+	// Check for overflow
+	if(pImageEvents->iCount >= NC_EVENT_BACKLOG)
+	{
+		// Log and return
+		LOG2("Reached image event backlog limit!");
+		return;
+	}
+
+	// Set up a new image object
+	ie.iPID = (unsigned __int32)ProcessId;
+	ie.bKernelLand = (unsigned char)ImageInfo->SystemModeImage;
+	ie.iImageBase = (unsigned __int64)ImageInfo->ImageBase;
+	ie.iSize = (unsigned __int32)ImageInfo->ImageSize;
+
+	// Convert path to ansi, Memcpy to event, and free ansi string
+	RtlUnicodeStringToAnsiString(&ansi, FullImageName, 1);
+	memcpy(&ie.szImageName, ansi.Buffer, ansi.Length);
+	RtlFreeAnsiString(&ansi);
+
+	// Wait for the service to be done writing
+	WaitForService();
+
+	// Acquire lock
+	pImageEvents->bDriverWriting = 1;
+
+	// Assign to memory
+	pImageEvents->oEvents[pImageEvents->iCount] = ie;
+
+	// Increment count
+	pImageEvents->iCount = pImageEvents->iCount + 1;
+
+	// Release lock
+	pImageEvents->bDriverWriting = 0;
+
+	// Log
+	LOG3("Image (%d): %wZ", ProcessId, FullImageName);
+}
+
 char VerifyLink(struct NC_CONNECT_INFO_R* ncRInf)
 {
 	// Check security
@@ -136,9 +191,6 @@ NTSTATUS DrvDevLink(IN PDEVICE_OBJECT device, IN PIRP Irp)
 
 		// Log
 		LOG("Successfully validated image receiver!");
-
-		// DEBUG: Set our count to 1 to signal we're all good
-		pImageEvents->iCount = 1;
 
 		break;
 	default:
@@ -297,6 +349,22 @@ NTSTATUS DriverEntry(IN PDRIVER_OBJECT driver, IN PUNICODE_STRING path)
 	driver->MajorFunction[IRP_MJ_CREATE] = DrvCreate;
 	driver->MajorFunction[IRP_MJ_DEVICE_CONTROL] = DrvDevLink;
 
+	// Setup image callback
+	ntsReturn = PsSetLoadImageNotifyRoutine((PLOAD_IMAGE_NOTIFY_ROUTINE)&ImageLoadCallback);
+
+	// Check success
+	switch(ntsReturn)
+	{
+	case STATUS_SUCCESS:
+		LOG2("Registered Image-Load Callback Successfully!");
+		break;
+	case STATUS_INSUFFICIENT_RESOURCES:
+		LOG2("Could not register image-load callback: Insufficient Resources. Terminating!");
+		goto ErrFreeSymLink;
+	default:
+		LOG2("Could not register image-load callback: Unknown Error (%d). Terminating!", ntsReturn);
+		goto ErrFreeSymLink;
+	}
 
 // Jump to success
 goto Success;
@@ -304,6 +372,9 @@ goto Success;
 /*---
  * START ERROR BLOCK *
 				  ---*/
+ErrFreeSymLink: // Occurs when the image-load callback fails
+IoDeleteSymbolicLink(&devLink);
+
 ErrFreeDev: // Occurs when the symlink creation fails
 IoDeleteDevice(devObj);
 
