@@ -90,10 +90,10 @@ VOID ImageLoadCallback(PUNICODE_STRING FullImageName, HANDLE ProcessId, PIMAGE_I
 	RtlFreeAnsiString(&ansi);
 
 	// Wait for the service to be done writing
-	WaitForService();
+	//WaitForService();
 
 	// Acquire lock
-	pImageEvents->bDriverWriting = 1;
+	//pImageEvents->bDriverWriting = 1;
 
 	// Assign to memory
 	pImageEvents->oEvents[pImageEvents->iCount] = ie;
@@ -102,7 +102,7 @@ VOID ImageLoadCallback(PUNICODE_STRING FullImageName, HANDLE ProcessId, PIMAGE_I
 	pImageEvents->iCount = pImageEvents->iCount + 1;
 
 	// Release lock
-	pImageEvents->bDriverWriting = 0;
+	//pImageEvents->bDriverWriting = 0;
 
 	// Log
 	LOG3("Image (%d): %wZ", ProcessId, FullImageName);
@@ -268,17 +268,26 @@ void DrvUnload(IN PDRIVER_OBJECT driver)
 	// Log entry
 	LOG("Unloading driver");
 
+	// Destroy image-load callback
+	LOG2("Unregistering image-load callback");
+	PsRemoveLoadImageNotifyRoutine((PLOAD_IMAGE_NOTIFY_ROUTINE)ImageLoadCallback);
+
 	// Unmap memory if need be
 	if(pImageEvents != NULL)
+	{
+		LOG2("Unmapping image-load buffer");
 		MmUnmapIoSpace(pImageEvents, (SIZE_T)sizeof(struct NC_IMAGE_CONTAINER));
+	}
 
 	// Convert devlink string
 	RtlInitUnicodeString(&devLink, devicelink);
 
 	// Delete symlink
+	LOG2("Deleting sym-link to device");
 	IoDeleteSymbolicLink(&devLink);
 
 	// Delete device
+	LOG2("Deleting device");
 	IoDeleteDevice(driver->DeviceObject);
 
 	// Log exit

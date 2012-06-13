@@ -46,8 +46,8 @@ int main()
 
 	while(true)
 	{
-		WaitForDriver();
-		cont.bServiceWriting = 1;
+		//WaitForDriver();
+		//cont.bServiceWriting = 1;
 		if(cont.iCount > 0)
 		{
 			for(int i = 0; i < cont.iCount; i++)
@@ -55,8 +55,10 @@ int main()
 				printf("Image (%d): %s\n", cont.oEvents[i].iPID, cont.oEvents[i].szImageName);
 			}
 			cont.iCount = 0;
+		}else{
+			Sleep(1);
 		}
-		cont.bServiceWriting = 0;
+		//cont.bServiceWriting = 0;
 	}
 
 	printf("Closing handle\n");
