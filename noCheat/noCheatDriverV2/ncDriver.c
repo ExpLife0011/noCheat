@@ -52,7 +52,7 @@ struct NC_IMAGE_CONTAINER* pImageEvents;
 
 VOID WaitForService()
 {
-	while(pImageEvents->bServiceWriting == 1){}
+	while(pImageEvents != NULL && pImageEvents->bServiceWriting == 1){}
 }
 
 /*
