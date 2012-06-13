@@ -12,8 +12,10 @@
  *	Used as a line of security 
  *	against spoofing
  */
-#define NC_CONNECTION_CODE_IMAGES			1001
-#define NC_CONNECTION_CODE_MINIPORT_MAC		1551
+#define NC_CONNECTION_CODE_IMAGES			6254
+#define NC_CONNECTION_CODE_SYSINFO			1551
+#define NC_CONNECTION_CODE_THREADS			2061
+#define NC_CONNECTION_CODE_PROCESSES		8105
 
 /*
  * Version
@@ -81,10 +83,5 @@ struct NC_CONNECT_INFO_R
 
 	unsigned __int16 iDSLinkVersion;
 
-#if defined(_AMD64_) || defined(_IA64_) || defined(_M_IA64) || defined(_M_X64)	// 64-bit
-	__int64 pBuff;
-#else																			// 32-bit
-	__int64 pBuff;
-	//__int32 vPadding;
-#endif
+	unsigned __int64 pBuff;
 };
