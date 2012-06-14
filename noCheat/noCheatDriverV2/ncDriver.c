@@ -134,29 +134,29 @@ NTSTATUS DriverEntry(IN PDRIVER_OBJECT driver, IN PUNICODE_STRING path)
 	}
 #pragma endregion
 
-#pragma region Setup Process Creation Callback
-	// Setup process creation callback
-	ntsReturn = NC_PROCESSCREATE_NOTIFY(ProcessCreateCallback, 0);
-
-	// Check return
-	switch(ntsReturn)
-	{
-	case STATUS_SUCCESS:
-		LOG2("Registered Process Creation Callback Successfully!");
-		break;
-	case STATUS_INVALID_PARAMETER:
-		LOG2("Could not register process creation callback: Invalid Parameter (Already registered? Too many registrations?)");
-		goto ErrUnregIL;
-#ifdef NC_PCN_EXTENDED
-	case STATUS_ACCESS_DENIED:
-		LOG2("Could not register process creation callback: Access Denied");
-		goto ErrUnregIL;
-#endif
-	default:
-		LOG2("Could not register process creation callback: Unknown error");
-		goto ErrUnregIL;
-	}
-#pragma endregion
+//#pragma region Setup Process Creation Callback
+//	// Setup process creation callback
+//	ntsReturn = NC_PROCESSCREATE_NOTIFY(ProcessCreateCallback, 0);
+//
+//	// Check return
+//	switch(ntsReturn)
+//	{
+//	case STATUS_SUCCESS:
+//		LOG2("Registered Process Creation Callback Successfully!");
+//		break;
+//	case STATUS_INVALID_PARAMETER:
+//		LOG2("Could not register process creation callback: Invalid Parameter (Already registered? Too many registrations?)");
+//		goto ErrUnregIL;
+//#ifdef NC_PCN_EXTENDED
+//	case STATUS_ACCESS_DENIED:
+//		LOG2("Could not register process creation callback: Access Denied");
+//		goto ErrUnregIL;
+//#endif
+//	default:
+//		LOG2("Could not register process creation callback: Unknown error");
+//		goto ErrUnregIL;
+//	}
+//#pragma endregion
 
 	// Setup major functions
 	driver->MajorFunction[IRP_MJ_CLOSE] = DrvClose;
