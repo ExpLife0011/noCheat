@@ -1,2 +1,3 @@
 1>warnings in directory c:\users\administrator\documents\nocheat\nocheat\nocheatdriverv2
-1>c:\users\administrator\documents\nocheat\nocheat\nocheatdriverv2\ncdriver.c(110) : warning C4138: '*/' found outside of comment
+1>c:\users\administrator\documents\nocheat\nocheat\nocheatdriverv2\ncdriver.c(335) : warning C4242: '=' : conversion from 'SIZE_T' to 'unsigned int', possible loss of data
+1>c:\users\administrator\documents\nocheat\nocheat\nocheatdriverv2\ncdriver.c(400) : warning C4102: 'CompleteDIORequest' : unreferenced label

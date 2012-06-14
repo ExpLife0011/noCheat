@@ -22,9 +22,6 @@
 // Include the NTDDK header file
 #include <ntddk.h>
 
-// Include assertions (insanity checks)
-#include <assert.h>
-
 // Include the header defines (used in the service
 //	project)
 #include "ncDriverDefines.h"
@@ -34,6 +31,19 @@
 //	(**THIS MUST BE DONE MANUALLY SINCE VS
 //	DOES NOT SIGNAL TO THE BUILD ENVIRONMENTS!**)
 #define DEBUG
+
+// Setup Assertions
+#ifdef DEBUG
+#include <assert.h>
+#define NASSERT(a, b) assert(a)
+#else
+#define NASSERT(a, b) if(!(a)) b;
+#endif
+
+// Ignore unused labels on debug (due to assertions)
+#ifdef DEBUG
+#pragma warning(disable:4102)
+#endif
 
 // Setup the log function
 #ifdef DEBUG
@@ -255,12 +265,14 @@ char VerifyLink(struct NC_CONNECT_INFO_R* ncRInf)
 	}else
 		LOG2("Link passed security check");
 
-	// Verify sizes and log
-	assert (ncRInf->iNCConnectInfoRSize == sizeof(struct NC_CONNECT_INFO_R));
-	assert (ncRInf->iNCImageContainerSize == sizeof(struct NC_IMAGE_CONTAINER));
-	assert (ncRInf->iNCImageEventSize == sizeof(struct NC_IMAGE_EVENT));
-	assert (ncRInf->iNCProcessContainerSize == sizeof(struct NC_PROCESS_CONTAINER));
-	assert (ncRInf->iNCProcessEventSize == sizeof(struct NC_PROCESS_EVENT));
+	// Verify sizes
+	NASSERT (ncRInf->iNCConnectInfoRSize == sizeof(struct NC_CONNECT_INFO_R), return 0);
+	NASSERT (ncRInf->iNCImageContainerSize == sizeof(struct NC_IMAGE_CONTAINER), return 0);
+	NASSERT (ncRInf->iNCImageEventSize == sizeof(struct NC_IMAGE_EVENT), return 0);
+	NASSERT (ncRInf->iNCProcessContainerSize == sizeof(struct NC_PROCESS_CONTAINER), return 0);
+	NASSERT (ncRInf->iNCProcessEventSize == sizeof(struct NC_PROCESS_EVENT), return 0);
+
+	// Log
 	LOG3("Struct size assertions passed!");
 
 	// Verify version
@@ -347,6 +359,9 @@ NTSTATUS DrvDevLink(IN PDEVICE_OBJECT device, IN PIRP Irp)
 	// Get current stack location
 	pLoc = IoGetCurrentIrpStackLocation(Irp);
 
+	// Assert size
+	NASSERT (pLoc->Parameters.DeviceIoControl.InputBufferLength == sizeof(struct NC_CONNECT_INFO_R), goto CompleteDIORequest);
+
 	// Switch code (intent)
 	switch(pLoc->Parameters.DeviceIoControl.IoControlCode)
 	{
@@ -386,6 +401,8 @@ NTSTATUS DrvDevLink(IN PDEVICE_OBJECT device, IN PIRP Irp)
 
 	// Log
 	LOG2("Completing link initiation");
+
+CompleteDIORequest:
 
 	// Complete request
 	Irp->IoStatus.Status = 0;
@@ -541,10 +558,14 @@ NTSTATUS DriverEntry(IN PDRIVER_OBJECT driver, IN PUNICODE_STRING path)
 	RtlInitUnicodeString(&devLink, devicelink);
 	RtlInitUnicodeString(&devName, devicename);
 
-#pragma region Create Device
-	// Create device
+#pragma region Create Device	
+	// Check sizes
+	NASSERT ((256 >= sizeof(struct NC_CONNECT_INFO_R)) && (256 >= sizeof(struct NC_CONNECT_INFO_S)), goto ErrFreeUni);
+	
+	// Log
 	LOG2("Creating Device");
-	assert ((256 >= sizeof(struct NC_CONNECT_INFO_R)) && (256 >= sizeof(struct NC_CONNECT_INFO_S)));
+
+	// Create device
 	ntsReturn = IoCreateDevice(driver, 256, &devName, FILE_DEVICE_UNKNOWN, 0, TRUE, &devObj);
 
 	// Check the status of the device creation
@@ -590,12 +611,6 @@ NTSTATUS DriverEntry(IN PDRIVER_OBJECT driver, IN PUNICODE_STRING path)
 		LOG("Terminating!");
 		goto ErrFreeDev;
 	}
-
-	// Setup major functions
-	driver->MajorFunction[IRP_MJ_CLOSE] = DrvClose;
-	driver->MajorFunction[IRP_MJ_CREATE] = DrvCreate;
-	driver->MajorFunction[IRP_MJ_DEVICE_CONTROL] = DrvDevLink;
-	driver->MajorFunction[IRP_MJ_SHUTDOWN] = SysShutdownRestart;
 #pragma endregion
 
 #pragma region Setup Image Callback
@@ -640,6 +655,12 @@ NTSTATUS DriverEntry(IN PDRIVER_OBJECT driver, IN PUNICODE_STRING path)
 		goto ErrUnregIL;
 	}
 #pragma endregion
+
+	// Setup major functions
+	driver->MajorFunction[IRP_MJ_CLOSE] = DrvClose;
+	driver->MajorFunction[IRP_MJ_CREATE] = DrvCreate;
+	driver->MajorFunction[IRP_MJ_DEVICE_CONTROL] = DrvDevLink;
+	driver->MajorFunction[IRP_MJ_SHUTDOWN] = SysShutdownRestart;
 
 // Jump to success
 goto Success;
