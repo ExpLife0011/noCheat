@@ -42,9 +42,22 @@ int main()
 
 	printf("Return code: %d{%d,%d,%d}\n", returnInf.bSuccess, returnInf.bBlocked, returnInf.bAccessDenied, returnInf.bSizeMismatch);
 
+	// Validate write check
+	for(unsigned int i = 0; i < sizeof(image); i++)
+	{
+		if(((char*)&image)[i] != 1)
+		{
+			printf("Found non-1 (%d/%X)!\n", i, i);
+			break;
+		}
+	}
+	
+	// Memset back to 0
+	memset(&image, 0, sizeof(image));
+
 	while(true)
 	{
-		if(image.iCount > 0)
+		if(image.iCount >= 8)
 		{
 			// Dump our memory to file
 			/*HANDLE f = CreateFile("MemDump.bin", GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);

@@ -67,8 +67,8 @@ oacr invalidate root:x86chk /autocleanqueue
 1> /wd4627
 1> /typedil-
 1> /FIC:\WinDDK\7600.16385.1\inc\api\warning.h
-1> .\callbacks.c 
-1>callbacks.c
+1> .\mj_device_control.c 
+1>mj_device_control.c
 1> C:\WinDDK\7600.16385.1\Bin\x86\oacr\oacrlink /out:c:\users\administrator\documents\nocheat\nocheat\nocheatdriverv2\objchk_wxp_x86\i386\ncDriver.sys /machine:ix86 @c:\users\administrator\documents\nocheat\nocheat\nocheatdriverv2\objchk_wxp_x86\i386\lnk.rsp
 1>Microsoft (R) Incremental Linker Version 9.00.30729.207
 1>Copyright (C) Microsoft Corporation.  All rights reserved.
