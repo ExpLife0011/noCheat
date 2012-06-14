@@ -20,45 +20,45 @@
 #ifdef NC_PCN_EXTENDED
 VOID ProcessCreateCallback(PEPROCESS Process, HANDLE ProcessId, PPS_CREATE_NOTIFY_INFO CreateInfo)
 {
-	// Setup vars
-	struct NC_PROCESS_EVENT pe;
-	struct NC_PROCESS_CONTAINER* pProcessEvents;
+	//// Setup vars
+	//struct NC_PROCESS_EVENT pe;
+	//struct NC_PROCESS_CONTAINER* pProcessEvents;
 
-	// Setup pointer
-	pProcessEvents = (struct NC_PROCESS_CONTAINER*)sSpaces.Process.pAddr;
+	//// Setup pointer
+	//pProcessEvents = (struct NC_PROCESS_CONTAINER*)sSpaces.Process.pAddr;
 
-	// Check to see if there is a link and return if there is not
-	if(sSpaces.Process.bMapped == 0) return;
+	//// Check to see if there is a link and return if there is not
+	//if(sSpaces.Process.bMapped == 0) return;
 
-	// Check for overflow
-	if(pProcessEvents->iCount >= NC_EVENT_BACKLOG)
-	{
-		// Log and return
-		LOG2("Reached process creation event backlog limit!");
-		return;
-	}
+	//// Check for overflow
+	//if(pProcessEvents->iCount >= NC_EVENT_BACKLOG)
+	//{
+	//	// Log and return
+	//	LOG2("Reached process creation event backlog limit!");
+	//	return;
+	//}
 
-	// Set up new process object
-	pe.bExtended = 1;
-	pe.iPID = (unsigned __int32)ProcessId;
-	pe.iCallingThread.iUniqueProcess = (unsigned __int32)CreateInfo->CreatingThreadId.UniqueProcess;
-	pe.iCallingThread.iUniqueThread = (unsigned __int32)CreateInfo->CreatingThreadId.UniqueThread;
-	pe.iParentPID = (unsigned __int32)CreateInfo->ParentProcessId;
-	
-	// Get Process File Name	
-	MOVEANSI(pe.szProcessFileName, (PUNICODE_STRING)CreateInfo->ImageFileName);
+	//// Set up new process object
+	//pe.bExtended = 1;
+	//pe.iPID = (unsigned __int32)ProcessId;
+	//pe.iCallingThread.iUniqueProcess = (unsigned __int32)CreateInfo->CreatingThreadId.UniqueProcess;
+	//pe.iCallingThread.iUniqueThread = (unsigned __int32)CreateInfo->CreatingThreadId.UniqueThread;
+	//pe.iParentPID = (unsigned __int32)CreateInfo->ParentProcessId;
+	//
+	//// Get Process File Name	
+	//MOVEANSI(pe.szProcessFileName, (PUNICODE_STRING)CreateInfo->ImageFileName);
 
-	// Get Command Line
-	MOVEANSI(pe.szCommandLine, (PUNICODE_STRING)CreateInfo->CommandLine);
+	//// Get Command Line
+	//MOVEANSI(pe.szCommandLine, (PUNICODE_STRING)CreateInfo->CommandLine);
 
-	// Get Image Name
-	MOVEANSI(pe.szFileName, &CreateInfo->FileObject->FileName);
+	//// Get Image Name
+	//MOVEANSI(pe.szFileName, &CreateInfo->FileObject->FileName);
 
-	// Assign to memory
-	pProcessEvents->oEvents[pProcessEvents->iCount] = pe;
+	//// Assign to memory
+	//pProcessEvents->oEvents[pProcessEvents->iCount] = pe;
 
-	// Increment count
-	pProcessEvents->iCount = pProcessEvents->iCount + 1;
+	//// Increment count
+	//pProcessEvents->iCount = pProcessEvents->iCount + 1;
 
 	// Log
 	LOG("ProcessEX (%d <- %d)", pe.iParentPID, pe.iPID);
@@ -117,39 +117,39 @@ VOID ProcessCreateCallback(HANDLE ParentId, HANDLE ProcessId, BOOLEAN Create)
  */
 VOID ImageLoadCallback(PUNICODE_STRING FullImageName, HANDLE ProcessId, PIMAGE_INFO ImageInfo)
 {
-	// Setup vars
-	struct NC_IMAGE_EVENT ie;
-	ANSI_STRING ansi;
-	struct NC_IMAGE_CONTAINER* pImageEvents;
+	//// Setup vars
+	//struct NC_IMAGE_EVENT ie;
+	//ANSI_STRING ansi;
+	//struct NC_IMAGE_CONTAINER* pImageEvents;
 
-	// Setup Pointer
-	pImageEvents = (struct NC_IMAGE_CONTAINER*)sSpaces.Image.pAddr;
+	//// Setup Pointer
+	//pImageEvents = (struct NC_IMAGE_CONTAINER*)sSpaces.Image.pAddr;
 
-	// Check to see there is a link and return if there is not
-	if(sSpaces.Image.bMapped == 0) return;
+	//// Check to see there is a link and return if there is not
+	//if(sSpaces.Image.bMapped == 0) return;
 
-	// Check for overflow
-	if(pImageEvents->iCount >= NC_EVENT_BACKLOG)
-	{
-		// Log and return
-		LOG2("Reached image event backlog limit!");
-		return;
-	}
+	//// Check for overflow
+	//if(pImageEvents->iCount >= NC_EVENT_BACKLOG)
+	//{
+	//	// Log and return
+	//	LOG2("Reached image event backlog limit!");
+	//	return;
+	//}
 
-	// Set up a new image object
-	ie.iPID = (unsigned __int32)ProcessId;
-	ie.bKernelLand = (unsigned char)ImageInfo->SystemModeImage;
-	ie.iImageBase = (unsigned __int64)ImageInfo->ImageBase;
-	ie.iSize = (unsigned __int32)ImageInfo->ImageSize;
+	//// Set up a new image object
+	//ie.iPID = (unsigned __int32)ProcessId;
+	//ie.bKernelLand = (unsigned char)ImageInfo->SystemModeImage;
+	//ie.iImageBase = (unsigned __int64)ImageInfo->ImageBase;
+	//ie.iSize = (unsigned __int32)ImageInfo->ImageSize;
 
-	// Get Image name
-	MOVEANSI(ie.szImageName, FullImageName);
+	//// Get Image name
+	//MOVEANSI(ie.szImageName, FullImageName);
 
-	// Assign to memory
-	pImageEvents->oEvents[pImageEvents->iCount] = ie;
+	//// Assign to memory
+	//pImageEvents->oEvents[pImageEvents->iCount] = ie;
 
-	// Increment count
-	pImageEvents->iCount = pImageEvents->iCount + 1;
+	//// Increment count
+	//pImageEvents->iCount = pImageEvents->iCount + 1;
 
 	// Log
 	LOG3("Image (%d): %wZ", ProcessId, FullImageName);

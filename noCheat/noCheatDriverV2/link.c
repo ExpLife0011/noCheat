@@ -28,16 +28,6 @@ char VerifyLink(struct NC_CONNECT_INFO_INPUT* ncRInf)
 	}else
 		LOG2("Link passed security check");
 
-	// Verify sizes
-	NASSERT (ncRInf->iNCConnectInfoRSize == sizeof(struct NC_CONNECT_INFO_INPUT), return 0);
-	NASSERT (ncRInf->iNCImageContainerSize == sizeof(struct NC_IMAGE_CONTAINER), return 0);
-	NASSERT (ncRInf->iNCImageEventSize == sizeof(struct NC_IMAGE_EVENT), return 0);
-	NASSERT (ncRInf->iNCProcessContainerSize == sizeof(struct NC_PROCESS_CONTAINER), return 0);
-	NASSERT (ncRInf->iNCProcessEventSize == sizeof(struct NC_PROCESS_EVENT), return 0);
-
-	// Log
-	LOG3("Struct size assertions passed!");
-
 	// Verify version
 	if(ncRInf->iDSLinkVersion > NC_DS_LINK_VERSION)
 	{
@@ -55,4 +45,57 @@ char VerifyLink(struct NC_CONNECT_INFO_INPUT* ncRInf)
 
 	// Return true
 	return 1;
+}
+
+/*
+ * Tries to map a link
+ */
+VOID TryMapLink(void* src, struct TEMP_MAP_PARAMS* dest, struct NC_CONNECT_INFO_OUTPUT* returnInf, int aSize, SIZE_T size)
+{
+	// Check size
+	NASSERT((aSize == size), {returnInf->bSizeMismatch = 1; return;});
+
+	// Attempt to map space
+	dest->oContainer = (void*)MmMapIoSpace(MmGetPhysicalAddress(src), size, 0);
+
+	// Check for null
+	if(dest->oContainer == NULL)
+	{
+		LOG3("Could not map IO space!");
+		return;
+	}
+
+	// Set parameters
+	dest->bMapped = 1;
+	dest->iSize = size;
+}
+
+/*
+ * Nullifies all links
+ */
+VOID CloseLinks()
+{
+	// Setup vars
+	struct TEMP_MAP_PARAMS* p;
+	int total, i;
+
+	// Calculate total
+	total = sizeof(sSpaces) / sizeof(struct TEMP_MAP_PARAMS);
+
+	// Create feux pointer
+	p = (struct TEMP_MAP_PARAMS*)&sSpaces;
+
+	// Iterate through the table and turn off the Mapped flags
+	for(i = 0; i < total; i++)
+	{
+		// If it's mapped...
+		if(p[i].bMapped == 1)
+		{
+			// Unmap it
+			MmUnmapIoSpace(p[i].oContainer, (SIZE_T)p[i].iSize);
+
+			// Mark that it's unmapped
+			p[i].bMapped = 0;
+		}
+	}
 }

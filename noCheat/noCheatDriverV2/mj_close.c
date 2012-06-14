@@ -8,6 +8,7 @@
 // Include driver headers
 #include "defines.h"
 #include "globals.h"
+#include "link.h"
 
 /*
  * Called when a device disconnects
@@ -20,18 +21,7 @@ NTSTATUS DrvClose(IN PDEVICE_OBJECT obj, IN PIRP Irp)
 	LOG3("Link is closing.");
 
 	// Unmap memory if need be
-	if(sSpaces.Image.bMapped == 1)
-	{
-		LOG2("Unmapping image-load buffer");
-		MmUnmapIoSpace(sSpaces.Image.pAddr, (SIZE_T)sSpaces.Image.iSize);
-		sSpaces.Image.bMapped = 0;
-	}
-	if(sSpaces.Process.bMapped == 1)
-	{
-		LOG2("Unmapping process buffer");
-		MmUnmapIoSpace(sSpaces.Process.pAddr, (SIZE_T)sSpaces.Process.iSize);
-		sSpaces.Process.bMapped = 0;
-	}
+	CloseLinks();
 
 	// Complete request
 	Irp->IoStatus.Information = 0;

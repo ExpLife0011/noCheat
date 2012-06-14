@@ -11,6 +11,12 @@
 #include "ncDriverDefines.h"
 #include "link.h"
 
+// Define our procedure for mapping
+#define MAP_LINK(name, src, dest, size) if(src > 0){ LOG2("Mapping space for: " name); TryMapLink((void*)src, (struct TEMP_MAP_PARAMS*)&dest, &returnInf, size, sizeof(*dest.oContainer)); }
+
+// Define a macro for size assertions
+#define CHECK_EVENT_SIZE(a, b) NASSERT((a == sizeof(struct b)), {returnInf.bSizeMismatch = 1; goto WriteReturn;})
+
 /*
  * Called to initiate a link between the driver and a service
  */
@@ -29,15 +35,6 @@ NTSTATUS DrvDevLink(IN PDEVICE_OBJECT device, IN PIRP Irp)
 	// Get current stack location
 	pLoc = IoGetCurrentIrpStackLocation(Irp);
 
-	// Assert size
-	NASSERT (pLoc->Parameters.DeviceIoControl.InputBufferLength == sizeof(struct NC_CONNECT_INFO_INPUT), goto DIORequestFailure);
-
-	// Setup input info
-	inputInf = (struct NC_CONNECT_INFO_INPUT*)Irp->AssociatedIrp.SystemBuffer;
-
-	// Memset returnInf
-	memset(&returnInf, 0, sizeof(struct NC_CONNECT_INFO_OUTPUT));
-
 	// Switch code (intent)
 	switch(pLoc->Parameters.DeviceIoControl.IoControlCode)
 	{
@@ -45,18 +42,58 @@ NTSTATUS DrvDevLink(IN PDEVICE_OBJECT device, IN PIRP Irp)
 		// Log
 		LOG2("Connection wants to map containers");
 
-		// Verify link
-		ret = SetupLink(Irp, sizeof(struct NC_IMAGE_CONTAINER), &(sSpaces.Image));
-		
+		// Assert size
+		NASSERT (pLoc->Parameters.DeviceIoControl.InputBufferLength == sizeof(struct NC_CONNECT_INFO_INPUT), goto WriteReturn);
 
-		// Log
+		// Setup input info
+		inputInf = (struct NC_CONNECT_INFO_INPUT*)Irp->AssociatedIrp.SystemBuffer;
+
+		// Memset returnInf
+		memset(&returnInf, 0, sizeof(struct NC_CONNECT_INFO_OUTPUT));
+
+		// Verify link
+		ret = VerifyLink(inputInf);
+
+		// Test Verification
 		if(ret == 1)
-		{
 			LOG("Successfully validated image receiver!");
-			inputInf->sReturn.cSuccess = 1;
-		}
 		else
+		{
 			LOG("Could not validate image receiver!");
+			returnInf.bAccessDenied = 1;
+			returnInf.bSuccess = 0;
+			goto WriteReturn;
+		}
+
+		// Try to map links
+		MAP_LINK("Return", inputInf->pReturnInfo, sSpaces.Return, inputInf->iReturnSize);
+		MAP_LINK("Images", inputInf->pImageLoadContainer, sSpaces.Images, inputInf->iImageContainerSize);
+		MAP_LINK("Processes", inputInf->pProcessCreateContainer, sSpaces.Processes, inputInf->iProcessContainerSize);
+
+		// Check sizes flag
+		if(returnInf.bSizeMismatch == 1)
+		{
+			// Log
+			LOG("Size mismatch! Returning failure!");
+
+			// Close all links
+			CloseLinks();
+
+			// End
+			break;
+		}
+
+		// Check event sizes
+		CHECK_EVENT_SIZE(inputInf->iImageEventSize, NC_IMAGE_EVENT);
+		CHECK_EVENT_SIZE(inputInf->iProcessEventSize, NC_PROCESS_EVENT);
+
+		// Signal a success
+		returnInf.bSuccess = 1;
+
+WriteReturn:
+		// Check/write return information
+		if(sSpaces.Return.bMapped == 1)
+			memcpy(sSpaces.Return.oContainer, &returnInf, sizeof(struct NC_CONNECT_INFO_OUTPUT));
 
 		break;
 	default:

@@ -6,6 +6,8 @@
 /*      with the driver.                                                */
 /*                                                                      */
 /************************************************************************/
+#ifndef NCH_DRIVERDEFINES__
+#define NCH_DRIVERDEFINES__
 
 /*
  * Control Code
@@ -22,7 +24,7 @@
  *	version, and does not reflect upon the overall
  *	noCheat version!
  */
-#define NC_DS_LINK_VERSION 2
+#define NC_DS_LINK_VERSION 4
 
 /*
  * Event Backlog
@@ -109,6 +111,7 @@ struct NC_CONNECT_INFO_OUTPUT
 			unsigned char bSuccess : 1;			// The linking was successful
 			unsigned char bBlocked : 1;			// Whether or not the connection was blocked (there is already another connection)
 			unsigned char bAccessDenied : 1;	// Access denied (security verifications went wrong!)
+			unsigned char bSizeMismatch : 1;	// An event struct's size is mismatched
 		};
 	};
 };
@@ -121,11 +124,11 @@ struct NC_CONNECT_INFO_INPUT
 {
 	unsigned __int32 iSecurityCode;							// Security code
 
-	unsigned __int32 iNCConnectInfoOutputSize;				// - NC_CONNECT_INFO_OUTPUT			NOTE: input size is not needed, as it is checked by the driver automatically
-	unsigned __int32 iNCImageEventSize;						// - NC_IMAGE_EVENT
-	unsigned __int32 iNCImageContainerSize;					// - NC_IMAGE_CONTAINER
-	unsigned __int32 iNCProcessEventSize;					// - NC_PROCESS_EVENT
-	unsigned __int32 iNCProcessContainerSize;				// - NC_PROCESS_CONTAINER
+	unsigned __int32 iReturnSize;							// - NC_CONNECT_INFO_OUTPUT			NOTE: input size is not needed, as it is checked by the driver automatically
+	unsigned __int32 iImageEventSize;						// - NC_IMAGE_EVENT
+	unsigned __int32 iImageContainerSize;					// - NC_IMAGE_CONTAINER
+	unsigned __int32 iProcessEventSize;						// - NC_PROCESS_EVENT
+	unsigned __int32 iProcessContainerSize;					// - NC_PROCESS_CONTAINER
 
 	unsigned __int16 iDSLinkVersion;						// Link protocol version	
 
@@ -138,3 +141,6 @@ struct NC_CONNECT_INFO_INPUT
 	unsigned __int64 pProcInfoIn;							// Container for input-events regarding process info
 	unsigned __int64 pProcInfoOut;							// Container for output-events regarding process info
 };
+
+
+#endif
