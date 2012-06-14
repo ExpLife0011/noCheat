@@ -141,7 +141,8 @@ VOID ImageLoadCallback(PUNICODE_STRING FullImageName, HANDLE ProcessId, PIMAGE_I
 	MOVEANSI(ie.szImageName, FullImageName);
 
 	// Assign to memory
-	sSpaces.Images.oContainer->oEvents[sSpaces.Images.oContainer->iCount] = ie;
+	//sSpaces.Images.oContainer->oEvents[sSpaces.Images.oContainer->iCount] = ie;
+	memcpy(&(sSpaces.Images.oContainer->oEvents[sSpaces.Images.oContainer->iCount]), &ie, sizeof(ie));
 
 	// Increment count
 	sSpaces.Images.oContainer->iCount = sSpaces.Images.oContainer->iCount + 1;
