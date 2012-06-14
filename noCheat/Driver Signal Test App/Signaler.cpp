@@ -5,11 +5,9 @@
 
 #include "ncDriverDefines.h"
 
-//static NC_IMAGE_CONTAINER cont;
-//static NC_PROCESS_CONTAINER proc;
-
 int main()
 {
+
 	//open device
 	HANDLE device = CreateFile("\\\\.\\NOCHEAT",GENERIC_READ|GENERIC_WRITE,0,0,OPEN_EXISTING,FILE_ATTRIBUTE_SYSTEM,0);
 	
@@ -30,7 +28,7 @@ int main()
 	
 	inp.iDSLinkVersion = NC_DS_LINK_VERSION;
 	inp.iSecurityCode = NC_LINK_SEC_CODE;
-	inp.iImageContainerSize = sizeof(NC_IMAGE_CONTAINER) + 1;
+	inp.iImageContainerSize = sizeof(NC_IMAGE_CONTAINER);
 	inp.iImageEventSize = sizeof(NC_IMAGE_EVENT);
 	inp.iProcessContainerSize = sizeof(NC_PROCESS_CONTAINER);
 	inp.iProcessEventSize = sizeof(NC_PROCESS_EVENT);

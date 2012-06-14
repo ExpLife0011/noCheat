@@ -13,7 +13,8 @@
 // Setup Assertions
 #ifdef DEBUG
 #include <assert.h>
-#define NASSERT(a, b) assert(a)
+//#define NASSERT(a, b) if(!(a)) KeBugCheckEx(0xAC1D, __LINE__, 0, 0, 0)
+#define NASSERT(a, b) ASSERT(a)
 #else
 #define NASSERT(a, b) if(!(a)) b;
 #endif
