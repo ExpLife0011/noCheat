@@ -57,14 +57,25 @@
 #define NC_PROCESSCREATE_NOTIFY(vA, vB) PsSetCreateProcessNotifyRoutine((PCREATE_PROCESS_NOTIFY_ROUTINE)&vA, vB);
 #endif
 
+// Create our mapped space structs
+struct NC_MAPPED_SPACE
+{
+	void* pAddr;
+	unsigned char bMapped;
+	unsigned __int32 iSize;
+};
+struct NC_MAPPED_SPACE_TABLE
+{
+	struct NC_MAPPED_SPACE Process;
+	struct NC_MAPPED_SPACE Image;
+};
+
 // Declare our link constants
 const WCHAR devicename[] = L"\\Device\\noCheat";
 const WCHAR devicelink[] = L"\\DosDevices\\NOCHEAT";
 
-// Setup buffer pointers
-static struct NC_IMAGE_CONTAINER* pImageEvents;
-static struct NC_PROCESS_CONTAINER* pProcessEvents;
-
+// Setup mapped spaces
+static struct NC_MAPPED_SPACE_TABLE sSpaces;
 
 /*
  * Converts a unicode string to an ansi string
@@ -97,9 +108,13 @@ VOID ProcessCreateCallback(PEPROCESS Process, HANDLE ProcessId, PPS_CREATE_NOTIF
 {
 	// Setup vars
 	struct NC_PROCESS_EVENT pe;
+	struct NC_PROCESS_CONTAINER* pProcessEvents;
+
+	// Setup pointer
+	pProcessEvents = (struct NC_PROCESS_CONTAINER*)sSpaces.Process.pAddr;
 
 	// Check to see if there is a link and return if there is not
-	if(pProcessEvents == NULL) return;
+	if(sSpaces.Process.bMapped == 0) return;
 
 	// Check for overflow
 	if(pProcessEvents->iCount >= NC_EVENT_BACKLOG)
@@ -130,6 +145,9 @@ VOID ProcessCreateCallback(PEPROCESS Process, HANDLE ProcessId, PPS_CREATE_NOTIF
 
 	// Increment count
 	pProcessEvents->iCount = pProcessEvents->iCount + 1;
+
+	// Log
+	LOG("ProcessEX (%d <- %d)", pe.iParentPID, pe.iPID);
 }
 
 #endif
@@ -140,14 +158,19 @@ VOID ProcessCreateCallback(PEPROCESS Process, HANDLE ProcessId, PPS_CREATE_NOTIF
  */
 VOID ProcessCreateCallback(HANDLE ParentId, HANDLE ProcessId, BOOLEAN Create)
 {
+	/*
 	// Setup vars
 	struct NC_PROCESS_EVENT pe;
+	struct NC_PROCESS_CONTAINER* pProcessEvents;
+
+	// Setup pointer
+	pProcessEvents = (struct NC_PROCESS_CONTAINER*)sSpaces.Process.pAddr;
 
 	// Check to see if the process is being destroyed and return if so
 	if(!Create) return;
 
 	// Check to see if there is a link and return if there is not
-	if(pProcessEvents == NULL) return;
+	if(sSpaces.Process.bMapped == 0) return;
 
 	// Check for overflow
 	if(pProcessEvents->iCount >= NC_EVENT_BACKLOG)
@@ -166,7 +189,10 @@ VOID ProcessCreateCallback(HANDLE ParentId, HANDLE ProcessId, BOOLEAN Create)
 	pProcessEvents->oEvents[pProcessEvents->iCount] = pe;
 
 	// Increment count
-	pProcessEvents->iCount = pProcessEvents->iCount + 1;
+	pProcessEvents->iCount = pProcessEvents->iCount + 1;*/
+
+	// Print
+	LOG("Process (%d <- %d)", ProcessId, ParentId);
 }
 
 #endif
@@ -178,9 +204,13 @@ VOID ImageLoadCallback(PUNICODE_STRING FullImageName, HANDLE ProcessId, PIMAGE_I
 	// Setup vars
 	struct NC_IMAGE_EVENT ie;
 	ANSI_STRING ansi;
+	struct NC_IMAGE_CONTAINER* pImageEvents;
+
+	// Setup Pointer
+	pImageEvents = (struct NC_IMAGE_CONTAINER*)sSpaces.Image.pAddr;
 
 	// Check to see there is a link and return if there is not
-	if(pImageEvents == NULL) return;
+	if(sSpaces.Image.bMapped == 0) return;
 
 	// Check for overflow
 	if(pImageEvents->iCount >= NC_EVENT_BACKLOG)
@@ -229,6 +259,8 @@ char VerifyLink(struct NC_CONNECT_INFO_R* ncRInf)
 	assert (ncRInf->iNCConnectInfoRSize == sizeof(struct NC_CONNECT_INFO_R));
 	assert (ncRInf->iNCImageContainerSize == sizeof(struct NC_IMAGE_CONTAINER));
 	assert (ncRInf->iNCImageEventSize == sizeof(struct NC_IMAGE_EVENT));
+	assert (ncRInf->iNCProcessContainerSize == sizeof(struct NC_PROCESS_CONTAINER));
+	assert (ncRInf->iNCProcessEventSize == sizeof(struct NC_PROCESS_EVENT));
 	LOG3("Struct size assertions passed!");
 
 	// Verify version
@@ -250,6 +282,55 @@ char VerifyLink(struct NC_CONNECT_INFO_R* ncRInf)
 	return 1;
 }
 
+char SetupLink(PIRP Irp, SIZE_T ContainerSize, struct NC_MAPPED_SPACE* sp)
+{
+	// Setup vars
+	struct NC_CONNECT_INFO_R* ncRInf;
+
+	// Register control (init) buffer and feux-pointer to recv info
+	//conBuff = (UCHAR*)Irp->AssociatedIrp.SystemBuffer;
+	ncRInf = (struct NC_CONNECT_INFO_R*)Irp->AssociatedIrp.SystemBuffer;
+
+	// Verify link
+	if(VerifyLink(ncRInf) == 0)
+		return 0;
+
+	// Unmap if already mapped
+	if(sp->bMapped == 1)
+	{
+		LOG2("Unmapping image-load buffer");
+		MmUnmapIoSpace(sp->pAddr, sp->iSize);
+		sp->bMapped = 0;
+		sp->iSize = 0;
+	}
+
+	// Log
+	LOG3("Mapping buffer space");
+
+	// Map
+	sp->pAddr = (void*)MmMapIoSpace(MmGetPhysicalAddress((void*)ncRInf->pBuff), ContainerSize, 0);
+
+	// Check for null
+	if(sp->pAddr == NULL)
+	{
+		// Log and break
+		LOG2("Could not map space for the container. Perhaps the backlog is too big?");
+		return 0;
+	}
+
+	// Signal we've mapped the space
+	sp->bMapped = 1;
+
+	// Nullify!
+	memset(sp->pAddr, 0, ContainerSize);
+
+	// Set size
+	sp->iSize = ContainerSize;
+
+	// Return success
+	return 1;
+}
+
 /*
  * Called to initiate a link between the driver and a service
  */
@@ -258,7 +339,7 @@ NTSTATUS DrvDevLink(IN PDEVICE_OBJECT device, IN PIRP Irp)
 	// Setup vars
 	PIO_STACK_LOCATION pLoc;
 	unsigned char* conBuff;
-	struct NC_CONNECT_INFO_R* ncRInf;
+	char ret;
 
 	// Log
 	LOG("Initiating link");
@@ -273,66 +354,28 @@ NTSTATUS DrvDevLink(IN PDEVICE_OBJECT device, IN PIRP Irp)
 		// Log
 		LOG2("Client attempting to query processes");
 
-		// Register control (init) buffer and feux-pointer to recv info
-		conBuff = (UCHAR*)Irp->AssociatedIrp.SystemBuffer;
-		ncRInf = (struct NC_CONNECT_INFO_R*)conBuff;
-
-		// Verify Link
-		if(VerifyLink(ncRInf) == 0)
-			break;
+		// Try to setup link
+		ret = SetupLink(Irp, sizeof(struct NC_PROCESS_CONTAINER), &(sSpaces.Process));
 
 		// Log
-		LOG3("Mapping buffer space (process)");
-
-		// Map
-		pProcessEvents = (struct NC_PROCESS_CONTAINER*)MmMapIoSpace(MmGetPhysicalAddress((void*)ncRInf->pBuff), (SIZE_T)sizeof(struct NC_PROCESS_CONTAINER), 0);
-
-		// Check for null
-		if(pProcessEvents == NULL)
-		{
-			// Log and break
-			LOG2("Could not map space for the process container. Perhaps the backlog is too big?");
-			break;
-		}
-
-		// Nullify!
-		memset(pProcessEvents, 0, sizeof(struct NC_PROCESS_CONTAINER));
-
-		// Log
-		LOG("Successfully validated process receiver!");
+		if(ret == 1)
+			LOG("Successfully validated process creation receiver!");
+		else
+			LOG("Could not validate process creation receiver!");
 
 		break;
 	case NC_CONNECTION_CODE_IMAGES:
 		// Log
 		LOG2("Client attempting to query images.");
 
-		// Register control (init) buffer and feux-pointer to recv info
-		conBuff = (UCHAR*)Irp->AssociatedIrp.SystemBuffer;
-		ncRInf = (struct NC_CONNECT_INFO_R*)conBuff;
-
-		// Verify link
-		if(VerifyLink(ncRInf) == 0)
-			break;
-		
-		// Log
-		LOG3("Mapping buffer space (image)");
-		
-		// Map
-		pImageEvents = (struct NC_IMAGE_CONTAINER*)MmMapIoSpace(MmGetPhysicalAddress((void*)ncRInf->pBuff), (SIZE_T)sizeof(struct NC_IMAGE_CONTAINER), 0);
-		
-		// Check for null
-		if(pImageEvents == NULL)
-		{
-			// Log and break
-			LOG2("Could not map space for the image container. Perhaps the backlog is too big?");
-			break;
-		}
-
-		// Nullify!
-		memset(pImageEvents, 0, sizeof(struct NC_IMAGE_CONTAINER));
+		// Try to setup link
+		ret = SetupLink(Irp, sizeof(struct NC_IMAGE_CONTAINER), &(sSpaces.Image));
 
 		// Log
-		LOG("Successfully validated image receiver!");
+		if(ret == 1)
+			LOG("Successfully validated image receiver!");
+		else
+			LOG("Could not validate image receiver!");
 
 		break;
 	default:
@@ -362,15 +405,19 @@ NTSTATUS DrvClose(IN PDEVICE_OBJECT obj, IN PIRP Irp)
 	// Log
 	LOG3("Link is closing.");
 
-	// Unmap links if needbe
-	if(pImageEvents != NULL)
-		MmUnmapIoSpace(pImageEvents, sizeof(struct NC_IMAGE_CONTAINER));
-	if(pProcessEvents != NULL)
-		MmUnmapIoSpace(pProcessEvents, sizeof(struct NC_PROCESS_CONTAINER));
-
-	// Set pointers to null
-	pImageEvents = NULL;
-	pProcessEvents = NULL;
+	// Unmap memory if need be
+	if(sSpaces.Image.bMapped == 1)
+	{
+		LOG2("Unmapping image-load buffer");
+		MmUnmapIoSpace(sSpaces.Image.pAddr, (SIZE_T)sSpaces.Image.iSize);
+		sSpaces.Image.bMapped = 0;
+	}
+	if(sSpaces.Process.bMapped == 1)
+	{
+		LOG2("Unmapping process buffer");
+		MmUnmapIoSpace(sSpaces.Process.pAddr, (SIZE_T)sSpaces.Process.iSize);
+		sSpaces.Process.bMapped = 0;
+	}
 
 	// Complete request
 	Irp->IoStatus.Information = 0;
@@ -419,15 +466,17 @@ void DrvUnload(IN PDRIVER_OBJECT driver)
 	NC_PROCESSCREATE_NOTIFY(ProcessCreateCallback, 1);
 
 	// Unmap memory if need be
-	if(pImageEvents != NULL)
+	if(sSpaces.Image.bMapped == 1)
 	{
 		LOG2("Unmapping image-load buffer");
-		MmUnmapIoSpace(pImageEvents, (SIZE_T)sizeof(struct NC_IMAGE_CONTAINER));
+		MmUnmapIoSpace(sSpaces.Image.pAddr, (SIZE_T)sSpaces.Image.iSize);
+		sSpaces.Image.bMapped = 0;
 	}
-	if(pProcessEvents != NULL)
+	if(sSpaces.Process.bMapped == 1)
 	{
-		LOG2("Unmapping process-load buffer");
-		MmUnmapIoSpace(pProcessEvents, (SIZE_T)sizeof(struct NC_PROCESS_CONTAINER));
+		LOG2("Unmapping process buffer");
+		MmUnmapIoSpace(sSpaces.Process.pAddr, (SIZE_T)sSpaces.Process.iSize);
+		sSpaces.Process.bMapped = 0;
 	}
 
 	// Convert devlink string
@@ -483,6 +532,9 @@ NTSTATUS DriverEntry(IN PDRIVER_OBJECT driver, IN PUNICODE_STRING path)
 
 	// Setup driver unload function
 	driver->DriverUnload = DrvUnload;
+
+	// Setup mapped spaces object
+	memset(&sSpaces, 0, sizeof(sSpaces));
 
 	// Convert our strings to Unicode
 	LOG3("Converting device/link strings");
@@ -565,7 +617,7 @@ NTSTATUS DriverEntry(IN PDRIVER_OBJECT driver, IN PUNICODE_STRING path)
 	}
 #pragma endregion
 
-#pragma region Setup ProcessEx Creation Callback
+#pragma region Setup Process Creation Callback
 	// Setup process creation callback
 	ntsReturn = NC_PROCESSCREATE_NOTIFY(ProcessCreateCallback, 0);
 

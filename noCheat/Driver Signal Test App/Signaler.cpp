@@ -5,8 +5,8 @@
 
 #include "ncDriverDefines.h"
 
-NC_IMAGE_CONTAINER cont;
-NC_PROCESS_CONTAINER proc;
+static NC_IMAGE_CONTAINER cont;
+static NC_PROCESS_CONTAINER proc;
 
 int main()
 {
@@ -20,36 +20,43 @@ int main()
 		return 1;
 	}
 	
-	UCHAR controlbuff[256];
 	DWORD dw;
 
-	NC_CONNECT_INFO_R ncr;
 
 	// Image connection
-	ncr.iDSLinkVersion = NC_DS_LINK_VERSION;
-	ncr.iNCConnectInfoRSize = sizeof(NC_CONNECT_INFO_R);
-	ncr.iNCImageContainerSize = sizeof(NC_IMAGE_CONTAINER);
-	ncr.iNCImageEventSize = sizeof(NC_IMAGE_EVENT);
-	ncr.iNCProcessContainerSize = sizeof(NC_PROCESS_CONTAINER);
-	ncr.iNCProcessEventSize = sizeof(NC_PROCESS_EVENT);
-	ncr.pBuff = (unsigned __int64)&cont;
-	ncr.iSecurityCode = NC_LINK_SEC_CODE;
-	memcpy(&controlbuff, &ncr, sizeof(ncr));
+	NC_CONNECT_INFO_R imgNcr;
+	imgNcr.iDSLinkVersion = NC_DS_LINK_VERSION;
+	imgNcr.iNCConnectInfoRSize = sizeof(NC_CONNECT_INFO_R);
+	imgNcr.iNCImageContainerSize = sizeof(NC_IMAGE_CONTAINER);
+	imgNcr.iNCImageEventSize = sizeof(NC_IMAGE_EVENT);
+	imgNcr.iNCProcessContainerSize = sizeof(NC_PROCESS_CONTAINER);
+	imgNcr.iNCProcessEventSize = sizeof(NC_PROCESS_EVENT);
+	imgNcr.pBuff = (unsigned __int64)&cont;
+	imgNcr.iSecurityCode = NC_LINK_SEC_CODE;
+	//memcpy(&controlbuff, &imgNcr, sizeof(imgNcr));
 
 	printf("Calling DeviceIoControl (image)\n");
-	BOOL suc = DeviceIoControl(device,NC_CONNECTION_CODE_IMAGES,controlbuff,256,controlbuff,256,&dw,0);
+	BOOL suc = DeviceIoControl(device,NC_CONNECTION_CODE_IMAGES,(LPVOID)&imgNcr,sizeof(NC_CONNECT_INFO_R),(LPVOID)&imgNcr,sizeof(NC_CONNECT_INFO_R),&dw,0);
 	if(!suc) {
 		printf("Could not dispatch driver link (image)! (%d)\n", GetLastError());
 		system("pause");
 		return 2;
 	}
 
+
 	// Process connection
-	ncr.pBuff = (unsigned __int64)&proc;
-	memcpy(&controlbuff, &ncr, sizeof(ncr));
+	NC_CONNECT_INFO_R procNcr;
+	procNcr.iDSLinkVersion = NC_DS_LINK_VERSION;
+	procNcr.iNCConnectInfoRSize = sizeof(NC_CONNECT_INFO_R);
+	procNcr.iNCImageContainerSize = sizeof(NC_IMAGE_CONTAINER);
+	procNcr.iNCImageEventSize = sizeof(NC_IMAGE_EVENT);
+	procNcr.iNCProcessContainerSize = sizeof(NC_PROCESS_CONTAINER);
+	procNcr.iNCProcessEventSize = sizeof(NC_PROCESS_EVENT);
+	procNcr.pBuff = (unsigned __int64)&proc;
+	procNcr.iSecurityCode = NC_LINK_SEC_CODE;
 
 	printf("Calling DeviceIoControl (process)\n");
-	suc = DeviceIoControl(device,NC_CONNECTION_CODE_PROCESSES,controlbuff,256,controlbuff,256,&dw,0);
+	suc = DeviceIoControl(device,NC_CONNECTION_CODE_PROCESSES,(LPVOID)&procNcr,sizeof(NC_CONNECT_INFO_R),(LPVOID)&procNcr,sizeof(NC_CONNECT_INFO_R),&dw,0);
 	if(!suc) {
 		printf("Could not dispatch driver link (process)! (%d)\n", GetLastError());
 		system("pause");
@@ -58,18 +65,21 @@ int main()
 
 	while(true)
 	{
+		printf("%d.", cont.iCount);
 		if(cont.iCount > 0)
 		{
+			printf("\n");
 			for(int i = 0; i < cont.iCount; i++)
 				printf("Image (%d): %s\n", cont.oEvents[i].iPID, cont.oEvents[i].szImageName);
 			cont.iCount = 0;
 		}
-		if(proc.iCount > 1)
+		/*if(proc.iCount > 1)
 		{
+			printf("\n");
 			for(int i = 0; i < proc.iCount; i++)
 				printf("Process (%d <- %d)", proc.oEvents[i].iPID, proc.oEvents[i].iParentPID);
 			proc.iCount = 0;
-		}
+		}*/
 		Sleep(1);
 	}
 
