@@ -20,44 +20,41 @@ NTSTATUS DrvDevLink(IN PDEVICE_OBJECT device, IN PIRP Irp)
 	PIO_STACK_LOCATION pLoc;
 	unsigned char* conBuff;
 	char ret;
+	struct NC_CONNECT_INFO_INPUT* inputInf;
+	struct NC_CONNECT_INFO_OUTPUT returnInf;
 
 	// Log
 	LOG("Initiating link");
-	LOG("D: %d", &sSpaces);
 
 	// Get current stack location
 	pLoc = IoGetCurrentIrpStackLocation(Irp);
 
 	// Assert size
-	NASSERT (pLoc->Parameters.DeviceIoControl.InputBufferLength == sizeof(struct NC_CONNECT_INFO_R), goto CompleteDIORequest);
+	NASSERT (pLoc->Parameters.DeviceIoControl.InputBufferLength == sizeof(struct NC_CONNECT_INFO_INPUT), goto DIORequestFailure);
+
+	// Setup input info
+	inputInf = (struct NC_CONNECT_INFO_INPUT*)Irp->AssociatedIrp.SystemBuffer;
+
+	// Memset returnInf
+	memset(&returnInf, 0, sizeof(struct NC_CONNECT_INFO_OUTPUT));
 
 	// Switch code (intent)
 	switch(pLoc->Parameters.DeviceIoControl.IoControlCode)
 	{
-	case NC_CONNECTION_CODE_PROCESSES:
+	case NC_CONNECTION_CODE:
 		// Log
-		LOG2("Client attempting to query processes");
+		LOG2("Connection wants to map containers");
 
-		// Try to setup link
-		ret = SetupLink(Irp, sizeof(struct NC_PROCESS_CONTAINER), &(sSpaces.Process));
-
-		// Log
-		if(ret == 1)
-			LOG("Successfully validated process creation receiver!");
-		else
-			LOG("Could not validate process creation receiver!");
-
-		break;
-	case NC_CONNECTION_CODE_IMAGES:
-		// Log
-		LOG2("Client attempting to query images.");
-
-		// Try to setup link
+		// Verify link
 		ret = SetupLink(Irp, sizeof(struct NC_IMAGE_CONTAINER), &(sSpaces.Image));
+		
 
 		// Log
 		if(ret == 1)
+		{
 			LOG("Successfully validated image receiver!");
+			inputInf->sReturn.cSuccess = 1;
+		}
 		else
 			LOG("Could not validate image receiver!");
 
@@ -65,13 +62,10 @@ NTSTATUS DrvDevLink(IN PDEVICE_OBJECT device, IN PIRP Irp)
 	default:
 		// Log
 		LOG("Control connection type not implemented/supported, or an old code has been used (%d)", pLoc->Parameters.DeviceIoControl.IoControlCode);
-		break;
 	}
 
 	// Log
 	LOG2("Completing link initiation");
-
-CompleteDIORequest:
 
 	// Complete request
 	Irp->IoStatus.Status = 0;

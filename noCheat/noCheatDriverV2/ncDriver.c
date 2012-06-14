@@ -49,8 +49,6 @@ NTSTATUS DriverEntry(IN PDRIVER_OBJECT driver, IN PUNICODE_STRING path)
 	// Log Entry
 	LOG("Driver Entry");
 
-	LOG("D: %d", &sSpaces);
-
 	// Setup driver unload function
 	driver->DriverUnload = DrvUnload;
 
@@ -64,7 +62,7 @@ NTSTATUS DriverEntry(IN PDRIVER_OBJECT driver, IN PUNICODE_STRING path)
 
 #pragma region Create Device	
 	// Check sizes
-	NASSERT ((256 >= sizeof(struct NC_CONNECT_INFO_R)) && (256 >= sizeof(struct NC_CONNECT_INFO_S)), goto ErrFreeUni);
+	NASSERT ((256 >= sizeof(struct NC_CONNECT_INFO_INPUT)) && (256 >= sizeof(struct NC_CONNECT_INFO_OUTPUT)), goto ErrFreeUni);
 	
 	// Log
 	LOG2("Creating Device");

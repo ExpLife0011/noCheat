@@ -8,14 +8,11 @@
 /************************************************************************/
 
 /*
- * Control Codes
+ * Control Code
  *	Used as a line of security 
  *	against spoofing
  */
-#define NC_CONNECTION_CODE_IMAGES			6254
-#define NC_CONNECTION_CODE_SYSINFO			1551
-#define NC_CONNECTION_CODE_THREADS			2061
-#define NC_CONNECTION_CODE_PROCESSES		8105
+#define NC_CONNECTION_CODE			6254
 
 /*
  * Version
@@ -99,20 +96,45 @@ struct NC_PROCESS_CONTAINER
 };
 
 /*
+ * Information sent from the driver
+ *	to the service upon link
+ */
+struct NC_CONNECT_INFO_OUTPUT
+{
+	union
+	{
+		unsigned char Parameters;
+		struct  
+		{
+			unsigned char bSuccess : 1;			// The linking was successful
+			unsigned char bBlocked : 1;			// Whether or not the connection was blocked (there is already another connection)
+			unsigned char bAccessDenied : 1;	// Access denied (security verifications went wrong!)
+		};
+	};
+};
+
+/*
  * Information sent from the service
  *	to the driver upon link
  */
-struct NC_CONNECT_INFO_R
+struct NC_CONNECT_INFO_INPUT
 {
-	__int32 iSecurityCode;
+	unsigned __int32 iSecurityCode;							// Security code
 
-	unsigned __int32 iNCConnectInfoRSize;
-	unsigned __int32 iNCImageEventSize;
-	unsigned __int32 iNCImageContainerSize;
-	unsigned __int32 iNCProcessEventSize;
-	unsigned __int32 iNCProcessContainerSize;
+	unsigned __int32 iNCConnectInfoOutputSize;				// - NC_CONNECT_INFO_OUTPUT			NOTE: input size is not needed, as it is checked by the driver automatically
+	unsigned __int32 iNCImageEventSize;						// - NC_IMAGE_EVENT
+	unsigned __int32 iNCImageContainerSize;					// - NC_IMAGE_CONTAINER
+	unsigned __int32 iNCProcessEventSize;					// - NC_PROCESS_EVENT
+	unsigned __int32 iNCProcessContainerSize;				// - NC_PROCESS_CONTAINER
 
-	unsigned __int16 iDSLinkVersion;
+	unsigned __int16 iDSLinkVersion;						// Link protocol version	
 
-	unsigned __int64 pBuff;
+	unsigned __int64 pReturnInfo;							// Return information struct
+	unsigned __int64 pImageLoadContainer;					// Container for image-loading events
+	unsigned __int64 pProcessCreateContainer;				// Container for process creation events
+	unsigned __int64 pThreadCreateContainer;				// Container for thread creation events
+	unsigned __int64 pSysInfoIn;							// Container for input-events regarding system info
+	unsigned __int64 pSysInfoOut;							// Container for output-events regarding system info
+	unsigned __int64 pProcInfoIn;							// Container for input-events regarding process info
+	unsigned __int64 pProcInfoOut;							// Container for output-events regarding process info
 };

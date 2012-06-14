@@ -12,11 +12,6 @@
  *	Various security, version, and sizing/alignment
  *	checks are performed here.
  */
-char VerifyLink(struct NC_CONNECT_INFO_R* ncRInf);
-
-/*
- * Sets up a link
- */
-char SetupLink(PIRP Irp, SIZE_T ContainerSize, struct NC_MAPPED_SPACE* sp);
+char VerifyLink(struct NC_CONNECT_INFO_INPUT* ncRInf);
 
 #endif
