@@ -55,6 +55,8 @@ VOID TryMapLink(void* src, struct TEMP_MAP_PARAMS* dest, struct NC_CONNECT_INFO_
 	// Check size
 	NASSERT((aSize == size), {returnInf->bSizeMismatch = 1; return;});
 
+	LOG3("Mapping %d bytes", size);
+
 	// Attempt to map space
 	dest->oContainer = (void*)MmMapIoSpace(MmGetPhysicalAddress(src), size, 0);
 

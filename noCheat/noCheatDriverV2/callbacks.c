@@ -112,6 +112,38 @@ VOID ProcessCreateCallback(HANDLE ParentId, HANDLE ProcessId, BOOLEAN Create)
 
 #endif
 
+VOID Dump()
+{
+	HANDLE file;
+	OBJECT_ATTRIBUTES attr;
+	UNICODE_STRING str;
+	IO_STATUS_BLOCK ios;
+	LARGE_INTEGER as;
+	struct NC_IMAGE_CONTAINER ic;
+	int i;
+
+	// memcpy
+	memcpy(&ic, sSpaces.Images.oContainer, sizeof(struct NC_IMAGE_CONTAINER));
+
+	// Dump to dbg
+	for(i = 0; i < ic.iCount; i++)
+	{
+		LOG3("DUMP: %d, %s", ic.oEvents[i].iPID, ic.oEvents[i].szImageName);
+	}
+
+	as.QuadPart = (LONGLONG)(sizeof(struct NC_IMAGE_CONTAINER) + 1);
+
+	RtlInitUnicodeString(&str, L"\\DosDevices\\C:\\kdump.bin");
+
+	InitializeObjectAttributes(&attr, &str, OBJ_EXCLUSIVE, NULL, NULL);
+
+	ZwCreateFile(&file, FILE_WRITE_DATA, &attr, &ios, &as, FILE_ATTRIBUTE_NORMAL, 0, FILE_SUPERSEDE, FILE_NON_DIRECTORY_FILE, (void*)NULL, 0);
+
+	ZwWriteFile(file, NULL, NULL, NULL, &ios, &ic, sizeof(struct NC_IMAGE_CONTAINER), 0, NULL);
+
+	ZwClose(file);
+}
+
 /*
  * Called whenever an image (DLL or EXE) is loaded
  */
@@ -119,6 +151,7 @@ VOID ImageLoadCallback(PUNICODE_STRING FullImageName, HANDLE ProcessId, PIMAGE_I
 {
 	// Setup vars
 	struct NC_IMAGE_EVENT ie;
+	unsigned int offset;
 
 	// Check to see there is a link and return if there is not
 	if(sSpaces.Images.bMapped == 0) return;
@@ -141,12 +174,22 @@ VOID ImageLoadCallback(PUNICODE_STRING FullImageName, HANDLE ProcessId, PIMAGE_I
 	MOVEANSI(ie.szImageName, FullImageName);
 
 	// Assign to memory
-	//sSpaces.Images.oContainer->oEvents[sSpaces.Images.oContainer->iCount] = ie;
-	memcpy(&(sSpaces.Images.oContainer->oEvents[sSpaces.Images.oContainer->iCount]), &ie, sizeof(ie));
+	sSpaces.Images.oContainer->oEvents[sSpaces.Images.oContainer->iCount] = ie;
+	
+	// Log - Make sure to move this back
+	LOG3("Image (%d): %s", sSpaces.Images.oContainer->oEvents[sSpaces.Images.oContainer->iCount].iPID, sSpaces.Images.oContainer->oEvents[sSpaces.Images.oContainer->iCount].szImageName);
+	offset = (int)((unsigned __int64)&sSpaces.Images.oContainer->oEvents[sSpaces.Images.oContainer->iCount] - (unsigned __int64)&sSpaces.Images.oContainer->oEvents);
+	LOG3("Index offset: %d -> %X (%X - %X)", sSpaces.Images.oContainer->iCount, offset, (unsigned __int64)&(sSpaces.Images.oContainer->oEvents[sSpaces.Images.oContainer->iCount]), (unsigned __int64)&sSpaces.Images.oContainer->oEvents);
 
 	// Increment count
 	sSpaces.Images.oContainer->iCount = sSpaces.Images.oContainer->iCount + 1;
 
-	// Log
-	LOG3("Image (%d): %wZ", ProcessId, FullImageName);
+	// Sanity check
+	if(sSpaces.Images.oContainer->oEvents[sSpaces.Images.oContainer->iCount - 1].iPID == 0)
+		LOG3("Sanity check triggered!");
+
+	/*if(sSpaces.Images.oContainer->iCount == 9)
+	{
+		Dump();
+	}*/
 }

@@ -20,11 +20,11 @@ int main()
 	
 	DWORD dw;
 
-	NC_CONNECT_INFO_INPUT inp;
+	static NC_CONNECT_INFO_INPUT inp;
 	
-	NC_CONNECT_INFO_OUTPUT returnInf;
-	NC_PROCESS_CONTAINER proc;
-	NC_IMAGE_CONTAINER image;
+	static NC_CONNECT_INFO_OUTPUT returnInf;
+	static NC_PROCESS_CONTAINER proc;
+	static NC_IMAGE_CONTAINER image;
 	
 	inp.iDSLinkVersion = NC_DS_LINK_VERSION;
 	inp.iSecurityCode = NC_LINK_SEC_CODE;
@@ -46,10 +46,16 @@ int main()
 	{
 		if(image.iCount > 0)
 		{
+			// Dump our memory to file
+			/*HANDLE f = CreateFile("MemDump.bin", GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+			DWORD written;
+			WriteFile(f, &image.oEvents, sizeof(image.oEvents), &written, NULL);
+			CloseHandle(f);*/
+
 			for(int i = 0; i < image.iCount; i++)
 				printf("Image (%d): %s\n", image.oEvents[i].iPID, image.oEvents[i].szImageName);
 			image.iCount = 0;
-		}else Sleep(30000);
+		}else Sleep(1);
 	}
 
 	printf("Closing handle\n");
