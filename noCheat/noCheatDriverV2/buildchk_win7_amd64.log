@@ -63,13 +63,8 @@ oacr invalidate root:amd64chk /autocleanqueue
 1> /wd4627
 1> /homeparams
 1> /FIC:\WinDDK\7600.16385.1\inc\api\warning.h
-1> .\ncdriver.c 
-1>ncdriver.c
-1>c:\users\administrator\documents\nocheat\nocheat\nocheatdriverv2\ncdriver.c(335) : warning C4242: '=' : conversion from 'SIZE_T' to 'unsigned int', possible loss of data
-1>warnings in directory c:\users\administrator\documents\nocheat\nocheat\nocheatdriverv2
-1>c:\users\administrator\documents\nocheat\nocheat\nocheatdriverv2\ncdriver.c(335) : warning C4242: '=' : conversion from 'SIZE_T' to 'unsigned int', possible loss of data
-1>c:\users\administrator\documents\nocheat\nocheat\nocheatdriverv2\ncdriver.c(400) : warning C4102: 'CompleteDIORequest' : unreferenced label
-1>c:\users\administrator\documents\nocheat\nocheat\nocheatdriverv2\ncdriver.c(400) : warning C4102: 'CompleteDIORequest' : unreferenced label
+1> .\callbacks.c 
+1>callbacks.c
 1> C:\WinDDK\7600.16385.1\Bin\amd64\oacr\oacrlink /out:c:\users\administrator\documents\nocheat\nocheat\nocheatdriverv2\objchk_win7_amd64\amd64\ncDriver.sys /machine:amd64 @c:\users\administrator\documents\nocheat\nocheat\nocheatdriverv2\objchk_win7_amd64\amd64\lnk.rsp
 1>Microsoft (R) Incremental Linker Version 9.00.30729.207
 1>Copyright (C) Microsoft Corporation.  All rights reserved.
@@ -97,6 +92,15 @@ oacr invalidate root:amd64chk /autocleanqueue
 1>/entry:GsDriverEntry 
 1>/out:c:\users\administrator\documents\nocheat\nocheat\nocheatdriverv2\objchk_win7_amd64\amd64\ncDriver.sys 
 1>c:\users\administrator\documents\nocheat\nocheat\nocheatdriverv2\objchk_win7_amd64\amd64\ncdriver.obj 
+1>c:\users\administrator\documents\nocheat\nocheat\nocheatdriverv2\objchk_win7_amd64\amd64\utils.obj 
+1>c:\users\administrator\documents\nocheat\nocheat\nocheatdriverv2\objchk_win7_amd64\amd64\callbacks.obj 
+1>c:\users\administrator\documents\nocheat\nocheat\nocheatdriverv2\objchk_win7_amd64\amd64\link.obj 
+1>c:\users\administrator\documents\nocheat\nocheat\nocheatdriverv2\objchk_win7_amd64\amd64\unload.obj 
+1>c:\users\administrator\documents\nocheat\nocheat\nocheatdriverv2\objchk_win7_amd64\amd64\mj_create.obj 
+1>c:\users\administrator\documents\nocheat\nocheat\nocheatdriverv2\objchk_win7_amd64\amd64\mj_close.obj 
+1>c:\users\administrator\documents\nocheat\nocheat\nocheatdriverv2\objchk_win7_amd64\amd64\mj_device_control.obj 
+1>c:\users\administrator\documents\nocheat\nocheat\nocheatdriverv2\objchk_win7_amd64\amd64\mj_shutdown.obj 
+1>c:\users\administrator\documents\nocheat\nocheat\nocheatdriverv2\objchk_win7_amd64\amd64\globals.obj 
 1>C:\WinDDK\7600.16385.1\lib\win7\amd64\BufferOverflowK.lib 
 1>C:\WinDDK\7600.16385.1\lib\win7\amd64\ntoskrnl.lib 
 1>C:\WinDDK\7600.16385.1\lib\win7\amd64\hal.lib 
@@ -128,6 +132,15 @@ oacr invalidate root:amd64chk /autocleanqueue
 1>/entry:GsDriverEntry 
 1>/out:c:\users\administrator\documents\nocheat\nocheat\nocheatdriverv2\objchk_win7_amd64\amd64\ncDriver.sys 
 1>c:\users\administrator\documents\nocheat\nocheat\nocheatdriverv2\objchk_win7_amd64\amd64\ncdriver.obj 
+1>c:\users\administrator\documents\nocheat\nocheat\nocheatdriverv2\objchk_win7_amd64\amd64\utils.obj 
+1>c:\users\administrator\documents\nocheat\nocheat\nocheatdriverv2\objchk_win7_amd64\amd64\callbacks.obj 
+1>c:\users\administrator\documents\nocheat\nocheat\nocheatdriverv2\objchk_win7_amd64\amd64\link.obj 
+1>c:\users\administrator\documents\nocheat\nocheat\nocheatdriverv2\objchk_win7_amd64\amd64\unload.obj 
+1>c:\users\administrator\documents\nocheat\nocheat\nocheatdriverv2\objchk_win7_amd64\amd64\mj_create.obj 
+1>c:\users\administrator\documents\nocheat\nocheat\nocheatdriverv2\objchk_win7_amd64\amd64\mj_close.obj 
+1>c:\users\administrator\documents\nocheat\nocheat\nocheatdriverv2\objchk_win7_amd64\amd64\mj_device_control.obj 
+1>c:\users\administrator\documents\nocheat\nocheat\nocheatdriverv2\objchk_win7_amd64\amd64\mj_shutdown.obj 
+1>c:\users\administrator\documents\nocheat\nocheat\nocheatdriverv2\objchk_win7_amd64\amd64\globals.obj 
 1>C:\WinDDK\7600.16385.1\lib\win7\amd64\BufferOverflowK.lib 
 1>C:\WinDDK\7600.16385.1\lib\win7\amd64\ntoskrnl.lib 
 1>C:\WinDDK\7600.16385.1\lib\win7\amd64\hal.lib 

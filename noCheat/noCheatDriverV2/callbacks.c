@@ -61,7 +61,7 @@ VOID ProcessCreateCallback(PEPROCESS Process, HANDLE ProcessId, PPS_CREATE_NOTIF
 	//pProcessEvents->iCount = pProcessEvents->iCount + 1;
 
 	// Log
-	LOG("ProcessEX (%d <- %d)", pe.iParentPID, pe.iPID);
+	//LOG("ProcessEX (%d <- %d)", pe.iParentPID, pe.iPID);
 }
 
 #endif
@@ -117,39 +117,34 @@ VOID ProcessCreateCallback(HANDLE ParentId, HANDLE ProcessId, BOOLEAN Create)
  */
 VOID ImageLoadCallback(PUNICODE_STRING FullImageName, HANDLE ProcessId, PIMAGE_INFO ImageInfo)
 {
-	//// Setup vars
-	//struct NC_IMAGE_EVENT ie;
-	//ANSI_STRING ansi;
-	//struct NC_IMAGE_CONTAINER* pImageEvents;
+	// Setup vars
+	struct NC_IMAGE_EVENT ie;
 
-	//// Setup Pointer
-	//pImageEvents = (struct NC_IMAGE_CONTAINER*)sSpaces.Image.pAddr;
+	// Check to see there is a link and return if there is not
+	if(sSpaces.Images.bMapped == 0) return;
 
-	//// Check to see there is a link and return if there is not
-	//if(sSpaces.Image.bMapped == 0) return;
+	// Check for overflow
+	if(sSpaces.Images.oContainer->iCount >= NC_EVENT_BACKLOG)
+	{
+		// Log and return
+		LOG2("Reached image event backlog limit!");
+		return;
+	}
 
-	//// Check for overflow
-	//if(pImageEvents->iCount >= NC_EVENT_BACKLOG)
-	//{
-	//	// Log and return
-	//	LOG2("Reached image event backlog limit!");
-	//	return;
-	//}
+	// Set up a new image object
+	ie.iPID = (unsigned __int32)ProcessId;
+	ie.bKernelLand = (unsigned char)ImageInfo->SystemModeImage;
+	ie.iImageBase = (unsigned __int64)ImageInfo->ImageBase;
+	ie.iSize = (unsigned __int32)ImageInfo->ImageSize;
 
-	//// Set up a new image object
-	//ie.iPID = (unsigned __int32)ProcessId;
-	//ie.bKernelLand = (unsigned char)ImageInfo->SystemModeImage;
-	//ie.iImageBase = (unsigned __int64)ImageInfo->ImageBase;
-	//ie.iSize = (unsigned __int32)ImageInfo->ImageSize;
+	// Get Image name
+	MOVEANSI(ie.szImageName, FullImageName);
 
-	//// Get Image name
-	//MOVEANSI(ie.szImageName, FullImageName);
+	// Assign to memory
+	sSpaces.Images.oContainer->oEvents[sSpaces.Images.oContainer->iCount] = ie;
 
-	//// Assign to memory
-	//pImageEvents->oEvents[pImageEvents->iCount] = ie;
-
-	//// Increment count
-	//pImageEvents->iCount = pImageEvents->iCount + 1;
+	// Increment count
+	sSpaces.Images.oContainer->iCount = sSpaces.Images.oContainer->iCount + 1;
 
 	// Log
 	LOG3("Image (%d): %wZ", ProcessId, FullImageName);
