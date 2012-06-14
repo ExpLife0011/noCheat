@@ -114,9 +114,49 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
+				RelativePath=".\callbacks.c"
+				>
+			</File>
+			<File
+				RelativePath=".\globals.c"
+				>
+			</File>
+			<File
+				RelativePath=".\link.c"
+				>
+			</File>
+			<File
 				RelativePath=".\ncDriver.c"
 				>
 			</File>
+			<File
+				RelativePath=".\unload.c"
+				>
+			</File>
+			<File
+				RelativePath=".\utils.c"
+				>
+			</File>
+			<Filter
+				Name="irp"
+				>
+				<File
+					RelativePath=".\mj_close.c"
+					>
+				</File>
+				<File
+					RelativePath=".\mj_create.c"
+					>
+				</File>
+				<File
+					RelativePath=".\mj_device_control.c"
+					>
+				</File>
+				<File
+					RelativePath=".\mj_shutdown.c"
+					>
+				</File>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -124,7 +164,35 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
-				RelativePath=".\ncDriverDefines.h"
+				RelativePath=".\callbacks.h"
+				>
+			</File>
+			<File
+				RelativePath=".\defines.h"
+				>
+			</File>
+			<File
+				RelativePath=".\globals.h"
+				>
+			</File>
+			<File
+				RelativePath=".\irp.h"
+				>
+			</File>
+			<File
+				RelativePath=".\link.h"
+				>
+			</File>
+			<File
+				RelativePath=".\structures.h"
+				>
+			</File>
+			<File
+				RelativePath=".\unload.h"
+				>
+			</File>
+			<File
+				RelativePath=".\utils.h"
 				>
 			</File>
 		</Filter>
@@ -139,6 +207,14 @@
 			</File>
 			<File
 				RelativePath=".\SOURCES"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="Exported Header Files"
+			>
+			<File
+				RelativePath=".\ncDriverDefines.h"
 				>
 			</File>
 		</Filter>

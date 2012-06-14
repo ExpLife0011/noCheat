@@ -2,6 +2,15 @@
 
 386_OBJECTS=\
  $(OBJ_PATH)\$O\ncdriver.obj \
+ $(OBJ_PATH)\$O\utils.obj \
+ $(OBJ_PATH)\$O\callbacks.obj \
+ $(OBJ_PATH)\$O\link.obj \
+ $(OBJ_PATH)\$O\unload.obj \
+ $(OBJ_PATH)\$O\mj_create.obj \
+ $(OBJ_PATH)\$O\mj_close.obj \
+ $(OBJ_PATH)\$O\mj_device_control.obj \
+ $(OBJ_PATH)\$O\mj_shutdown.obj \
+ $(OBJ_PATH)\$O\globals.obj \
 
 
 

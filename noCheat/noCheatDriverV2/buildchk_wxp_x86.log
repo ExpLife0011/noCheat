@@ -67,8 +67,15 @@ oacr invalidate root:x86chk /autocleanqueue
 1> /wd4627
 1> /typedil-
 1> /FIC:\WinDDK\7600.16385.1\inc\api\warning.h
-1> .\ncdriver.c 
+1> .\ncdriver.c .\callbacks.c .\link.c .\unload.c .\mj_close.c .\mj_device_control.c .\globals.c 
 1>ncdriver.c
+1>callbacks.c
+1>link.c
+1>unload.c
+1>mj_close.c
+1>mj_device_control.c
+1>globals.c
+1>Generating Code...
 1> C:\WinDDK\7600.16385.1\Bin\x86\oacr\oacrlink /out:c:\users\administrator\documents\nocheat\nocheat\nocheatdriverv2\objchk_wxp_x86\i386\ncDriver.sys /machine:ix86 @c:\users\administrator\documents\nocheat\nocheat\nocheatdriverv2\objchk_wxp_x86\i386\lnk.rsp
 1>Microsoft (R) Incremental Linker Version 9.00.30729.207
 1>Copyright (C) Microsoft Corporation.  All rights reserved.
@@ -97,6 +104,15 @@ oacr invalidate root:x86chk /autocleanqueue
 1>/entry:GsDriverEntry@8 
 1>/out:c:\users\administrator\documents\nocheat\nocheat\nocheatdriverv2\objchk_wxp_x86\i386\ncDriver.sys 
 1>c:\users\administrator\documents\nocheat\nocheat\nocheatdriverv2\objchk_wxp_x86\i386\ncdriver.obj 
+1>c:\users\administrator\documents\nocheat\nocheat\nocheatdriverv2\objchk_wxp_x86\i386\utils.obj 
+1>c:\users\administrator\documents\nocheat\nocheat\nocheatdriverv2\objchk_wxp_x86\i386\callbacks.obj 
+1>c:\users\administrator\documents\nocheat\nocheat\nocheatdriverv2\objchk_wxp_x86\i386\link.obj 
+1>c:\users\administrator\documents\nocheat\nocheat\nocheatdriverv2\objchk_wxp_x86\i386\unload.obj 
+1>c:\users\administrator\documents\nocheat\nocheat\nocheatdriverv2\objchk_wxp_x86\i386\mj_create.obj 
+1>c:\users\administrator\documents\nocheat\nocheat\nocheatdriverv2\objchk_wxp_x86\i386\mj_close.obj 
+1>c:\users\administrator\documents\nocheat\nocheat\nocheatdriverv2\objchk_wxp_x86\i386\mj_device_control.obj 
+1>c:\users\administrator\documents\nocheat\nocheat\nocheatdriverv2\objchk_wxp_x86\i386\mj_shutdown.obj 
+1>c:\users\administrator\documents\nocheat\nocheat\nocheatdriverv2\objchk_wxp_x86\i386\globals.obj 
 1>c:\winddk\7600.16385.1\lib\wxp\i386\BufferOverflowK.lib 
 1>c:\winddk\7600.16385.1\lib\wxp\i386\ntoskrnl.lib 
 1>c:\winddk\7600.16385.1\lib\wxp\i386\hal.lib 

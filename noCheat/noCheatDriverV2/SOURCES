@@ -5,5 +5,25 @@ TARGETPATH=obj
 
 INCLUDES=C:\WinDDK\7600.16385.1\inc\ddk
 
-HEADERS = ncDriverDefines.h
-SOURCES = ncDriver.c
+HEADERS = \
+	ncDriverDefines.h \
+	defines.h \
+	structures.h \
+	utils.h \
+	callbacks.h \
+	link.h \
+	globals.h \
+	irp.h \
+	unload.h
+
+SOURCES = \
+	ncDriver.c \
+	utils.c \
+	callbacks.c \
+	link.c \
+	unload.c \
+	mj_create.c \
+	mj_close.c \
+	mj_device_control.c \
+	mj_shutdown.c \
+	globals.c

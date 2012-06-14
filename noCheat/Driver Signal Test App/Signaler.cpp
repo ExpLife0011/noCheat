@@ -44,24 +44,24 @@ int main()
 	}
 
 
-	// Process connection
-	NC_CONNECT_INFO_R procNcr;
-	procNcr.iDSLinkVersion = NC_DS_LINK_VERSION;
-	procNcr.iNCConnectInfoRSize = sizeof(NC_CONNECT_INFO_R);
-	procNcr.iNCImageContainerSize = sizeof(NC_IMAGE_CONTAINER);
-	procNcr.iNCImageEventSize = sizeof(NC_IMAGE_EVENT);
-	procNcr.iNCProcessContainerSize = sizeof(NC_PROCESS_CONTAINER);
-	procNcr.iNCProcessEventSize = sizeof(NC_PROCESS_EVENT);
-	procNcr.pBuff = (unsigned __int64)&proc;
-	procNcr.iSecurityCode = NC_LINK_SEC_CODE;
+	//// Process connection
+	//NC_CONNECT_INFO_R procNcr;
+	//procNcr.iDSLinkVersion = NC_DS_LINK_VERSION;
+	//procNcr.iNCConnectInfoRSize = sizeof(NC_CONNECT_INFO_R);
+	//procNcr.iNCImageContainerSize = sizeof(NC_IMAGE_CONTAINER);
+	//procNcr.iNCImageEventSize = sizeof(NC_IMAGE_EVENT);
+	//procNcr.iNCProcessContainerSize = sizeof(NC_PROCESS_CONTAINER);
+	//procNcr.iNCProcessEventSize = sizeof(NC_PROCESS_EVENT);
+	//procNcr.pBuff = (unsigned __int64)&proc;
+	//procNcr.iSecurityCode = NC_LINK_SEC_CODE;
 
-	printf("Calling DeviceIoControl (process)\n");
-	suc = DeviceIoControl(device,NC_CONNECTION_CODE_PROCESSES,(LPVOID)&procNcr,sizeof(NC_CONNECT_INFO_R),(LPVOID)&procNcr,sizeof(NC_CONNECT_INFO_R),&dw,0);
-	if(!suc) {
-		printf("Could not dispatch driver link (process)! (%d)\n", GetLastError());
-		system("pause");
-		return 2;
-	}
+	//printf("Calling DeviceIoControl (process)\n");
+	//suc = DeviceIoControl(device,NC_CONNECTION_CODE_PROCESSES,(LPVOID)&procNcr,sizeof(NC_CONNECT_INFO_R),(LPVOID)&procNcr,sizeof(NC_CONNECT_INFO_R),&dw,0);
+	//if(!suc) {
+	//	printf("Could not dispatch driver link (process)! (%d)\n", GetLastError());
+	//	system("pause");
+	//	return 2;
+	//}
 
 	while(true)
 	{
