@@ -28,4 +28,9 @@ VOID ProcessCreateCallback(HANDLE ParentId, HANDLE ProcessId, BOOLEAN Create);
  */
 VOID ImageLoadCallback(PUNICODE_STRING FullImageName, HANDLE ProcessId, PIMAGE_INFO ImageInfo);
 
+/*
+ * Called when a bugcheck is triggered
+ */
+VOID BugCheckCallback(PVOID buffer, ULONG length);
+
 #endif

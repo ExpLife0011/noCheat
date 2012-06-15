@@ -6,6 +6,9 @@
 // Include DDK
 #include <ntddk.h>
 
+// Include aux-klib
+#include <Aux_klib.h>
+
 // Include driver headers
 #include "defines.h"
 #include "structures.h"
@@ -181,4 +184,35 @@ VOID ImageLoadCallback(PUNICODE_STRING FullImageName, HANDLE ProcessId, PIMAGE_I
 
 	// Log
 	LOG3("Image (%d): %wZ", ProcessId, FullImageName);
+}
+
+/*
+ * Called when a bugcheck is triggered
+ */
+VOID BugCheckCallback(PVOID buffer, ULONG length)
+{
+	// Setup Vars
+	NTSTATUS status;
+	KBUGCHECK_DATA bcData;
+	
+
+	// Get bug check data size
+	bcData.BugCheckDataSize = sizeof(bcData);
+
+	// Get data
+	status = AuxKlibInitialize();
+	if(!NT_SUCCESS(status))
+	{
+		LOG3("Could not initialize KLIB for BugCheck info!!!");
+		return;
+	}
+
+	status = AuxKlibGetBugCheckData(&bcData);
+	if(!NT_SUCCESS(status))
+	{
+		LOG3("Could not retrieve bugcheck data!!!");
+		return;
+	}
+
+
 }
