@@ -31,3 +31,8 @@ Quick References for Programmers
 Web API Information
 -------------------
 Each API url will be hardcoded (encrypted) into the service itself, and will communicate with noCheat
+
+Git Branch Workflow
+-------------------
+The Git Branching system will follow this workflow:
+http://nvie.com/posts/a-successful-git-branching-model/
