@@ -42,6 +42,9 @@ NTSTATUS DrvDevLink(IN PDEVICE_OBJECT device, IN PIRP Irp)
 		// Log
 		LOG2("Connection wants to map containers");
 
+		// Check if we have a connection already
+
+
 		// Assert size
 		NASSERT (pLoc->Parameters.DeviceIoControl.InputBufferLength == sizeof(struct NC_CONNECT_INFO_INPUT), goto WriteReturn);
 
@@ -50,6 +53,20 @@ NTSTATUS DrvDevLink(IN PDEVICE_OBJECT device, IN PIRP Irp)
 
 		// Memset returnInf
 		memset(&returnInf, 0, sizeof(struct NC_CONNECT_INFO_OUTPUT));
+
+		// Attempt to map return value
+		MAP_LINK("Return", inputInf->pReturnInfo, sSpaces.Return, inputInf->iReturnSize);
+
+		// Check to see if there is already another connection
+		if(sSpaces.bLink == 1)
+		{
+			// Set blocked and non-success
+			returnInf.bBlocked = 1;
+			returnInf.bSuccess = 0;
+
+			// Write and quit
+			goto WriteReturn;
+		}
 
 		// Verify link
 		ret = VerifyLink(inputInf);
@@ -66,7 +83,6 @@ NTSTATUS DrvDevLink(IN PDEVICE_OBJECT device, IN PIRP Irp)
 		}
 
 		// Try to map links
-		MAP_LINK("Return", inputInf->pReturnInfo, sSpaces.Return, inputInf->iReturnSize);
 		MAP_LINK("Images", inputInf->pImageLoadContainer, sSpaces.Images, inputInf->iImageContainerSize);
 		MAP_LINK("Processes", inputInf->pProcessCreateContainer, sSpaces.Processes, inputInf->iProcessContainerSize);
 
@@ -89,6 +105,9 @@ NTSTATUS DrvDevLink(IN PDEVICE_OBJECT device, IN PIRP Irp)
 
 		// Signal a success
 		returnInf.bSuccess = 1;
+
+		// Signal that we have a link
+		sSpaces.bLink = 1;
 
 		// Do a write check
 		memset(sSpaces.Images.oContainer, 1, sSpaces.Images.iSize);

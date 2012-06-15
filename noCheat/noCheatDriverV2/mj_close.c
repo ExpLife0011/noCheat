@@ -23,6 +23,9 @@ NTSTATUS DrvClose(IN PDEVICE_OBJECT obj, IN PIRP Irp)
 	// Unmap memory if need be
 	CloseLinks();
 
+	// Falsify link flag
+	sSpaces.bLink = 0;
+
 	// Complete request
 	Irp->IoStatus.Information = 0;
 	Irp->IoStatus.Status = 0;
