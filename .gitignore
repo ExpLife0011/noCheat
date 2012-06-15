@@ -1,7 +1,7 @@
 ############################################
 #                                          #
 #   noCheat .gitignore file                #
-#    /noCheat                              #
+#    /                                     #
 #                                          #
 #     Make sure to merge this with master  #
 #     when changes are made!               #
@@ -11,21 +11,11 @@
 *.*
 
 ################################
-# noCheat (Desktop App) Includes
+# noCheat (Root) Includes
+#  NOTE: These may be overridden
+#        by a deeper .gitignore!
 
-!*.sln
-!*.vcproj
-!*.cpp
-!*.c
-!*.hpp
-!*.h
-!*.asm
-!*.s
-!*.sys
-!MAKEFILE
-!SOURCES
-!*/obj*/*/*.pdb
-!*.md
 !*.gitignore
+!*.md
 
 ################################
