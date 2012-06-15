@@ -41,16 +41,6 @@ int main()
 	BOOL suc = DeviceIoControl(device, NC_CONNECTION_CODE, (LPVOID)&inp, sizeof(NC_CONNECT_INFO_INPUT), NULL, 0, &dw, 0);
 
 	printf("Return code: %d{%d,%d,%d}\n", returnInf.bSuccess, returnInf.bBlocked, returnInf.bAccessDenied, returnInf.bSizeMismatch);
-
-	// Validate write check
-	for(unsigned int i = 0; i < sizeof(image); i++)
-	{
-		if(((char*)&image)[i] != 1)
-		{
-			printf("Found non-1 (%d/%X)!\n", i, i);
-			break;
-		}
-	}
 	
 	// Memset back to 0
 	memset(&image, 0, sizeof(image));

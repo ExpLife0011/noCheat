@@ -16,6 +16,7 @@
 // Create our mapped space table
 struct NC_MAPPED_SPACE_TABLE
 {
+	unsigned char bLink;
 	MAPPED_SPACE(RETURN, NC_CONNECT_INFO_OUTPUT, Return)
 	MAPPED_SPACE(IMAGES, NC_IMAGE_CONTAINER, Images)
 	MAPPED_SPACE(PROCESSES, NC_PROCESS_CONTAINER, Processes)
