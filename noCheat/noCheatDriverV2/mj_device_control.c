@@ -109,9 +109,6 @@ NTSTATUS DrvDevLink(IN PDEVICE_OBJECT device, IN PIRP Irp)
 		// Signal that we have a link
 		sSpaces.bLink = 1;
 
-		// Do a write check
-		memset(sSpaces.Images.oContainer, 1, sSpaces.Images.iSize);
-
 WriteReturn:
 		// Check/write return information
 		if(sSpaces.Return.bMapped == 1)
