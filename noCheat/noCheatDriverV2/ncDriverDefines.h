@@ -45,6 +45,7 @@
  *	Formerly "EatStool" from V1
  */
 #define NC_LINK_SEC_CODE 0xEA757001
+//#define NC_LINK_SEC_CODE 0xB16DICCS //	The next sec code
 
 /*
  * A single image event object
