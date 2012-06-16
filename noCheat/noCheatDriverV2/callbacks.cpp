@@ -156,8 +156,11 @@ extern "C" VOID ImageLoadCallback(PUNICODE_STRING FullImageName, HANDLE ProcessI
 	// Check to see there is a link and return if there is not
 	if(sSpaces.Images.bMapped == 0) return;
 
+	// Setup pointer
+	NC_IMAGE_CONTAINER* oContainer = (NC_IMAGE_CONTAINER*) sSpaces.Images.oContainer;
+
 	// Check for overflow
-	if(sSpaces.Images.oContainer->iCount >= NC_EVENT_BACKLOG)
+	if(oContainer->iCount >= NC_EVENT_BACKLOG)
 	{
 		// Log and return
 		LOG2("Reached image event backlog limit!");
@@ -174,10 +177,10 @@ extern "C" VOID ImageLoadCallback(PUNICODE_STRING FullImageName, HANDLE ProcessI
 	MOVEANSI(ie.szImageName, FullImageName);
 
 	// Assign to memory
-	sSpaces.Images.oContainer->oEvents[sSpaces.Images.oContainer->iCount] = ie;
+	oContainer->oEvents[oContainer->iCount] = ie;
 
 	// Increment count
-	sSpaces.Images.oContainer->iCount = sSpaces.Images.oContainer->iCount + 1;
+	oContainer->iCount = oContainer->iCount + 1;
 
 	// Log
 	LOG3("Image (%d): %wZ", ProcessId, FullImageName);

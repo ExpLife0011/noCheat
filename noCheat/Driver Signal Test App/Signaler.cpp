@@ -40,10 +40,10 @@ int main()
 
 	BOOL suc = DeviceIoControl(device, NC_CONNECTION_CODE, (LPVOID)&inp, sizeof(NC_CONNECT_INFO_INPUT), NULL, 0, &dw, 0);
 
-	//printf("Return code: %d{%d,%d,%d}\n", returnInf.bSuccess, returnInf.bBlocked, returnInf.bAccessDenied, returnInf.bSizeMismatch);
+	printf("Return code: %d{%d,%d,%d}\n", returnInf.bSuccess, returnInf.bBlocked, returnInf.bAccessDenied, returnInf.bSizeMismatch);
 	
 	// Read test
-	for(int i = 0; i < sizeof(NC_IMAGE_CONTAINER); i++)
+	/*for(int i = 0; i < sizeof(NC_IMAGE_CONTAINER); i++)
 	{
 		printf(".");
 		if(((char*)&image)[i] != 1)
@@ -51,26 +51,26 @@ int main()
 			printf("Non-1: %X -> %X\n", &((char*)&image)[i-1], &((char*)&image)[i]);
 			break;
 		}
-	}
+	}*/
 
 	// Memset back to 0
 	memset(&image, 0, sizeof(image));
 
-	//while(true)
-	//{
-	//	if(image.iCount >= 8)
-	//	{
-	//		// Dump our memory to file
-	//		/*HANDLE f = CreateFile("MemDump.bin", GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
-	//		DWORD written;
-	//		WriteFile(f, &image.oEvents, sizeof(image.oEvents), &written, NULL);
-	//		CloseHandle(f);*/
+	while(true)
+	{
+		if(image.iCount > 0)
+		{
+			// Dump our memory to file
+			/*HANDLE f = CreateFile("MemDump.bin", GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+			DWORD written;
+			WriteFile(f, &image.oEvents, sizeof(image.oEvents), &written, NULL);
+			CloseHandle(f);*/
 
-	//		for(int i = 0; i < image.iCount; i++)
-	//			printf("Image (%d): %s\n", image.oEvents[i].iPID, image.oEvents[i].szImageName);
-	//		image.iCount = 0;
-	//	}else Sleep(1);
-	//}
+			for(int i = 0; i < image.iCount; i++)
+				printf("Image (%d): %s\n", image.oEvents[i].iPID, image.oEvents[i].szImageName);
+			image.iCount = 0;
+		}else Sleep(1);
+	}
 
 	printf("Closing handle\n");
 	CloseHandle(device);
