@@ -36,7 +36,7 @@
  *	errors start emerging about buffer sizes, then
  *	lower this number.
  */
-#define NC_EVENT_BACKLOG 25
+#define NC_EVENT_BACKLOG 100
 
 /*
  * Security code

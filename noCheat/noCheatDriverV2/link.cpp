@@ -86,6 +86,7 @@ extern "C" VOID TryMapLink(void* src, struct TEMP_MAP_PARAMS* dest, struct NC_CO
 	
 	// DEBUG test:
 	memset(buffer, 1, size);
+	((char*)buffer)[aSize-1] = 2;
 
 	// DEBUG: Unlock pages
 	MmUnlockPages(mdl);

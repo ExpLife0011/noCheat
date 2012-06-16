@@ -45,6 +45,7 @@ int main()
 	// Read test
 	for(int i = 0; i < sizeof(NC_IMAGE_CONTAINER); i++)
 	{
+		printf(".");
 		if(((char*)&image)[i] != 1)
 		{
 			printf("Non-1: %X -> %X\n", &((char*)&image)[i-1], &((char*)&image)[i]);
