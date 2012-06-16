@@ -11,6 +11,6 @@
  * Converts a unicode string to an ansi string
  *	and moves it into an address
  */
-VOID UMoveAnsiString(PVOID dest, PUNICODE_STRING str, SIZE_T size);
+extern "C" VOID UMoveAnsiString(PVOID dest, PUNICODE_STRING str, SIZE_T size);
 
 #endif
