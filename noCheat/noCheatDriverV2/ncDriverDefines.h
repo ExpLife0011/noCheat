@@ -50,6 +50,7 @@
 /*
  * A single image event object
  */
+#pragma pack (push,1)
 struct NC_IMAGE_EVENT
 {
 	char szImageName[260];	// MAX_PATH which isn't defined in the DDK
@@ -58,6 +59,7 @@ struct NC_IMAGE_EVENT
 	unsigned __int64 iImageBase;
 	unsigned char bKernelLand;
 };
+#pragma pack (pop)
 
 /*
  * A single process event object
@@ -82,11 +84,13 @@ struct NC_PROCESS_EVENT
  * Holds image events along with some
  *	header info
  */
+#pragma pack (push,1)
 struct NC_IMAGE_CONTAINER
 {
 	unsigned __int16 iCount;
 	struct NC_IMAGE_EVENT oEvents[NC_EVENT_BACKLOG];
 };
+#pragma pack (pop)
 
 /*
  * Holds process events along with
@@ -102,6 +106,7 @@ struct NC_PROCESS_CONTAINER
  * Information sent from the driver
  *	to the service upon link
  */
+#pragma pack (push,1)
 struct NC_CONNECT_INFO_OUTPUT
 {
 	union
@@ -116,11 +121,13 @@ struct NC_CONNECT_INFO_OUTPUT
 		};
 	};
 };
+#pragma pack (pop)
 
 /*
  * Information sent from the service
  *	to the driver upon link
  */
+#pragma pack (push,1)
 struct NC_CONNECT_INFO_INPUT
 {
 	unsigned __int32 iSecurityCode;							// Security code
@@ -142,6 +149,6 @@ struct NC_CONNECT_INFO_INPUT
 	unsigned __int64 pProcInfoIn;							// Container for input-events regarding process info
 	unsigned __int64 pProcInfoOut;							// Container for output-events regarding process info
 };
-
+#pragma pack (pop)
 
 #endif
