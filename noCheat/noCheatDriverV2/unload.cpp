@@ -16,7 +16,7 @@
  * DrvUnload
  *	Driver unload point
  */
-void DrvUnload(IN PDRIVER_OBJECT driver)
+extern "C" void DrvUnload(IN PDRIVER_OBJECT driver)
 {
 	// Setup vars
 	UNICODE_STRING devLink;

@@ -11,7 +11,7 @@
  *
  *	Fixes bug #9
  */
-NTSTATUS DrvCreate(IN PDEVICE_OBJECT obj, IN PIRP Irp)
+extern "C" NTSTATUS DrvCreate(IN PDEVICE_OBJECT obj, IN PIRP Irp)
 {
 	// Complete request
 	Irp->IoStatus.Information = 0;
