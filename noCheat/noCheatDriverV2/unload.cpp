@@ -32,6 +32,10 @@ extern "C" void DrvUnload(IN PDRIVER_OBJECT driver)
 	LOG2("Unregistering process-creation callback");
 	NC_PROCESSCREATE_NOTIFY(ProcessCreateCallback, 1);
 
+	// Destroy thread-creation callback
+	LOG2("Unregistering thread-creation callback");
+	PsRemoveCreateThreadNotifyRoutine((PCREATE_THREAD_NOTIFY_ROUTINE)&ThreadCreateCallback);
+
 	// Unmap memory if need be
 	CloseLinks();
 

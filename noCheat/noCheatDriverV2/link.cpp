@@ -118,4 +118,5 @@ extern "C" VOID CloseLinks()
 	UNMAP(Return);
 	UNMAP(Images);
 	UNMAP(Processes);
+	UNMAP(Threads);
 }

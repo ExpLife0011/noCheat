@@ -25,7 +25,7 @@ struct NC_MAPPED_SPACE_TABLE
 {
 	unsigned char bLink;
 
-	MAP_PARAMS Return, Images, Processes;
+	MAP_PARAMS Return, Images, Processes, Threads;
 };
 #pragma pack (pop)
 

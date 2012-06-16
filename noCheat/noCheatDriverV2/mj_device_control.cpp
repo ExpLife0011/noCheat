@@ -15,7 +15,7 @@
 #define MAP_LINK(name, src, dest, size) if(src > 0){ LOG2("Mapping space for: " name); TryMapLink((void*)src, &dest, &returnInf, size); }
 
 // Define a macro for size assertions
-#define CHECK_EVENT_SIZE(a, b) NASSERT((a == sizeof(struct b)), {returnInf.bSizeMismatch = 1; goto WriteReturn;})
+#define CHECK_NC_SIZE(a, b) NASSERT((a == sizeof(struct b)), {returnInf.bSizeMismatch = 1; goto WriteReturn;})
 
 /*
  * Called to initiate a link between the driver and a service
@@ -47,6 +47,15 @@ extern "C" NTSTATUS DrvDevLink(IN PDEVICE_OBJECT device, IN PIRP Irp)
 
 		// Setup input info
 		inputInf = (struct NC_CONNECT_INFO_INPUT*)Irp->AssociatedIrp.SystemBuffer;
+
+		// Check sizes
+		CHECK_NC_SIZE(inputInf->iImageEventSize, NC_IMAGE_EVENT);
+		CHECK_NC_SIZE(inputInf->iProcessEventSize, NC_PROCESS_EVENT);
+		CHECK_NC_SIZE(inputInf->iProcessContainerSize, NC_PROCESS_CONTAINER);
+		CHECK_NC_SIZE(inputInf->iImageContainerSize, NC_IMAGE_CONTAINER);
+		CHECK_NC_SIZE(inputInf->iThreadContainerSize, NC_THREAD_CONTAINER);
+		CHECK_NC_SIZE(inputInf->iThreadEventSize, NC_THREAD_EVENT);
+		CHECK_NC_SIZE(inputInf->iReturnSize, NC_CONNECT_INFO_OUTPUT);
 
 		// Memset returnInf
 		memset(&returnInf, 0, sizeof(struct NC_CONNECT_INFO_OUTPUT));
@@ -82,6 +91,7 @@ extern "C" NTSTATUS DrvDevLink(IN PDEVICE_OBJECT device, IN PIRP Irp)
 		// Try to map links
 		MAP_LINK("Images", inputInf->pImageLoadContainer, sSpaces.Images, inputInf->iImageContainerSize);
 		MAP_LINK("Processes", inputInf->pProcessCreateContainer, sSpaces.Processes, inputInf->iProcessContainerSize);
+		MAP_LINK("Threads", inputInf->pThreadCreateContainer, sSpaces.Threads, inputInf->iThreadContainerSize);
 
 		// Check sizes flag
 		if(returnInf.bSizeMismatch == 1)
@@ -95,10 +105,6 @@ extern "C" NTSTATUS DrvDevLink(IN PDEVICE_OBJECT device, IN PIRP Irp)
 			// End
 			break;
 		}
-
-		// Check event sizes
-		CHECK_EVENT_SIZE(inputInf->iImageEventSize, NC_IMAGE_EVENT);
-		CHECK_EVENT_SIZE(inputInf->iProcessEventSize, NC_PROCESS_EVENT);
 
 		// Signal a success
 		returnInf.bSuccess = 1;
