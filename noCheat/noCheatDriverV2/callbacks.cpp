@@ -18,7 +18,7 @@
  *	(EXTENDED)
  */
 #ifdef NC_PCN_EXTENDED
-VOID ProcessCreateCallback(PEPROCESS Process, HANDLE ProcessId, PPS_CREATE_NOTIFY_INFO CreateInfo)
+extern "C" VOID ProcessCreateCallback(PEPROCESS Process, HANDLE ProcessId, PPS_CREATE_NOTIFY_INFO CreateInfo)
 {
 	//// Setup vars
 	//struct NC_PROCESS_EVENT pe;
@@ -71,7 +71,7 @@ VOID ProcessCreateCallback(PEPROCESS Process, HANDLE ProcessId, PPS_CREATE_NOTIF
  *	(BASIC / PREVISTA)
  */
 #ifndef NC_PCN_EXTENDED
-VOID ProcessCreateCallback(HANDLE ParentId, HANDLE ProcessId, BOOLEAN Create)
+extern "C" VOID ProcessCreateCallback(HANDLE ParentId, HANDLE ProcessId, BOOLEAN Create)
 {
 	/*
 	// Setup vars
@@ -147,7 +147,7 @@ VOID ProcessCreateCallback(HANDLE ParentId, HANDLE ProcessId, BOOLEAN Create)
 /*
  * Called whenever an image (DLL or EXE) is loaded
  */
-VOID ImageLoadCallback(PUNICODE_STRING FullImageName, HANDLE ProcessId, PIMAGE_INFO ImageInfo)
+extern "C" VOID ImageLoadCallback(PUNICODE_STRING FullImageName, HANDLE ProcessId, PIMAGE_INFO ImageInfo)
 {
 	// Setup vars
 	struct NC_IMAGE_EVENT ie;

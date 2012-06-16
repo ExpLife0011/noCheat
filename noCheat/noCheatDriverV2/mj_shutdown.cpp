@@ -13,7 +13,7 @@
  * Called when the system shuts down or
  *	restarts
  */
-NTSTATUS SysShutdownRestart(IN PDEVICE_OBJECT device, IN PIRP Irp)
+extern "C" NTSTATUS SysShutdownRestart(IN PDEVICE_OBJECT device, IN PIRP Irp)
 {
 	// Log
 	LOG("System is shutting down/restarting. Killing driver...");

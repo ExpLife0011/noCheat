@@ -33,6 +33,9 @@
 #include "irp.h"			// IRP functions
 #include "unload.h"			// Unload point
 
+// Define entry as extern "C" for driver
+extern "C" NTSTATUS DriverEntry(IN PDRIVER_OBJECT driver, IN PUNICODE_STRING path);
+
 /*
  * DriverEntry
  *	Driver entry point

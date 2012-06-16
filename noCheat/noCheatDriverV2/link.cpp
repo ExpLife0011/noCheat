@@ -17,7 +17,7 @@
  *	Various security, version, and sizing/alignment
  *	checks are performed here.
  */
-char VerifyLink(struct NC_CONNECT_INFO_INPUT* ncRInf)
+extern "C" char VerifyLink(struct NC_CONNECT_INFO_INPUT* ncRInf)
 {
 	// Check security
 	if(ncRInf->iSecurityCode != NC_LINK_SEC_CODE)
@@ -50,15 +50,46 @@ char VerifyLink(struct NC_CONNECT_INFO_INPUT* ncRInf)
 /*
  * Tries to map a link
  */
-VOID TryMapLink(void* src, struct TEMP_MAP_PARAMS* dest, struct NC_CONNECT_INFO_OUTPUT* returnInf, int aSize, SIZE_T size)
+extern "C" VOID TryMapLink(void* src, struct TEMP_MAP_PARAMS* dest, struct NC_CONNECT_INFO_OUTPUT* returnInf, int aSize, SIZE_T size)
 {
+	// Setup variables
+	PMDL mdl;
+	void* buffer;
+
 	// Check size
 	NASSERT((aSize == size), {returnInf->bSizeMismatch = 1; return;});
 
 	LOG3("Mapping %d bytes", size);
 
 	// Attempt to map space
-	dest->oContainer = (void*)MmMapIoSpace(MmGetPhysicalAddress(src), size, 0);
+	//dest->oContainer = (void*)MmMapIoSpace(MmGetPhysicalAddress(src), size, 0);
+
+	// Get the mdl of the buffer space
+	mdl = IoAllocateMdl(src, size, 0, 0, NULL);
+	
+	// Check for null
+	if(mdl == NULL)
+	{
+		LOG3("Could not retrieve MDL list for buffer space!");
+		return;
+	}
+
+	// Lock and probe pages
+	MmProbeAndLockPages(mdl, UserMode, IoModifyAccess);
+
+	buffer = MmGetSystemAddressForMdlSafe(mdl, NormalPagePriority);
+	if(buffer == NULL) {
+		MmUnlockPages(mdl);
+		IoFreeMdl(mdl);
+		return;         
+	}
+	
+	// DEBUG test:
+	memset(buffer, 1, size);
+
+	// DEBUG: Unlock pages
+	MmUnlockPages(mdl);
+	IoFreeMdl(mdl);
 
 	// Check for null
 	if(dest->oContainer == NULL)
@@ -75,7 +106,7 @@ VOID TryMapLink(void* src, struct TEMP_MAP_PARAMS* dest, struct NC_CONNECT_INFO_
 /*
  * Nullifies all links
  */
-VOID CloseLinks()
+extern "C" VOID CloseLinks()
 {
 	// Setup vars
 	struct TEMP_MAP_PARAMS* p;

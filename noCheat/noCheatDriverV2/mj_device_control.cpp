@@ -20,7 +20,7 @@
 /*
  * Called to initiate a link between the driver and a service
  */
-NTSTATUS DrvDevLink(IN PDEVICE_OBJECT device, IN PIRP Irp)
+extern "C" NTSTATUS DrvDevLink(IN PDEVICE_OBJECT device, IN PIRP Irp)
 {
 	// Setup vars
 	PIO_STACK_LOCATION pLoc;
@@ -55,7 +55,7 @@ NTSTATUS DrvDevLink(IN PDEVICE_OBJECT device, IN PIRP Irp)
 		memset(&returnInf, 0, sizeof(struct NC_CONNECT_INFO_OUTPUT));
 
 		// Attempt to map return value
-		MAP_LINK("Return", inputInf->pReturnInfo, sSpaces.Return, inputInf->iReturnSize);
+		//MAP_LINK("Return", inputInf->pReturnInfo, sSpaces.Return, inputInf->iReturnSize);
 
 		// Check to see if there is already another connection
 		if(sSpaces.bLink == 1)
@@ -83,8 +83,8 @@ NTSTATUS DrvDevLink(IN PDEVICE_OBJECT device, IN PIRP Irp)
 		}
 
 		// Try to map links
-		MAP_LINK("Images", inputInf->pImageLoadContainer, sSpaces.Images, inputInf->iImageContainerSize);
-		MAP_LINK("Processes", inputInf->pProcessCreateContainer, sSpaces.Processes, inputInf->iProcessContainerSize);
+		//MAP_LINK("Images", inputInf->pImageLoadContainer, sSpaces.Images, inputInf->iImageContainerSize);
+		//MAP_LINK("Processes", inputInf->pProcessCreateContainer, sSpaces.Processes, inputInf->iProcessContainerSize);
 
 		// Check sizes flag
 		if(returnInf.bSizeMismatch == 1)
@@ -108,6 +108,9 @@ NTSTATUS DrvDevLink(IN PDEVICE_OBJECT device, IN PIRP Irp)
 
 		// Signal that we have a link
 		sSpaces.bLink = 1;
+
+		// Write test
+		//memset(sSpaces.Images.oContainer, 1, sSpaces.Images.iSize);
 
 WriteReturn:
 		// Check/write return information
