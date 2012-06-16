@@ -31,6 +31,6 @@ extern "C" VOID ImageLoadCallback(PUNICODE_STRING FullImageName, HANDLE ProcessI
 /*
  * Called when a bugcheck is triggered
  */
-VOID BugCheckCallback(PVOID buffer, ULONG length);
+extern "C" VOID BugCheckCallback(PVOID buffer, ULONG length);
 
 #endif
