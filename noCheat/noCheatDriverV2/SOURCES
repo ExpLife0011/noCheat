@@ -29,3 +29,4 @@ SOURCES = \
 	globals.cpp
 
 LFLAGS= /INTEGRITYCHECK
+CFLAGS= /EHa
