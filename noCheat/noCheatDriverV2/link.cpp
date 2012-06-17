@@ -12,12 +12,15 @@
 #include "structures.h"
 #include "globals.h"
 
+// Create unmap macro
+#define UNMAP(a) Unmap(&sSpaces.##a)
+
 /*
  * Verifies a link when the service connects.
  *	Various security, version, and sizing/alignment
  *	checks are performed here.
  */
-char VerifyLink(struct NC_CONNECT_INFO_INPUT* ncRInf)
+extern "C" char VerifyLink(NC_CONNECT_INFO_INPUT* ncRInf)
 {
 	// Check security
 	if(ncRInf->iSecurityCode != NC_LINK_SEC_CODE)
@@ -50,54 +53,67 @@ char VerifyLink(struct NC_CONNECT_INFO_INPUT* ncRInf)
 /*
  * Tries to map a link
  */
-VOID TryMapLink(void* src, struct TEMP_MAP_PARAMS* dest, struct NC_CONNECT_INFO_OUTPUT* returnInf, int aSize, SIZE_T size)
+extern "C" VOID TryMapLink(void* src, MAP_PARAMS* dest, NC_CONNECT_INFO_OUTPUT* returnInf, int aSize)
 {
-	// Check size
-	NASSERT((aSize == size), {returnInf->bSizeMismatch = 1; return;});
+	// Log
+	LOG3("Mapping %d bytes", aSize);
 
-	LOG3("Mapping %d bytes", size);
+	// Get the mdl of the buffer space
+	PMDL mdl = IoAllocateMdl(src, aSize, 0, 0, NULL);
+	
+	// Check for null
+	if(mdl == NULL)
+	{
+		LOG3("Could not retrieve MDL list for buffer space!");
+		return;
+	}
 
-	// Attempt to map space
-	dest->oContainer = (void*)MmMapIoSpace(MmGetPhysicalAddress(src), size, 0);
+	// Lock and probe pages
+	MmProbeAndLockPages(mdl, UserMode, IoModifyAccess);
+
+	// Get system addresses for MDL table and return our mapped buffer
+	dest->oContainer = MmGetSystemAddressForMdlSafe(mdl, NormalPagePriority);
 
 	// Check for null
 	if(dest->oContainer == NULL)
 	{
-		LOG3("Could not map IO space!");
-		return;
+		LOG3("Error getting physical mappings for virtual buffer!");
+		MmUnlockPages(mdl);
+		IoFreeMdl(mdl);
+		return;         
 	}
 
 	// Set parameters
 	dest->bMapped = 1;
-	dest->iSize = size;
+	dest->iSize = aSize;
+	dest->mdl = mdl;
+}
+
+/*
+ * Unmaps a single map param
+ */
+VOID Unmap(MAP_PARAMS* params)
+{
+	// Check if it's mapped
+	if(params->bMapped == 0) return;
+
+	// Unlock pages
+	MmUnlockPages(params->mdl);
+
+	// Free MDL
+	IoFreeMdl(params->mdl);
+
+	// Mark that it's unmapped
+	params->bMapped = 0;
 }
 
 /*
  * Nullifies all links
  */
-VOID CloseLinks()
+extern "C" VOID CloseLinks()
 {
-	// Setup vars
-	struct TEMP_MAP_PARAMS* p;
-	int total, i;
-
-	// Calculate total
-	total = sizeof(sSpaces) / sizeof(struct TEMP_MAP_PARAMS);
-
-	// Create feux pointer
-	p = (struct TEMP_MAP_PARAMS*)&sSpaces;
-
-	// Iterate through the table and turn off the Mapped flags
-	for(i = 0; i < total; i++)
-	{
-		// If it's mapped...
-		if(p[i].bMapped == 1)
-		{
-			// Unmap it
-			MmUnmapIoSpace(p[i].oContainer, (SIZE_T)p[i].iSize);
-
-			// Mark that it's unmapped
-			p[i].bMapped = 0;
-		}
-	}
+	UNMAP(Return);
+	UNMAP(Images);
+	UNMAP(Processes);
+	UNMAP(Threads);
 }

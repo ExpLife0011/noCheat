@@ -15,13 +15,19 @@
  *
  *	This does not transfer information.
  */
-NTSTATUS DrvClose(IN PDEVICE_OBJECT obj, IN PIRP Irp)
+extern "C" NTSTATUS DrvClose(PDEVICE_OBJECT obj, PIRP Irp)
 {
+	// Unreferenced Params
+	UNREFERENCED_PARAMETER(obj);
+
 	// Log
 	LOG3("Link is closing.");
 
 	// Unmap memory if need be
 	CloseLinks();
+
+	// Falsify link flag
+	sSpaces.bLink = 0;
 
 	// Complete request
 	Irp->IoStatus.Information = 0;

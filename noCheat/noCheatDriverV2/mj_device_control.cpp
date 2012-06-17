@@ -12,28 +12,31 @@
 #include "link.h"
 
 // Define our procedure for mapping
-#define MAP_LINK(name, src, dest, size) if(src > 0){ LOG2("Mapping space for: " name); TryMapLink((void*)src, (struct TEMP_MAP_PARAMS*)&dest, &returnInf, size, sizeof(*dest.oContainer)); }
+#define MAP_LINK(name, src, dest, size) if(src > 0){ LOG2("Mapping space for: " name); TryMapLink((void*)src, &dest, &returnInf, size); }
 
 // Define a macro for size assertions
-#define CHECK_EVENT_SIZE(a, b) NASSERT((a == sizeof(struct b)), {returnInf.bSizeMismatch = 1; goto WriteReturn;})
+
+#define CHECK_NC_SIZE(a, b) NASSERT((a == sizeof(struct b)), {returnInf.bSizeMismatch = 1; goto WriteReturn;})
 
 /*
  * Called to initiate a link between the driver and a service
  */
-NTSTATUS DrvDevLink(IN PDEVICE_OBJECT device, IN PIRP Irp)
+extern "C" NTSTATUS DrvDevLink(IN PDEVICE_OBJECT device, IN PIRP Irp)
 {
-	// Setup vars
-	PIO_STACK_LOCATION pLoc;
-	unsigned char* conBuff;
-	char ret;
-	struct NC_CONNECT_INFO_INPUT* inputInf;
-	struct NC_CONNECT_INFO_OUTPUT returnInf;
+	// Unreferenced Param
+	UNREFERENCED_PARAMETER(device);
 
 	// Log
 	LOG("Initiating link");
 
+	// Init return char
+	char ret;
+
 	// Get current stack location
-	pLoc = IoGetCurrentIrpStackLocation(Irp);
+	PIO_STACK_LOCATION pLoc = IoGetCurrentIrpStackLocation(Irp);
+	
+	// Setup input info
+	NC_CONNECT_INFO_INPUT* inputInf = (NC_CONNECT_INFO_INPUT*)Irp->AssociatedIrp.SystemBuffer;
 
 	// Switch code (intent)
 	switch(pLoc->Parameters.DeviceIoControl.IoControlCode)
@@ -43,13 +46,35 @@ NTSTATUS DrvDevLink(IN PDEVICE_OBJECT device, IN PIRP Irp)
 		LOG2("Connection wants to map containers");
 
 		// Assert size
-		NASSERT (pLoc->Parameters.DeviceIoControl.InputBufferLength == sizeof(struct NC_CONNECT_INFO_INPUT), goto WriteReturn);
+		NASSERT (pLoc->Parameters.DeviceIoControl.InputBufferLength == sizeof(NC_CONNECT_INFO_INPUT), goto WriteReturn);
 
-		// Setup input info
-		inputInf = (struct NC_CONNECT_INFO_INPUT*)Irp->AssociatedIrp.SystemBuffer;
+		// Setup output info
+		NC_CONNECT_INFO_OUTPUT returnInf;
 
-		// Memset returnInf
-		memset(&returnInf, 0, sizeof(struct NC_CONNECT_INFO_OUTPUT));
+		// Check size of return struct
+		CHECK_NC_SIZE(inputInf->iReturnSize, NC_CONNECT_INFO_OUTPUT);
+
+		// Attempt to map return value
+		MAP_LINK("Return", inputInf->pReturnInfo, sSpaces.Return, inputInf->iReturnSize);
+
+		// Check for existing connection
+		if(sSpaces.bLink == 1)
+		{
+			// Set blocked and non-success
+			returnInf.bBlocked = 1;
+			returnInf.bSuccess = 0;
+
+			// Write and quit
+			goto WriteReturn;
+		}
+
+		// Check sizes
+		CHECK_NC_SIZE(inputInf->iImageEventSize, NC_IMAGE_EVENT);
+		CHECK_NC_SIZE(inputInf->iProcessEventSize, NC_PROCESS_EVENT);
+		CHECK_NC_SIZE(inputInf->iProcessContainerSize, NC_PROCESS_CONTAINER);
+		CHECK_NC_SIZE(inputInf->iImageContainerSize, NC_IMAGE_CONTAINER);
+		CHECK_NC_SIZE(inputInf->iThreadContainerSize, NC_THREAD_CONTAINER);
+		CHECK_NC_SIZE(inputInf->iThreadEventSize, NC_THREAD_EVENT);
 
 		// Verify link
 		ret = VerifyLink(inputInf);
@@ -66,9 +91,9 @@ NTSTATUS DrvDevLink(IN PDEVICE_OBJECT device, IN PIRP Irp)
 		}
 
 		// Try to map links
-		MAP_LINK("Return", inputInf->pReturnInfo, sSpaces.Return, inputInf->iReturnSize);
 		MAP_LINK("Images", inputInf->pImageLoadContainer, sSpaces.Images, inputInf->iImageContainerSize);
 		MAP_LINK("Processes", inputInf->pProcessCreateContainer, sSpaces.Processes, inputInf->iProcessContainerSize);
+		MAP_LINK("Threads", inputInf->pThreadCreateContainer, sSpaces.Threads, inputInf->iThreadContainerSize);
 
 		// Check sizes flag
 		if(returnInf.bSizeMismatch == 1)
@@ -83,20 +108,19 @@ NTSTATUS DrvDevLink(IN PDEVICE_OBJECT device, IN PIRP Irp)
 			break;
 		}
 
-		// Check event sizes
-		CHECK_EVENT_SIZE(inputInf->iImageEventSize, NC_IMAGE_EVENT);
-		CHECK_EVENT_SIZE(inputInf->iProcessEventSize, NC_PROCESS_EVENT);
-
 		// Signal a success
 		returnInf.bSuccess = 1;
 
-		// Do a write check
-		memset(sSpaces.Images.oContainer, 1, sSpaces.Images.iSize);
+		// Signal that we have a link
+		sSpaces.bLink = 1;
 
 WriteReturn:
+		// Log
+		LOG3("Writing return information");
+
 		// Check/write return information
 		if(sSpaces.Return.bMapped == 1)
-			memcpy(sSpaces.Return.oContainer, &returnInf, sizeof(struct NC_CONNECT_INFO_OUTPUT));
+			memcpy(sSpaces.Return.oContainer, &returnInf, sizeof(NC_CONNECT_INFO_OUTPUT));
 
 		break;
 	default:

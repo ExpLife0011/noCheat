@@ -97,7 +97,7 @@
 				CleanCommandLine=""
 				Output=""
 				PreprocessorDefinitions=""
-				IncludeSearchPath=""
+				IncludeSearchPath="C:\WinDDK\7600.16385.1\inc\ddk"
 				ForcedIncludes=""
 				AssemblySearchPath=""
 				ForcedUsingAssemblies=""
@@ -114,46 +114,46 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath=".\callbacks.c"
+				RelativePath=".\callbacks.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\globals.c"
+				RelativePath=".\globals.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\link.c"
+				RelativePath=".\link.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\ncDriver.c"
+				RelativePath=".\ncDriver.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\unload.c"
+				RelativePath=".\unload.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\utils.c"
+				RelativePath=".\utils.cpp"
 				>
 			</File>
 			<Filter
 				Name="irp"
 				>
 				<File
-					RelativePath=".\mj_close.c"
+					RelativePath=".\mj_close.cpp"
 					>
 				</File>
 				<File
-					RelativePath=".\mj_create.c"
+					RelativePath=".\mj_create.cpp"
 					>
 				</File>
 				<File
-					RelativePath=".\mj_device_control.c"
+					RelativePath=".\mj_device_control.cpp"
 					>
 				</File>
 				<File
-					RelativePath=".\mj_shutdown.c"
+					RelativePath=".\mj_shutdown.cpp"
 					>
 				</File>
 			</Filter>

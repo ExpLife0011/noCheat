@@ -15,7 +15,7 @@ static const WCHAR devicename[] = L"\\Device\\noCheat";
 static const WCHAR devicelink[] = L"\\DosDevices\\NOCHEAT";
 
 // Setup mapped spaces
-extern struct NC_MAPPED_SPACE_TABLE sSpaces;
+extern "C" NC_MAPPED_SPACE_TABLE sSpaces;
 
 
 #endif

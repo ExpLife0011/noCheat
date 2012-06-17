@@ -15,16 +15,16 @@
  *	Various security, version, and sizing/alignment
  *	checks are performed here.
  */
-char VerifyLink(struct NC_CONNECT_INFO_INPUT* ncRInf);
+extern "C" char VerifyLink(NC_CONNECT_INFO_INPUT* ncRInf);
 
 /*
  * Tries to map a link
  */
-VOID TryMapLink(void* src, struct TEMP_MAP_PARAMS* dest, struct NC_CONNECT_INFO_OUTPUT* returnInf, int aSize, SIZE_T size);
+extern "C" VOID TryMapLink(void* src, MAP_PARAMS* dest, NC_CONNECT_INFO_OUTPUT* returnInf, int aSize);
 
 /*
  * Nullifies all links
  */
-VOID CloseLinks();
+extern "C" VOID CloseLinks();
 
 #endif

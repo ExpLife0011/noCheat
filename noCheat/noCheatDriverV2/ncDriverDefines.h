@@ -36,7 +36,7 @@
  *	errors start emerging about buffer sizes, then
  *	lower this number.
  */
-#define NC_EVENT_BACKLOG 25
+#define NC_EVENT_BACKLOG 50
 
 /*
  * Security code
@@ -50,6 +50,7 @@
 /*
  * A single image event object
  */
+#pragma pack (push,1)
 struct NC_IMAGE_EVENT
 {
 	char szImageName[260];	// MAX_PATH which isn't defined in the DDK
@@ -58,10 +59,12 @@ struct NC_IMAGE_EVENT
 	unsigned __int64 iImageBase;
 	unsigned char bKernelLand;
 };
+#pragma pack (pop)
 
 /*
  * A single process event object
  */
+#pragma pack (push,1)
 struct NC_PROCESS_EVENT
 {
 	unsigned char bExtended;
@@ -77,31 +80,60 @@ struct NC_PROCESS_EVENT
 		unsigned __int32 iUniqueThread;
 	} iCallingThread;
 };
+#pragma pack (pop)
+
+/*
+ * A single thread creation event object
+ */
+#pragma pack (push,1)
+struct NC_THREAD_EVENT
+{
+	unsigned __int32 iPID;
+	unsigned __int32 iThreadId;
+};
+#pragma pack (pop)
 
 /*
  * Holds image events along with some
  *	header info
  */
+#pragma pack (push,1)
 struct NC_IMAGE_CONTAINER
 {
 	unsigned __int16 iCount;
-	struct NC_IMAGE_EVENT oEvents[NC_EVENT_BACKLOG];
+	NC_IMAGE_EVENT oEvents[NC_EVENT_BACKLOG];
 };
+#pragma pack (pop)
 
 /*
  * Holds process events along with
  *	some header info
  */
+#pragma pack (push,1)
 struct NC_PROCESS_CONTAINER
 {
 	unsigned __int16 iCount;
-	struct NC_PROCESS_EVENT oEvents[NC_EVENT_BACKLOG];
+	NC_PROCESS_EVENT oEvents[5];
 };
+#pragma pack (pop)
+
+/*
+ * Holds thread events along with
+ *	some header info
+ */
+#pragma pack (push,1)
+struct NC_THREAD_CONTAINER
+{
+	unsigned __int16 iCount;
+	NC_THREAD_EVENT oEvents[NC_EVENT_BACKLOG/2];
+};
+#pragma pack (pop)
 
 /*
  * Information sent from the driver
  *	to the service upon link
  */
+#pragma pack (push,1)
 struct NC_CONNECT_INFO_OUTPUT
 {
 	union
@@ -116,11 +148,13 @@ struct NC_CONNECT_INFO_OUTPUT
 		};
 	};
 };
+#pragma pack (pop)
 
 /*
  * Information sent from the service
  *	to the driver upon link
  */
+#pragma pack (push,1)
 struct NC_CONNECT_INFO_INPUT
 {
 	unsigned __int32 iSecurityCode;							// Security code
@@ -130,6 +164,8 @@ struct NC_CONNECT_INFO_INPUT
 	unsigned __int32 iImageContainerSize;					// - NC_IMAGE_CONTAINER
 	unsigned __int32 iProcessEventSize;						// - NC_PROCESS_EVENT
 	unsigned __int32 iProcessContainerSize;					// - NC_PROCESS_CONTAINER
+	unsigned __int32 iThreadEventSize;						// - NC_THREAD_EVENT
+	unsigned __int32 iThreadContainerSize;					// - NC_THREAD_CONTAINER
 
 	unsigned __int16 iDSLinkVersion;						// Link protocol version	
 
@@ -142,6 +178,6 @@ struct NC_CONNECT_INFO_INPUT
 	unsigned __int64 pProcInfoIn;							// Container for input-events regarding process info
 	unsigned __int64 pProcInfoOut;							// Container for output-events regarding process info
 };
-
+#pragma pack (pop)
 
 #endif

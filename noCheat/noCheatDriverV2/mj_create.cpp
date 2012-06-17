@@ -11,8 +11,11 @@
  *
  *	Fixes bug #9
  */
-NTSTATUS DrvCreate(IN PDEVICE_OBJECT obj, IN PIRP Irp)
+extern "C" NTSTATUS DrvCreate(PDEVICE_OBJECT obj, PIRP Irp)
 {
+	// Unreferenced Params
+	UNREFERENCED_PARAMETER(obj);
+
 	// Complete request
 	Irp->IoStatus.Information = 0;
 	Irp->IoStatus.Status = 0;
