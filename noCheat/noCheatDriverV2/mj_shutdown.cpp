@@ -18,6 +18,8 @@ extern "C" NTSTATUS SysShutdownRestart(PDEVICE_OBJECT device, PIRP Irp)
 	// Log
 	LOG("System is shutting down/restarting. Killing driver...");
 
+	KeBugCheck(0xAC1D444);
+
 	// Call DrvUnload
 	DrvUnload(device->DriverObject);
 
