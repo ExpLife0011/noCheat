@@ -1,7 +1,7 @@
 ############################################
 #                                          #
 #   noCheat .gitignore file                #
-#    /                                     #
+#    /noCheat Web                          #
 #                                          #
 #     Make sure to merge this with master  #
 #     when changes are made!               #
@@ -12,11 +12,11 @@
 
 ################################
 # noCheat (Root) Includes
-#  NOTE: These may be overridden
-#        by a deeper .gitignore!
 
 !*.gitignore
 !*.md
+!*.properties
+!*.xml
 
 ################################
 /noCheat Web/nbproject/private/
