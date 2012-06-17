@@ -34,21 +34,14 @@
 #include "unload.h"			// Unload point
 
 // Define entry as extern "C" for driver
-extern "C" NTSTATUS DriverEntry(IN PDRIVER_OBJECT driver, IN PUNICODE_STRING path);
+extern "C" NTSTATUS DriverEntry(PDRIVER_OBJECT driver, PUNICODE_STRING path);
 
 /*
  * DriverEntry
  *	Driver entry point
  */
-NTSTATUS DriverEntry(IN PDRIVER_OBJECT driver, IN PUNICODE_STRING path)
+NTSTATUS DriverEntry(PDRIVER_OBJECT driver, PUNICODE_STRING path)
 {
-#pragma region Setup Vars
-	// Setup vars
-	UNICODE_STRING devLink, devName;
-	PDEVICE_OBJECT devObj = NULL;
-	NTSTATUS ntsReturn;
-#pragma endregion
-
 	// Log Entry
 	LOG("Driver Entry");
 
@@ -60,18 +53,20 @@ NTSTATUS DriverEntry(IN PDRIVER_OBJECT driver, IN PUNICODE_STRING path)
 
 	// Convert our strings to Unicode
 	LOG3("Converting device/link strings");
+	UNICODE_STRING devLink, devName;
 	RtlInitUnicodeString(&devLink, devicelink);
 	RtlInitUnicodeString(&devName, devicename);
 
 #pragma region Create Device	
 	// Check sizes
-	NASSERT ((256 >= sizeof(struct NC_CONNECT_INFO_INPUT)) && (256 >= sizeof(struct NC_CONNECT_INFO_OUTPUT)), goto ErrFreeUni);
+	NASSERT ((256 >= sizeof(NC_CONNECT_INFO_INPUT)) && (256 >= sizeof(NC_CONNECT_INFO_OUTPUT)), goto ErrFreeUni);
 	
 	// Log
 	LOG2("Creating Device");
 
 	// Create device
-	ntsReturn = IoCreateDevice(driver, 256, &devName, FILE_DEVICE_UNKNOWN, 0, TRUE, &devObj);
+	PDEVICE_OBJECT devObj;
+	NTSTATUS ntsReturn = IoCreateDevice(driver, 256, &devName, FILE_DEVICE_UNKNOWN, 0, TRUE, &devObj);
 
 	// Check the status of the device creation
 	if(ntsReturn == STATUS_SUCCESS)

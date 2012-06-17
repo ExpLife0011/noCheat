@@ -26,8 +26,14 @@ extern "C" NTSTATUS DrvDevLink(IN PDEVICE_OBJECT device, IN PIRP Irp)
 	// Log
 	LOG("Initiating link");
 
+	// Init return char
+	char ret;
+
 	// Get current stack location
 	PIO_STACK_LOCATION pLoc = IoGetCurrentIrpStackLocation(Irp);
+	
+	// Setup input info
+	NC_CONNECT_INFO_INPUT* inputInf = (NC_CONNECT_INFO_INPUT*)Irp->AssociatedIrp.SystemBuffer;
 
 	// Switch code (intent)
 	switch(pLoc->Parameters.DeviceIoControl.IoControlCode)
@@ -41,9 +47,6 @@ extern "C" NTSTATUS DrvDevLink(IN PDEVICE_OBJECT device, IN PIRP Irp)
 
 		// Setup output info
 		NC_CONNECT_INFO_OUTPUT returnInf;
-
-		// Setup input info
-		NC_CONNECT_INFO_INPUT* inputInf = (NC_CONNECT_INFO_INPUT*)Irp->AssociatedIrp.SystemBuffer;
 
 		// Check sizes
 		CHECK_NC_SIZE(inputInf->iImageEventSize, NC_IMAGE_EVENT);
@@ -72,7 +75,7 @@ extern "C" NTSTATUS DrvDevLink(IN PDEVICE_OBJECT device, IN PIRP Irp)
 		}
 
 		// Verify link
-		char ret = VerifyLink(inputInf);
+		ret = VerifyLink(inputInf);
 
 		// Test Verification
 		if(ret == 1)

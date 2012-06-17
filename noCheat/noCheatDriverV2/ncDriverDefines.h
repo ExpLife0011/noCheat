@@ -101,7 +101,7 @@ struct NC_THREAD_EVENT
 struct NC_IMAGE_CONTAINER
 {
 	unsigned __int16 iCount;
-	struct NC_IMAGE_EVENT oEvents[NC_EVENT_BACKLOG];
+	NC_IMAGE_EVENT oEvents[NC_EVENT_BACKLOG];
 };
 #pragma pack (pop)
 
@@ -113,7 +113,7 @@ struct NC_IMAGE_CONTAINER
 struct NC_PROCESS_CONTAINER
 {
 	unsigned __int16 iCount;
-	struct NC_PROCESS_EVENT oEvents[5];
+	NC_PROCESS_EVENT oEvents[5];
 };
 #pragma pack (pop)
 

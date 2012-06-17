@@ -7,4 +7,4 @@
 #include "globals.h"
 
 // Setup mapped spaces
-struct NC_MAPPED_SPACE_TABLE sSpaces;
+NC_MAPPED_SPACE_TABLE sSpaces;

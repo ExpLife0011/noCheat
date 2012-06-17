@@ -16,11 +16,8 @@
  * DrvUnload
  *	Driver unload point
  */
-extern "C" void DrvUnload(IN PDRIVER_OBJECT driver)
+extern "C" void DrvUnload(PDRIVER_OBJECT driver)
 {
-	// Setup vars
-	UNICODE_STRING devLink;
-
 	// Log entry
 	LOG("Unloading driver");
 
@@ -40,6 +37,7 @@ extern "C" void DrvUnload(IN PDRIVER_OBJECT driver)
 	CloseLinks();
 
 	// Convert devlink string
+	UNICODE_STRING devLink;
 	RtlInitUnicodeString(&devLink, devicelink);
 
 	// Delete symlink
