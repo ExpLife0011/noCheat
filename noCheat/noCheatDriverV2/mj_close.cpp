@@ -15,7 +15,7 @@
  *
  *	This does not transfer information.
  */
-extern "C" NTSTATUS DrvClose(IN PDEVICE_OBJECT obj, IN PIRP Irp)
+extern "C" NTSTATUS DrvClose(PDEVICE_OBJECT obj, PIRP Irp)
 {
 	// Log
 	LOG3("Link is closing.");

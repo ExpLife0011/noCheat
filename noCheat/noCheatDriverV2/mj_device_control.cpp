@@ -15,25 +15,18 @@
 #define MAP_LINK(name, src, dest, size) if(src > 0){ LOG2("Mapping space for: " name); TryMapLink((void*)src, &dest, &returnInf, size); }
 
 // Define a macro for size assertions
-#define CHECK_EVENT_SIZE(a, b) NASSERT((a == sizeof(struct b)), {returnInf.bSizeMismatch = 1; goto WriteReturn;})
+#define CHECK_EVENT_SIZE(a, b) NASSERT((a == sizeof(b)), {returnInf.bSizeMismatch = 1; goto WriteReturn;})
 
 /*
  * Called to initiate a link between the driver and a service
  */
 extern "C" NTSTATUS DrvDevLink(IN PDEVICE_OBJECT device, IN PIRP Irp)
 {
-	// Setup vars
-	PIO_STACK_LOCATION pLoc;
-	unsigned char* conBuff;
-	char ret;
-	struct NC_CONNECT_INFO_INPUT* inputInf;
-	struct NC_CONNECT_INFO_OUTPUT returnInf;
-
 	// Log
 	LOG("Initiating link");
 
 	// Get current stack location
-	pLoc = IoGetCurrentIrpStackLocation(Irp);
+	PIO_STACK_LOCATION pLoc = IoGetCurrentIrpStackLocation(Irp);
 
 	// Switch code (intent)
 	switch(pLoc->Parameters.DeviceIoControl.IoControlCode)
@@ -43,13 +36,16 @@ extern "C" NTSTATUS DrvDevLink(IN PDEVICE_OBJECT device, IN PIRP Irp)
 		LOG2("Connection wants to map containers");
 
 		// Assert size
-		NASSERT (pLoc->Parameters.DeviceIoControl.InputBufferLength == sizeof(struct NC_CONNECT_INFO_INPUT), goto WriteReturn);
+		NASSERT (pLoc->Parameters.DeviceIoControl.InputBufferLength == sizeof(NC_CONNECT_INFO_INPUT), goto WriteReturn);
+
+		// Setup output info
+		NC_CONNECT_INFO_OUTPUT returnInf;
 
 		// Setup input info
-		inputInf = (struct NC_CONNECT_INFO_INPUT*)Irp->AssociatedIrp.SystemBuffer;
+		NC_CONNECT_INFO_INPUT* inputInf = (NC_CONNECT_INFO_INPUT*)Irp->AssociatedIrp.SystemBuffer;
 
 		// Memset returnInf
-		memset(&returnInf, 0, sizeof(struct NC_CONNECT_INFO_OUTPUT));
+		memset(&returnInf, 0, sizeof(NC_CONNECT_INFO_OUTPUT));
 
 		// Attempt to map return value
 		MAP_LINK("Return", inputInf->pReturnInfo, sSpaces.Return, inputInf->iReturnSize);
@@ -66,7 +62,7 @@ extern "C" NTSTATUS DrvDevLink(IN PDEVICE_OBJECT device, IN PIRP Irp)
 		}
 
 		// Verify link
-		ret = VerifyLink(inputInf);
+		char ret = VerifyLink(inputInf);
 
 		// Test Verification
 		if(ret == 1)
@@ -112,7 +108,7 @@ WriteReturn:
 
 		// Check/write return information
 		if(sSpaces.Return.bMapped == 1)
-			memcpy(sSpaces.Return.oContainer, &returnInf, sizeof(struct NC_CONNECT_INFO_OUTPUT));
+			memcpy(sSpaces.Return.oContainer, &returnInf, sizeof(NC_CONNECT_INFO_OUTPUT));
 
 		break;
 	default:
