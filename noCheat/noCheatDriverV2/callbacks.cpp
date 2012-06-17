@@ -20,48 +20,45 @@
 #ifdef NC_PCN_EXTENDED
 extern "C" VOID ProcessCreateCallback(PEPROCESS Process, HANDLE ProcessId, PPS_CREATE_NOTIFY_INFO CreateInfo)
 {
-	//// Setup vars
-	//struct NC_PROCESS_EVENT pe;
-	//struct NC_PROCESS_CONTAINER* pProcessEvents;
+	// Setup pointer
+	NC_PROCESS_CONTAINER* pProcessEvents = (NC_PROCESS_CONTAINER*)sSpaces.Processes.oContainer;
 
-	//// Setup pointer
-	//pProcessEvents = (struct NC_PROCESS_CONTAINER*)sSpaces.Process.pAddr;
+	// Check to see if there is a link and return if there is not
+	if(sSpaces.Processes.bMapped == 0) return;
 
-	//// Check to see if there is a link and return if there is not
-	//if(sSpaces.Process.bMapped == 0) return;
+	// Check for overflow
+	if(pProcessEvents->iCount >= NC_EVENT_BACKLOG)
+	{
+		// Log and return
+		LOG2("Reached process creation event backlog limit!");
+		return;
+	}
 
-	//// Check for overflow
-	//if(pProcessEvents->iCount >= NC_EVENT_BACKLOG)
-	//{
-	//	// Log and return
-	//	LOG2("Reached process creation event backlog limit!");
-	//	return;
-	//}
+	// Set up new process object
+	NC_PROCESS_EVENT pe;
+	pe.bExtended = 1;
+	pe.iPID = (unsigned __int32)ProcessId;
+	pe.iCallingThread.iUniqueProcess = (unsigned __int32)CreateInfo->CreatingThreadId.UniqueProcess;
+	pe.iCallingThread.iUniqueThread = (unsigned __int32)CreateInfo->CreatingThreadId.UniqueThread;
+	pe.iParentPID = (unsigned __int32)CreateInfo->ParentProcessId;
+	
+	// Get Process File Name
+	MOVEANSI(pe.szProcessFileName, (PUNICODE_STRING)CreateInfo->ImageFileName);
 
-	//// Set up new process object
-	//pe.bExtended = 1;
-	//pe.iPID = (unsigned __int32)ProcessId;
-	//pe.iCallingThread.iUniqueProcess = (unsigned __int32)CreateInfo->CreatingThreadId.UniqueProcess;
-	//pe.iCallingThread.iUniqueThread = (unsigned __int32)CreateInfo->CreatingThreadId.UniqueThread;
-	//pe.iParentPID = (unsigned __int32)CreateInfo->ParentProcessId;
-	//
-	//// Get Process File Name	
-	//MOVEANSI(pe.szProcessFileName, (PUNICODE_STRING)CreateInfo->ImageFileName);
+	// Get Command Line
+	MOVEANSI(pe.szCommandLine, (PUNICODE_STRING)CreateInfo->CommandLine);
 
-	//// Get Command Line
-	//MOVEANSI(pe.szCommandLine, (PUNICODE_STRING)CreateInfo->CommandLine);
+	// Get Image Name
+	MOVEANSI(pe.szFileName, &CreateInfo->FileObject->FileName);
 
-	//// Get Image Name
-	//MOVEANSI(pe.szFileName, &CreateInfo->FileObject->FileName);
+	// Assign to memory
+	pProcessEvents->oEvents[pProcessEvents->iCount] = pe;
 
-	//// Assign to memory
-	//pProcessEvents->oEvents[pProcessEvents->iCount] = pe;
-
-	//// Increment count
-	//pProcessEvents->iCount = pProcessEvents->iCount + 1;
+	// Increment count
+	pProcessEvents->iCount = pProcessEvents->iCount + 1;
 
 	// Log
-	//LOG("ProcessEX (%d <- %d)", pe.iParentPID, pe.iPID);
+	LOG("ProcessEX (%d <- %d)", pe.iPID, pe.iParentPID);
 }
 
 #endif
@@ -73,19 +70,14 @@ extern "C" VOID ProcessCreateCallback(PEPROCESS Process, HANDLE ProcessId, PPS_C
 #ifndef NC_PCN_EXTENDED
 extern "C" VOID ProcessCreateCallback(HANDLE ParentId, HANDLE ProcessId, BOOLEAN Create)
 {
-	/*
-	// Setup vars
-	struct NC_PROCESS_EVENT pe;
-	struct NC_PROCESS_CONTAINER* pProcessEvents;
-
 	// Setup pointer
-	pProcessEvents = (struct NC_PROCESS_CONTAINER*)sSpaces.Process.pAddr;
+	NC_PROCESS_CONTAINER* pProcessEvents = (NC_PROCESS_CONTAINER*)sSpaces.Processes.oContainer;
 
 	// Check to see if the process is being destroyed and return if so
 	if(!Create) return;
 
 	// Check to see if there is a link and return if there is not
-	if(sSpaces.Process.bMapped == 0) return;
+	if(sSpaces.Processes.bMapped == 0) return;
 
 	// Check for overflow
 	if(pProcessEvents->iCount >= NC_EVENT_BACKLOG)
@@ -96,6 +88,7 @@ extern "C" VOID ProcessCreateCallback(HANDLE ParentId, HANDLE ProcessId, BOOLEAN
 	}
 
 	// Set up new process object
+	NC_PROCESS_EVENT pe;
 	pe.bExtended = 0;
 	pe.iPID = (unsigned __int32)ProcessId;
 	pe.iParentPID = (unsigned __int32)ParentId;
@@ -104,7 +97,7 @@ extern "C" VOID ProcessCreateCallback(HANDLE ParentId, HANDLE ProcessId, BOOLEAN
 	pProcessEvents->oEvents[pProcessEvents->iCount] = pe;
 
 	// Increment count
-	pProcessEvents->iCount = pProcessEvents->iCount + 1;*/
+	pProcessEvents->iCount = pProcessEvents->iCount + 1;
 
 	// Print
 	LOG("Process (%d <- %d)", ProcessId, ParentId);
@@ -112,47 +105,11 @@ extern "C" VOID ProcessCreateCallback(HANDLE ParentId, HANDLE ProcessId, BOOLEAN
 
 #endif
 
-//VOID Dump()
-//{
-//	HANDLE file;
-//	OBJECT_ATTRIBUTES attr;
-//	UNICODE_STRING str;
-//	IO_STATUS_BLOCK ios;
-//	LARGE_INTEGER as;
-//	struct NC_IMAGE_CONTAINER ic;
-//	int i;
-//
-//	// memcpy
-//	memcpy(&ic, sSpaces.Images.oContainer, sizeof(struct NC_IMAGE_CONTAINER));
-//
-//	// Dump to dbg
-//	for(i = 0; i < ic.iCount; i++)
-//	{
-//		LOG3("DUMP: %d, %s", ic.oEvents[i].iPID, ic.oEvents[i].szImageName);
-//	}
-//
-//	as.QuadPart = (LONGLONG)(sizeof(struct NC_IMAGE_CONTAINER) + 1);
-//
-//	RtlInitUnicodeString(&str, L"\\DosDevices\\C:\\kdump.bin");
-//
-//	InitializeObjectAttributes(&attr, &str, OBJ_EXCLUSIVE, NULL, NULL);
-//
-//	ZwCreateFile(&file, FILE_WRITE_DATA, &attr, &ios, &as, FILE_ATTRIBUTE_NORMAL, 0, FILE_SUPERSEDE, FILE_NON_DIRECTORY_FILE, (void*)NULL, 0);
-//
-//	ZwWriteFile(file, NULL, NULL, NULL, &ios, &ic, sizeof(struct NC_IMAGE_CONTAINER), 0, NULL);
-//
-//	ZwClose(file);
-//}
-
 /*
  * Called whenever an image (DLL or EXE) is loaded
  */
 extern "C" VOID ImageLoadCallback(PUNICODE_STRING FullImageName, HANDLE ProcessId, PIMAGE_INFO ImageInfo)
 {
-	// Setup vars
-	struct NC_IMAGE_EVENT ie;
-	unsigned int offset;
-
 	// Check to see there is a link and return if there is not
 	if(sSpaces.Images.bMapped == 0) return;
 
@@ -168,6 +125,7 @@ extern "C" VOID ImageLoadCallback(PUNICODE_STRING FullImageName, HANDLE ProcessI
 	}
 
 	// Set up a new image object
+	NC_IMAGE_EVENT ie;
 	ie.iPID = (unsigned __int32)ProcessId;
 	ie.bKernelLand = (unsigned char)ImageInfo->SystemModeImage;
 	ie.iImageBase = (unsigned __int64)ImageInfo->ImageBase;
@@ -185,3 +143,35 @@ extern "C" VOID ImageLoadCallback(PUNICODE_STRING FullImageName, HANDLE ProcessI
 	// Log
 	LOG3("Image (%d): %wZ", ProcessId, FullImageName);
 }
+
+/*
+ * Called when a thread is created
+ *	or destroyed
+ */
+extern "C" VOID ThreadCreateCallback(HANDLE ProcessId, HANDLE ThreadId, BOOLEAN Create)
+{
+	// Check to see if it's a creation
+	if(!Create) return;
+
+	// Check to see if threads are mapped
+	if(sSpaces.Threads.bMapped == 0) return;
+
+	// Setup pointer
+	NC_THREAD_CONTAINER* oContainer = (NC_THREAD_CONTAINER*)sSpaces.Threads.oContainer;
+
+	// Create new thread event
+	NC_THREAD_EVENT te;
+
+	// Populate event
+	te.iPID = (unsigned __int32) ProcessId;
+	te.iThreadId = (unsigned __int32) ThreadId;
+
+	// Assign event
+	oContainer->oEvents[oContainer->iCount] = te;
+
+	// Increment amount
+	oContainer->iCount += 1;
+
+	// Log
+	LOG("Thread %d <- %d", ThreadId, ProcessId);
+};

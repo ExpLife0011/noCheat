@@ -12,7 +12,7 @@
  * DrvUnload
  *	Driver unload point
  */
-extern "C" void DrvUnload(IN PDRIVER_OBJECT driver);
+extern "C" void DrvUnload(PDRIVER_OBJECT driver);
 
 
 #endif

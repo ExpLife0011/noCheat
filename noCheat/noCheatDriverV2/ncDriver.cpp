@@ -34,20 +34,16 @@
 #include "unload.h"			// Unload point
 
 // Define entry as extern "C" for driver
-extern "C" NTSTATUS DriverEntry(IN PDRIVER_OBJECT driver, IN PUNICODE_STRING path);
+extern "C" NTSTATUS DriverEntry(PDRIVER_OBJECT driver, PUNICODE_STRING path);
 
 /*
  * DriverEntry
  *	Driver entry point
  */
-NTSTATUS DriverEntry(IN PDRIVER_OBJECT driver, IN PUNICODE_STRING path)
+NTSTATUS DriverEntry(PDRIVER_OBJECT driver, PUNICODE_STRING path)
 {
-#pragma region Setup Vars
-	// Setup vars
-	UNICODE_STRING devLink, devName;
-	PDEVICE_OBJECT devObj = NULL;
-	NTSTATUS ntsReturn;
-#pragma endregion
+	// Unreferenced Param
+	UNREFERENCED_PARAMETER(path);
 
 	// Log Entry
 	LOG("Driver Entry");
@@ -60,21 +56,23 @@ NTSTATUS DriverEntry(IN PDRIVER_OBJECT driver, IN PUNICODE_STRING path)
 
 	// Convert our strings to Unicode
 	LOG3("Converting device/link strings");
+	UNICODE_STRING devLink, devName;
 	RtlInitUnicodeString(&devLink, devicelink);
 	RtlInitUnicodeString(&devName, devicename);
 
 #pragma region Create Device	
 	// Check sizes
-	NASSERT ((256 >= sizeof(struct NC_CONNECT_INFO_INPUT)) && (256 >= sizeof(struct NC_CONNECT_INFO_OUTPUT)), goto ErrFreeUni);
+	NASSERT ((256 >= sizeof(NC_CONNECT_INFO_INPUT)) && (256 >= sizeof(NC_CONNECT_INFO_OUTPUT)), goto ErrFreeUni);
 	
 	// Log
 	LOG2("Creating Device");
 
 	// Create device
-	ntsReturn = IoCreateDevice(driver, 256, &devName, FILE_DEVICE_UNKNOWN, 0, TRUE, &devObj);
+	PDEVICE_OBJECT devObj;
+	NTSTATUS ntsReturn = IoCreateDevice(driver, 256, &devName, FILE_DEVICE_UNKNOWN, 0, TRUE, &devObj);
 
 	// Check the status of the device creation
-	if(ntsReturn == STATUS_SUCCESS)
+	if(NT_SUCCESS(ntsReturn))
 	{
 		// Log
 		LOG2("Successfully created IO Device");
@@ -108,7 +106,7 @@ NTSTATUS DriverEntry(IN PDRIVER_OBJECT driver, IN PUNICODE_STRING path)
 	ntsReturn = IoCreateSymbolicLink(&devLink, &devName);
 	
 	// Test return
-	if(ntsReturn == STATUS_SUCCESS)
+	if(NT_SUCCESS(ntsReturn))
 	{
 		LOG2("Successfully created symlink to device");
 	}else{
@@ -137,29 +135,45 @@ NTSTATUS DriverEntry(IN PDRIVER_OBJECT driver, IN PUNICODE_STRING path)
 	}
 #pragma endregion
 
-//#pragma region Setup Process Creation Callback
-//	// Setup process creation callback
-//	ntsReturn = NC_PROCESSCREATE_NOTIFY(ProcessCreateCallback, 0);
-//
-//	// Check return
-//	switch(ntsReturn)
-//	{
-//	case STATUS_SUCCESS:
-//		LOG2("Registered Process Creation Callback Successfully!");
-//		break;
-//	case STATUS_INVALID_PARAMETER:
-//		LOG2("Could not register process creation callback: Invalid Parameter (Already registered? Too many registrations?)");
-//		goto ErrUnregIL;
-//#ifdef NC_PCN_EXTENDED
-//	case STATUS_ACCESS_DENIED:
-//		LOG2("Could not register process creation callback: Access Denied");
-//		goto ErrUnregIL;
-//#endif
-//	default:
-//		LOG2("Could not register process creation callback: Unknown error");
-//		goto ErrUnregIL;
-//	}
-//#pragma endregion
+#pragma region Setup Process Creation Callback
+	// Setup process creation callback
+	ntsReturn = NC_PROCESSCREATE_NOTIFY(ProcessCreateCallback, 0);
+
+	// Check return
+	switch(ntsReturn)
+	{
+	case STATUS_SUCCESS:
+		LOG2("Registered Process Creation Callback Successfully!");
+		break;
+	case STATUS_INVALID_PARAMETER:
+		LOG2("Could not register process creation callback: Invalid Parameter (Already registered? Too many registrations?)");
+		goto ErrUnregIL;
+#ifdef NC_PCN_EXTENDED
+	case STATUS_ACCESS_DENIED:
+		LOG2("Could not register process creation callback: Access Denied");
+		goto ErrUnregIL;
+#endif
+	default:
+		LOG2("Could not register process creation callback: Unknown error");
+		goto ErrUnregIL;
+	}
+#pragma endregion
+
+#pragma region Setup Thread Creation Callback
+	// Setup thread creation callback
+	ntsReturn = PsSetCreateThreadNotifyRoutine((PCREATE_THREAD_NOTIFY_ROUTINE)&ThreadCreateCallback);
+
+	// Check return
+	switch(ntsReturn)
+	{
+	case STATUS_SUCCESS:
+		LOG2("Registered Thread Creatino Callback Successfully!");
+		break;
+	default:
+		LOG2("Could not register thread creation callback: Unknown error");
+		goto ErrUnregProcess;
+	}
+#pragma endregion
 
 	// Setup major functions
 	driver->MajorFunction[IRP_MJ_CLOSE] = DrvClose;
@@ -174,6 +188,9 @@ goto Success;
 /*---
  * START ERROR BLOCK *
 				  ---*/
+ErrUnregProcess: // Occurs when the thread creation callback fails
+PsRemoveCreateThreadNotifyRoutine((PCREATE_THREAD_NOTIFY_ROUTINE)&ThreadCreateCallback);
+
 ErrUnregIL: // Occurs when the process creation callback fails
 PsRemoveLoadImageNotifyRoutine((PLOAD_IMAGE_NOTIFY_ROUTINE)&ImageLoadCallback);
 

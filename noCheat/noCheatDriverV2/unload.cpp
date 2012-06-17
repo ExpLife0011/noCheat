@@ -16,11 +16,8 @@
  * DrvUnload
  *	Driver unload point
  */
-extern "C" void DrvUnload(IN PDRIVER_OBJECT driver)
+extern "C" void DrvUnload(PDRIVER_OBJECT driver)
 {
-	// Setup vars
-	UNICODE_STRING devLink;
-
 	// Log entry
 	LOG("Unloading driver");
 
@@ -32,10 +29,15 @@ extern "C" void DrvUnload(IN PDRIVER_OBJECT driver)
 	LOG2("Unregistering process-creation callback");
 	NC_PROCESSCREATE_NOTIFY(ProcessCreateCallback, 1);
 
+	// Destroy thread-creation callback
+	LOG2("Unregistering thread-creation callback");
+	PsRemoveCreateThreadNotifyRoutine((PCREATE_THREAD_NOTIFY_ROUTINE)&ThreadCreateCallback);
+
 	// Unmap memory if need be
 	CloseLinks();
 
 	// Convert devlink string
+	UNICODE_STRING devLink;
 	RtlInitUnicodeString(&devLink, devicelink);
 
 	// Delete symlink

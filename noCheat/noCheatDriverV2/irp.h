@@ -13,24 +13,24 @@
  *
  *	Fixes bug #9
  */
-extern "C" NTSTATUS DrvCreate(IN PDEVICE_OBJECT obj, IN PIRP Irp);
+extern "C" NTSTATUS DrvCreate(PDEVICE_OBJECT obj, PIRP Irp);
 
 /*
  * Called when a device disconnects
  *
  *	This does not transfer information.
  */
-extern "C" NTSTATUS DrvClose(IN PDEVICE_OBJECT obj, IN PIRP Irp);
+extern "C" NTSTATUS DrvClose(PDEVICE_OBJECT obj, PIRP Irp);
 
 /*
  * Called to initiate a link between the driver and a service
  */
-extern "C" NTSTATUS DrvDevLink(IN PDEVICE_OBJECT device, IN PIRP Irp);
+extern "C" NTSTATUS DrvDevLink(PDEVICE_OBJECT device, PIRP Irp);
 
 /*
  * Called when the system shuts down or
  *	restarts
  */
-extern "C" NTSTATUS SysShutdownRestart(IN PDEVICE_OBJECT device, IN PIRP Irp);
+extern "C" NTSTATUS SysShutdownRestart(PDEVICE_OBJECT device, PIRP Irp);
 
 #endif

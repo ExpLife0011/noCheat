@@ -33,4 +33,11 @@ extern "C" VOID ImageLoadCallback(PUNICODE_STRING FullImageName, HANDLE ProcessI
  */
 extern "C" VOID BugCheckCallback(PVOID buffer, ULONG length);
 
+/*
+ * Called when a thread is created
+ *	or destroyed
+ */
+extern "C" VOID ThreadCreateCallback(HANDLE ProcessId, HANDLE ThreadId, BOOLEAN Create);
+
+
 #endif
