@@ -20,7 +20,7 @@
  *	Various security, version, and sizing/alignment
  *	checks are performed here.
  */
-extern "C" char VerifyLink(struct NC_CONNECT_INFO_INPUT* ncRInf)
+extern "C" char VerifyLink(NC_CONNECT_INFO_INPUT* ncRInf)
 {
 	// Check security
 	if(ncRInf->iSecurityCode != NC_LINK_SEC_CODE)
@@ -53,16 +53,13 @@ extern "C" char VerifyLink(struct NC_CONNECT_INFO_INPUT* ncRInf)
 /*
  * Tries to map a link
  */
-extern "C" VOID TryMapLink(void* src, struct MAP_PARAMS* dest, struct NC_CONNECT_INFO_OUTPUT* returnInf, int aSize)
+extern "C" VOID TryMapLink(void* src, MAP_PARAMS* dest, NC_CONNECT_INFO_OUTPUT* returnInf, int aSize)
 {
-	// Setup variables
-	PMDL mdl;
-
 	// Log
 	LOG3("Mapping %d bytes", aSize);
 
 	// Get the mdl of the buffer space
-	mdl = IoAllocateMdl(src, aSize, 0, 0, NULL);
+	PMDL mdl = IoAllocateMdl(src, aSize, 0, 0, NULL);
 	
 	// Check for null
 	if(mdl == NULL)

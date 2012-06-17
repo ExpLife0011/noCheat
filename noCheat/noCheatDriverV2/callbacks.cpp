@@ -20,12 +20,8 @@
 #ifdef NC_PCN_EXTENDED
 extern "C" VOID ProcessCreateCallback(PEPROCESS Process, HANDLE ProcessId, PPS_CREATE_NOTIFY_INFO CreateInfo)
 {
-	// Setup vars
-	struct NC_PROCESS_EVENT pe;
-	struct NC_PROCESS_CONTAINER* pProcessEvents;
-
 	// Setup pointer
-	pProcessEvents = (struct NC_PROCESS_CONTAINER*)sSpaces.Processes.oContainer;
+	NC_PROCESS_CONTAINER* pProcessEvents = (NC_PROCESS_CONTAINER*)sSpaces.Processes.oContainer;
 
 	// Check to see if there is a link and return if there is not
 	if(sSpaces.Processes.bMapped == 0) return;
@@ -39,6 +35,7 @@ extern "C" VOID ProcessCreateCallback(PEPROCESS Process, HANDLE ProcessId, PPS_C
 	}
 
 	// Set up new process object
+	NC_PROCESS_EVENT pe;
 	pe.bExtended = 1;
 	pe.iPID = (unsigned __int32)ProcessId;
 	pe.iCallingThread.iUniqueProcess = (unsigned __int32)CreateInfo->CreatingThreadId.UniqueProcess;
@@ -73,13 +70,8 @@ extern "C" VOID ProcessCreateCallback(PEPROCESS Process, HANDLE ProcessId, PPS_C
 #ifndef NC_PCN_EXTENDED
 extern "C" VOID ProcessCreateCallback(HANDLE ParentId, HANDLE ProcessId, BOOLEAN Create)
 {
-	
-	// Setup vars
-	struct NC_PROCESS_EVENT pe;
-	struct NC_PROCESS_CONTAINER* pProcessEvents;
-
 	// Setup pointer
-	pProcessEvents = (NC_PROCESS_CONTAINER*)sSpaces.Processes.oContainer;
+	NC_PROCESS_CONTAINER* pProcessEvents = (NC_PROCESS_CONTAINER*)sSpaces.Processes.oContainer;
 
 	// Check to see if the process is being destroyed and return if so
 	if(!Create) return;
@@ -96,6 +88,7 @@ extern "C" VOID ProcessCreateCallback(HANDLE ParentId, HANDLE ProcessId, BOOLEAN
 	}
 
 	// Set up new process object
+	NC_PROCESS_EVENT pe;
 	pe.bExtended = 0;
 	pe.iPID = (unsigned __int32)ProcessId;
 	pe.iParentPID = (unsigned __int32)ParentId;
@@ -117,10 +110,6 @@ extern "C" VOID ProcessCreateCallback(HANDLE ParentId, HANDLE ProcessId, BOOLEAN
  */
 extern "C" VOID ImageLoadCallback(PUNICODE_STRING FullImageName, HANDLE ProcessId, PIMAGE_INFO ImageInfo)
 {
-	// Setup vars
-	struct NC_IMAGE_EVENT ie;
-	unsigned int offset;
-
 	// Check to see there is a link and return if there is not
 	if(sSpaces.Images.bMapped == 0) return;
 
@@ -136,6 +125,7 @@ extern "C" VOID ImageLoadCallback(PUNICODE_STRING FullImageName, HANDLE ProcessI
 	}
 
 	// Set up a new image object
+	NC_IMAGE_EVENT ie;
 	ie.iPID = (unsigned __int32)ProcessId;
 	ie.bKernelLand = (unsigned char)ImageInfo->SystemModeImage;
 	ie.iImageBase = (unsigned __int64)ImageInfo->ImageBase;
