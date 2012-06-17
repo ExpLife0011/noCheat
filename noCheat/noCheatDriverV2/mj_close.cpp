@@ -17,6 +17,9 @@
  */
 extern "C" NTSTATUS DrvClose(PDEVICE_OBJECT obj, PIRP Irp)
 {
+	// Unreferenced Params
+	UNREFERENCED_PARAMETER(obj);
+
 	// Log
 	LOG3("Link is closing.");
 
