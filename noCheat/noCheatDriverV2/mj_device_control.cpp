@@ -51,22 +51,13 @@ extern "C" NTSTATUS DrvDevLink(IN PDEVICE_OBJECT device, IN PIRP Irp)
 		// Setup output info
 		NC_CONNECT_INFO_OUTPUT returnInf;
 
-		// Check sizes
-		CHECK_NC_SIZE(inputInf->iImageEventSize, NC_IMAGE_EVENT);
-		CHECK_NC_SIZE(inputInf->iProcessEventSize, NC_PROCESS_EVENT);
-		CHECK_NC_SIZE(inputInf->iProcessContainerSize, NC_PROCESS_CONTAINER);
-		CHECK_NC_SIZE(inputInf->iImageContainerSize, NC_IMAGE_CONTAINER);
-		CHECK_NC_SIZE(inputInf->iThreadContainerSize, NC_THREAD_CONTAINER);
-		CHECK_NC_SIZE(inputInf->iThreadEventSize, NC_THREAD_EVENT);
+		// Check size of return struct
 		CHECK_NC_SIZE(inputInf->iReturnSize, NC_CONNECT_INFO_OUTPUT);
-
-		// Memset returnInf
-		memset(&returnInf, 0, sizeof(NC_CONNECT_INFO_OUTPUT));
 
 		// Attempt to map return value
 		MAP_LINK("Return", inputInf->pReturnInfo, sSpaces.Return, inputInf->iReturnSize);
 
-		// Check to see if there is already another connection
+		// Check for existing connection
 		if(sSpaces.bLink == 1)
 		{
 			// Set blocked and non-success
@@ -76,6 +67,14 @@ extern "C" NTSTATUS DrvDevLink(IN PDEVICE_OBJECT device, IN PIRP Irp)
 			// Write and quit
 			goto WriteReturn;
 		}
+
+		// Check sizes
+		CHECK_NC_SIZE(inputInf->iImageEventSize, NC_IMAGE_EVENT);
+		CHECK_NC_SIZE(inputInf->iProcessEventSize, NC_PROCESS_EVENT);
+		CHECK_NC_SIZE(inputInf->iProcessContainerSize, NC_PROCESS_CONTAINER);
+		CHECK_NC_SIZE(inputInf->iImageContainerSize, NC_IMAGE_CONTAINER);
+		CHECK_NC_SIZE(inputInf->iThreadContainerSize, NC_THREAD_CONTAINER);
+		CHECK_NC_SIZE(inputInf->iThreadEventSize, NC_THREAD_EVENT);
 
 		// Verify link
 		ret = VerifyLink(inputInf);
