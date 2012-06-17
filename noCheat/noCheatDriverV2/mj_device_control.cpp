@@ -23,6 +23,9 @@
  */
 extern "C" NTSTATUS DrvDevLink(IN PDEVICE_OBJECT device, IN PIRP Irp)
 {
+	// Unreferenced Param
+	UNREFERENCED_PARAMETER(device);
+
 	// Log
 	LOG("Initiating link");
 

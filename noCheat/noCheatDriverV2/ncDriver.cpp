@@ -42,6 +42,9 @@ extern "C" NTSTATUS DriverEntry(PDRIVER_OBJECT driver, PUNICODE_STRING path);
  */
 NTSTATUS DriverEntry(PDRIVER_OBJECT driver, PUNICODE_STRING path)
 {
+	// Unreferenced Param
+	UNREFERENCED_PARAMETER(path);
+
 	// Log Entry
 	LOG("Driver Entry");
 
