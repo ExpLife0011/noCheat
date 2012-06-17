@@ -28,4 +28,10 @@ extern "C" VOID ProcessCreateCallback(HANDLE ParentId, HANDLE ProcessId, BOOLEAN
  */
 extern "C" VOID ImageLoadCallback(PUNICODE_STRING FullImageName, HANDLE ProcessId, PIMAGE_INFO ImageInfo);
 
+/*
+ * Called when a thread is created
+ *	or destroyed
+ */
+extern "C" VOID ThreadCreateCallback(HANDLE ProcessId, HANDLE ThreadId, BOOLEAN Create);
+
 #endif

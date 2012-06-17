@@ -64,6 +64,7 @@ struct NC_IMAGE_EVENT
 /*
  * A single process event object
  */
+#pragma pack (push,1)
 struct NC_PROCESS_EVENT
 {
 	unsigned char bExtended;
@@ -79,6 +80,18 @@ struct NC_PROCESS_EVENT
 		unsigned __int32 iUniqueThread;
 	} iCallingThread;
 };
+#pragma pack (pop)
+
+/*
+ * A single thread creation event object
+ */
+#pragma pack (push,1)
+struct NC_THREAD_EVENT
+{
+	unsigned __int32 iPID;
+	unsigned __int32 iThreadId;
+};
+#pragma pack (pop)
 
 /*
  * Holds image events along with some
@@ -96,11 +109,25 @@ struct NC_IMAGE_CONTAINER
  * Holds process events along with
  *	some header info
  */
+#pragma pack (push,1)
 struct NC_PROCESS_CONTAINER
 {
 	unsigned __int16 iCount;
-	struct NC_PROCESS_EVENT oEvents[NC_EVENT_BACKLOG];
+	struct NC_PROCESS_EVENT oEvents[5];
 };
+#pragma pack (pop)
+
+/*
+ * Holds thread events along with
+ *	some header info
+ */
+#pragma pack (push,1)
+struct NC_THREAD_CONTAINER
+{
+	unsigned __int16 iCount;
+	NC_THREAD_EVENT oEvents[NC_EVENT_BACKLOG/2];
+};
+#pragma pack (pop)
 
 /*
  * Information sent from the driver
@@ -137,6 +164,8 @@ struct NC_CONNECT_INFO_INPUT
 	unsigned __int32 iImageContainerSize;					// - NC_IMAGE_CONTAINER
 	unsigned __int32 iProcessEventSize;						// - NC_PROCESS_EVENT
 	unsigned __int32 iProcessContainerSize;					// - NC_PROCESS_CONTAINER
+	unsigned __int32 iThreadEventSize;						// - NC_THREAD_EVENT
+	unsigned __int32 iThreadContainerSize;					// - NC_THREAD_CONTAINER
 
 	unsigned __int16 iDSLinkVersion;						// Link protocol version	
 
