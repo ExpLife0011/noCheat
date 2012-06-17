@@ -69,7 +69,7 @@ NTSTATUS DriverEntry(PDRIVER_OBJECT driver, PUNICODE_STRING path)
 	NTSTATUS ntsReturn = IoCreateDevice(driver, 256, &devName, FILE_DEVICE_UNKNOWN, 0, TRUE, &devObj);
 
 	// Check the status of the device creation
-	if(ntsReturn == STATUS_SUCCESS)
+	if(NT_SUCCESS(ntsReturn))
 	{
 		// Log
 		LOG2("Successfully created IO Device");
@@ -103,7 +103,7 @@ NTSTATUS DriverEntry(PDRIVER_OBJECT driver, PUNICODE_STRING path)
 	ntsReturn = IoCreateSymbolicLink(&devLink, &devName);
 	
 	// Test return
-	if(ntsReturn == STATUS_SUCCESS)
+	if(NT_SUCCESS(ntsReturn))
 	{
 		LOG2("Successfully created symlink to device");
 	}else{
