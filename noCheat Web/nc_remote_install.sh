@@ -22,8 +22,8 @@ cp -r ./nctemp/Front/* ./domains/tk.nochea.install/
 
 # Move all .NCT files to the template folder
 echo -e " - Move template files to NCT folder"
-mkdir ./domains/tk.nochea.install/nct
-find ./domains/tk.nochea.install -type f -name "*.nct" -print0 | xargs -0 -I {} mv {} ./domains/tk.nochea.install/nct
+mkdir ./domains/tk.nochea.install/src/nct
+find ./domains/tk.nochea.install -type f -name "*.nct" -print0 | xargs -0 -I {} mv {} ./domains/tk.nochea.install/src/nct
 
 # Install directory
 echo -e " - Staging new installation"

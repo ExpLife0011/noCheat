@@ -8,17 +8,17 @@
 define("N_MYSQL_HOST", "localhost");
 
 # MySQL General User
-define("N_MYSQL_USER", "natogac1_site1vb");
+define("N_MYSQL_USER", "natogac1_kj3fa9d");
 
 # MySQL General Password
-define("N_MYSQL_PASS", "j(F#jD<F3CVn");
+define("N_MYSQL_PASS", "K{&t[~*v&wxp");
 
 # MySQL Database Definitions:
 
 # - Locale
-define("N_DB_LOCALE", "natogac1_n_locale");
+//define("N_DB_LOCALE", "natogac1_n_locale");
 
 # - ID
-define("N_DB_ID", "natogac1_n_id");
+define("N_DB_ID", "natogac1_nc_id");
 
 ?>

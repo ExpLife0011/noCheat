@@ -10,6 +10,15 @@ define("N_D_WARN",                      2);
 define("N_D_ALL",                       3);
 
 # Define some basic constants (NATOGA.COM)
+if(strstr($_SERVER['HTTP_HOST'], "nochea.tk") > -1) {
+define("N_DEBUG",                       "N_D_NONE");
+define("N_SRC_PATH",                    "/home/natogac1/domains/tk.nochea/src");
+define("N_DOMAIN_PATH",                 "/home/natogac1/domains/tk.nochea");
+define("N_DOMAINS",                     "/home/natogac1/domains");
+define("N_BASE",                        "/home/natogac1");
+}
+
+# Define some basic constants (NATOGA.COM)
 if(strstr($_SERVER['HTTP_HOST'], "natoga.com") > -1) {
 define("N_DEBUG",                       "N_D_NONE");
 define("N_SRC_PATH",                    "/home/natogac1/domains/com.natoga/src");
