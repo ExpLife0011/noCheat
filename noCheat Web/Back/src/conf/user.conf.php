@@ -14,5 +14,5 @@ define("N_AUTH_NO_EMAIL",               -2);
 define("N_AUTH_BAD_PASS",               -3);
 
 # Global password hash salt
-define("N_GLOB_PASSHASH",               "k∟8J.3(#2┘Vaˆ4°╫KÉ}░!¿#3Mä┐Ñs");
+define("N_GLOB_PASSHASH",               "jk*F#h#┌3√*±8+4f8G$(((╒");
 ?>
