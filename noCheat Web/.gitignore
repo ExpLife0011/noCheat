@@ -17,6 +17,7 @@
 !*.md
 !*.properties
 !*.xml
+!*.sh
 
 ################################
 /noCheat Web/nbproject/private/
