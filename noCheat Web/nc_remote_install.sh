@@ -27,6 +27,7 @@ find ./domains/tk.nochea.install -type f -name "*.nct" -print0 | xargs -0 -I {} 
 
 # Install directory
 echo -e " - Staging new installation"
+rm -r ./domains/tk.nochea.old
 mv ./domains/tk.nochea ./domains/tk.nochea.old
 mv ./domains/tk.nochea.install ./domains/tk.nochea
 
