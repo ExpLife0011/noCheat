@@ -7,7 +7,7 @@
  */
 
 # Template default directory
-define("N_TEMPLATE_DIR",        N_SRC_PATH . "/template");
+define("N_TEMPLATE_DIR",        N_SRC_PATH . "/nct");
 
 # Delimiters
 define("N_TEMPLATE_LDELIM",     "#");

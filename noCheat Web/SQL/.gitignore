@@ -1,0 +1,21 @@
+############################################
+#                                          #
+#   noCheat .gitignore file                #
+#    /noCheat Web/SQL                      #
+#                                          #
+#     Make sure to merge this with master  #
+#     when changes are made!               #
+#                                          #
+############################################
+
+*.*
+
+################################
+# noCheat (Root) Includes
+
+!*.gitignore
+!*.md
+!*.sql
+
+################################
+/noCheat Web/nbproject/private/
