@@ -6,6 +6,6 @@
 # Get the engine
 require_once("n.php");
 
-echo "Moving servers, please bear with us!"
+echo "Go away, cheater!";
 
 ?>

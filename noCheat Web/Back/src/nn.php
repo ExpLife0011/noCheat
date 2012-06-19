@@ -1,12 +1,13 @@
 <?php
 
 /*
- * Natoga Framework
+ * Natoga Framework (modded for noCheat)
  * 
  * This script starts up the Natoga Framework.
  * 
  * Please ref:
  * https://sourceforge.net/p/natoga/home/Uploading_Process
+ * https://github.com/Qix-/noCheat/issues/43
  */
 
 # Call Base Init
